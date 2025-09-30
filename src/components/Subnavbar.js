@@ -48,9 +48,12 @@ export default function SubNavbar() {
         <select className="scb2" id="options" onChange={(e) => handleSelect(e.target.value)}>
           <option value="Review">Report</option>
           <option value="performance">Performance</option>
-          <option value="Miscelaneous">TeamBuild</option>
-          {userRole !== 'BE' && <option value="hygine">Hygine</option>}
-          {userRole !== 'BE' && userRole !== 'BM' && <option value="compliance">Compliance</option>}
+         <option value="Miscelaneous">
+  {userRole === "BE" || userRole==='TE' ||userRole === "BM" ? "Efforts" : "TeamBuild"}
+</option>
+
+          {userRole !== 'BE' && userRole!=='TE' && <option value="hygine">Hygine</option>}
+          {userRole !== 'BE' && userRole!=='TE' &&  userRole !== 'BM' && <option value="compliance">Compliance</option>}
           <option value="Chats">Todo</option>
           <option value="Escalating">Commit</option>
         </select>
@@ -59,11 +62,16 @@ export default function SubNavbar() {
       <div className="tabs7">
         <li><Link to={`/profile/${name}/Review`}>Report</Link></li>
         <li><Link to={`/profile/${name}/Performance`}>Performance</Link></li>
-        <li><Link to={`/profile/${name}/TeamBuild`}>TeamBuild</Link></li>
-        {userRole !== 'BE' && (
+    <li>
+  <Link to={`/profile/${name}/TeamBuild`}>
+    {userRole === "BE" || userRole==='TE' || userRole === "BM" ? "Efforts" : "TeamBuild"}
+  </Link>
+</li>
+
+        {userRole !== 'BE' && userRole!=='TE' && (
           <li><Link to={`/profile/${name}/Hygine`}>Hygine</Link></li>
         )}
-        {userRole !== 'BE' && userRole !== 'BM' && (
+        {userRole !== 'BE' && userRole!=='TE' && userRole !== 'BM' && (
           <li><Link to={`/profile/${name}/Compliance`}>Compliance</Link></li>
         )}
 
@@ -82,6 +90,7 @@ export default function SubNavbar() {
           ?
         </button>
       </div>
+      <p style={{textAlign:'center'}}>{name}</p>
 
       {/* ✅ Modal inside SubNavbar */}
       {showModal1 && (

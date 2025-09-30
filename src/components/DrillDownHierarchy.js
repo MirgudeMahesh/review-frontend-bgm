@@ -8,7 +8,7 @@ const DrillDownHierarchy = () => {
   useEffect(() => {
     if (!empterr) return;
 
-    fetch(`https://review-module-backend-3.onrender.com/hierarchy`, {
+    fetch(`http://localhost:8000/hierarchy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ empterr })

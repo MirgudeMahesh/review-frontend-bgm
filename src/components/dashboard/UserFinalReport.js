@@ -27,7 +27,7 @@ export default function UserFinalReport() {
 
 
       <div className="table-box">
-        {userRole === 'BE' && (
+        {(userRole === 'BE' ) && (
           <div className="table-container">
             {name && <Subnavbar />}
             <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
@@ -54,18 +54,7 @@ export default function UserFinalReport() {
                   <td>57%</td>
                   <td>75</td>
                 </tr>
-                <tr>
-                  <td>Compliance and Reporting</td>
-                  <td>23</td>
-                  <td>#REF!</td>
-                  <td>92</td>
-                </tr>
-                <tr>
-                  <td>Business Hygiene and Demand Quality</td>
-                  <td>20</td>
-                  <td>#REF!</td>
-                  <td>81</td>
-                </tr>
+               
                 <tr className="shade">
                   <td>Efficiency Index</td>
                   <td>24</td>
@@ -106,12 +95,7 @@ export default function UserFinalReport() {
                   <td>57%</td>
                   <td>75</td>
                 </tr>
-                <tr>
-                  <td>Compliance and Reporting</td>
-                  <td>23</td>
-                  <td>#REF!</td>
-                  <td>92</td>
-                </tr>
+              
                 <tr>
                   <td>Business Hygiene and Demand Quality</td>
                   <td>20</td>

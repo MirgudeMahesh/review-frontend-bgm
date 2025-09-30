@@ -37,7 +37,7 @@ export default function Escalating() {
         
       };
       // try {
-        const response = await fetch('https://review-module-backend-3.onrender.com/putEscalations', {
+        const response = await fetch('http://localhost:8000/putEscalations', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

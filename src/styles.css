@@ -651,6 +651,10 @@ border:1px solid black;
   border-radius: 10px;
   margin: auto;
 }
+.send-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .table-container6 {
  

@@ -197,7 +197,7 @@ const Home = () => {
 
         )}
 
-        {role === 'be' && (
+        {(role === 'be' || role==='te') && (
          
 
 

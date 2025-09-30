@@ -18,9 +18,11 @@ function Selection() {
     setUserRole('');
    
     localStorage.removeItem('empterr');   
-    localStorage.removeItem('empcode');
+    localStorage.removeItem('empcde');
      localStorage.removeItem('territory');
-    
+     localStorage.removeItem('empByteCode');
+
+    localStorage.removeItem('selectedTerritory');
     navigate('/', { replace: true });
   };
   return (

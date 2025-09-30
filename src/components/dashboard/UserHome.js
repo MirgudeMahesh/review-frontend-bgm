@@ -35,7 +35,7 @@ const UserHome = () => {
 
             <div className="table-container">
                 {name && <Subnavbar/>}
-              <h1 style={{ textAlign: 'center' }}>Bussiness Performance</h1>
+              <h3 style={{ textAlign: 'center' }}>Bussiness Performance</h3>
               <table className="custom-table">
                 <thead>
                   <tr>
@@ -45,50 +45,51 @@ const UserHome = () => {
                     <th>YTD(%)</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>Target Ach</td>
-                    <td>100%</td>
-                    <td>alice</td>
-                    <td>88</td>
-                  </tr>
-                  <tr>
-                    <td>Secondary Gr%</td>
-                    <td>22</td>
-                    <td>bob</td>
-                    <td>75</td>
-                  </tr>
-                  <tr>
-                    <td>Span of Performance</td>
-                    <td>23</td>
-                    <td>charlie</td>
-                    <td>92</td>
-                  </tr>
-                  <tr>
-                    <td>Dr.Conversion(Self Prio)</td>
-                    <td>20</td>
-                    <td>diana</td>
-                    <td>81</td>
-                  </tr>
-                  <tr>
-                    <td>%Gr in Rxer</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>% of Viable Terr</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr className='shade'>
-                    <td>Performance Score</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                </tbody>
+              <tbody>
+  <tr>
+    <td>Target Ach</td>
+    <td>100%</td>
+    <td>45</td>
+    <td>88</td>
+  </tr>
+  <tr>
+    <td>Secondary Gr%</td>
+    <td>22</td>
+    <td>77</td>
+    <td>75</td>
+  </tr>
+  <tr>
+    <td>Span of Performance</td>
+    <td>23</td>
+    <td>12</td>
+    <td>92</td>
+  </tr>
+  <tr>
+    <td>Dr.Conversion(Self Prio)</td>
+    <td>20</td>
+    <td>64</td>
+    <td>81</td>
+  </tr>
+  <tr>
+    <td>%Gr in Rxer</td>
+    <td>24</td>
+    <td>31</td>
+    <td>68</td>
+  </tr>
+  <tr>
+    <td>% of Viable Terr</td>
+    <td>24</td>
+    <td>89</td>
+    <td>68</td>
+  </tr>
+  <tr className="shade">
+    <td>Performance Score</td>
+    <td>24</td>
+    <td>56</td>
+    <td>68</td>
+  </tr>
+</tbody>
+
               </table>
                 
 
@@ -103,7 +104,7 @@ const UserHome = () => {
 
           <div className="table-container">
              {name && <Subnavbar/>}
-            <h1 style={{ textAlign: 'center' }}>Bussiness Performance</h1>
+            <h3 style={{ textAlign: 'center' }}>Bussiness Performance</h3>
             <table className="custom-table">
               <thead>
                 <tr>
@@ -196,13 +197,13 @@ const UserHome = () => {
 
         )}
 
-        {userRole === 'BE' && (
+        {(userRole === 'BE'  || userRole ==='TE')&& (
          
 
 
             <div className="table-container">
                 {name && <Subnavbar/>}
-              <h1 style={{ textAlign: 'center' }}>Bussiness Performance</h1>
+              <h3 style={{ textAlign: 'center' }}>Bussiness Performance</h3>
               <table className="custom-table">
                 <thead>
                   <tr>

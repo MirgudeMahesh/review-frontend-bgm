@@ -36,7 +36,7 @@ export default function Miscfiles() {
                 <tr>
                   <th>Parameter</th>
                   <th>Objective(%)</th>
-                  <th>Month(%)</th>
+                  <th>Month</th>
                   <th>YTD(%)</th>
                 </tr>
               </thead>

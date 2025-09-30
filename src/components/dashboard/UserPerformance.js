@@ -5,18 +5,56 @@ import Textarea from '../Textarea';
 import ActualCommit from '../ActualCommit';
  import { useRole } from '../RoleContext';
  import Subnavbar from '../Subnavbar';
+import { useState, useEffect } from 'react';
  import '../../styles.css';
 import Chats from './Chats';
 export default function UserPerformance() {
  
   
          const { role,userRole,name, setName } = useRole();
-
+         const terr=localStorage.getItem("territory");
+const [beData, setBeData] = useState({
+    Chemist_Calls: "",
+    Compliance: "",
+    Coverage: "",
+    Calls: ""
+  });
 
   const handleSubmit = (text) => {
     console.log("ABC Submitted:", 'performance');
 
   };
+useEffect(() => {
+  if (userRole && terr) {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/hierarchy-kpi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ empterr: terr })
+        });
+
+        const data = await response.json();
+        if (response.ok && data[terr]) {
+          // 👇 Pick BE/BM/BL node based on current territory
+          const node = data[terr];
+          setBeData({
+            Chemist_Calls: node.metrics.Chemist_Calls || 0,
+            Compliance: node.metrics.Compliance || 0,
+            Coverage: node.metrics.Coverage || 0,
+            Calls: node.metrics.Calls || 0
+          });
+        }
+      } catch (err) {
+        console.error("API error:", err);
+      }
+    };
+
+    fetchData();
+  }
+}, [userRole, terr]);
+
+
   return (
     <div>
       {/* <Navbar />
@@ -28,109 +66,107 @@ export default function UserPerformance() {
         {userRole === 'BM' && (
          
 
+<div className="table-container">
+  {name && <Subnavbar />}
+  <h3 style={{ textAlign: 'center' }}>Efforts and Effectiveness </h3>
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Objective(%)</th>
+        <th>Month(%)</th>
+        <th>YTD(%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Self priority customer Cov</td>
+        <td>NA</td>
+        <td>{beData.Calls}</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Team's Coverage</td>
+        <td>NA</td>
+        <td>{beData.Coverage}</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Team's compliance</td>
+        <td>NA</td>
+        <td>{beData.Compliance}</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Mkting Impl(No inv &gt; 30 Days)</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Coaching days(No of BE X 5)</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Coaching days(No of BE X 5)</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>MSP Compliance(Vs OBJ)</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>TP Adherence Self & Team</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Coaching Score</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>% Tty MSR Compliant(Vs Sec)</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>No of Calls Self</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Self Learning Score</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Team Learning Score</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+      <tr className='shade'>
+        <td>Effort Score</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-            <div className="table-container">
-                {name && <Subnavbar/>}
-              <h1 style={{ textAlign: 'center' }}>Efforts and Effectivenss</h1>
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Parameter</th>
-                    <th>Objective(%)</th>
-                    <th>Month(%)</th>
-                    <th>YTD(%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Self priority customer Cov</td>
-                    <td>21</td>
-                    <td>alice</td>
-                    <td>88</td>
-                  </tr>
-                  <tr>
-                    <td>Team's Coverage</td>
-                    <td>22</td>
-                    <td>bob</td>
-                    <td>75</td>
-                  </tr>
-                  <tr>
-                    <td>Team's compliance</td>
-                    <td>23</td>
-                    <td>charlie</td>
-                    <td>92</td>
-                  </tr>
-                  <tr>
-                    <td>Mkting Impl(No inv > 30 Days)</td>
-                    <td>20</td>
-                    <td>diana</td>
-                    <td>81</td>
-                  </tr>
-                  <tr>
-                    <td>Coaching days(No of BE X 5)</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>Coaching days(No of BE X 5)</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>MSP Compliance(Vs OBJ)</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>TP Adherence Self & Team</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>Coaching Score</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>% Tty MSR Compliant(Vs Sec)</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>No of Calls Self</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>Self Learning Score</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr>
-                    <td>Team Learning Score</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                  <tr className='shade'>
-                    <td>Effort Score</td>
-                    <td>24</td>
-                    <td>ethan</td>
-                    <td>68</td>
-                  </tr>
-                </tbody>
-              </table>
-               
-
-            </div>
 
       
 
@@ -243,87 +279,57 @@ export default function UserPerformance() {
 
         )}
 
-        {userRole === 'BE' && (
-        
+{(userRole === "BE" || userRole==='TE')&& (
+ <div className="table-container">
+  {name && <Subnavbar />}
+  <h3 style={{ textAlign: "center" }}>Efforts and Effectiveness </h3>
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Objective(%)</th>
+        <th>Month(%)</th>
+        <th>YTD(%)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Calls</td>
+        <td>NA</td>
+        <td>{beData.Calls}</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Coverage</td>
+        <td>NA</td>
+        <td>{beData.Coverage}</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Compliance</td>
+        <td>NA</td>
+        <td>{beData.Compliance}</td>
+        <td>NA</td>
+      </tr>
+      <tr>
+        <td>Chemist_Calls</td>
+        <td>NA</td>
+        <td>{beData.Chemist_Calls}</td>
+        <td>NA</td>
+      </tr>
+      <tr className="shade">
+        <td>Effort Score</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+)}
 
 
-            <div className="table-container">
-                {name && <Subnavbar/>}
-              <h1 style={{ textAlign: 'center' }}>Efforts and Effectivenss</h1>
-           <table className="custom-table">
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Objective(%)</th>
-      <th>Month(%)</th>
-      <th>YTD(%)</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>#Calls</td>
-      <td>21</td>
-      <td>88</td>
-      <td>88</td>
-    </tr>
-    <tr>
-      <td>%Coverage</td>
-      <td>21</td>
-      <td>64</td>
-      <td>88</td>
-    </tr>
-    <tr>
-      <td>%Compliance</td>
-      <td>22</td>
-      <td>73</td>
-      <td>75</td>
-    </tr>
-    <tr>
-      <td>#RCPA</td>
-      <td>23</td>
-      <td>57</td>
-      <td>92</td>
-    </tr>
-    <tr>
-      <td>Coaching Score</td>
-      <td>20</td>
-      <td>81</td>
-      <td>81</td>
-    </tr>
-    <tr>
-      <td>Learning Score</td>
-      <td>24</td>
-      <td>49</td>
-      <td>68</td>
-    </tr>
-    <tr>
-      <td>%Activity Imple</td>
-      <td>24</td>
-      <td>62</td>
-      <td>68</td>
-    </tr>
-    <tr>
-      <td>%Share('@RCPA)</td>
-      <td>24</td>
-      <td>38</td>
-      <td>68</td>
-    </tr>
-
-    <tr className="shade">
-      <td>Effort Score</td>
-      <td>24</td>
-      <td>91</td>
-      <td>68</td>
-    </tr>
-  </tbody>
-</table>
-
-           
-            
-
-          </div>
-
-        )}
       </div>
        
     </div>

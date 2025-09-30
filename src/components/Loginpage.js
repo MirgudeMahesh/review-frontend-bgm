@@ -14,7 +14,7 @@ export default function Loginpage() {
 
   // Fetch employees once on mount
   useEffect(() => {
-    fetch('https://review-module-backend-3.onrender.com/employees')
+    fetch('http://localhost:8000/employees')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch employees');
         return res.json();
@@ -69,7 +69,8 @@ export default function Loginpage() {
 
     // Encode empCode in Base64 for URL
     const encoded = btoa(selectedEmp.Emp_Code);
-    navigate(`/selection?ec=${encoded}`, { replace: true });
+    localStorage.setItem("empByteCode", encoded);
+    navigate(`/FinalReport?ec=${encoded}`, { replace: true });
   };
 
   return (
@@ -115,7 +116,7 @@ export default function Loginpage() {
             </div>
           ))
         ) : (
-          <div style={{ color: 'gray' }}>No employees found</div>
+          <div style={{ color: 'gray' }}>Loading...</div>
         )}
       </div>
 

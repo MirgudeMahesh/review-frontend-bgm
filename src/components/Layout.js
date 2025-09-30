@@ -18,7 +18,7 @@ const Layout = ({ children }) => {
   const location = useLocation();
   const { role, name,userRole } = useRole();
 
-  const hideComponentsOnPaths = ['/LoginPage'];
+  const hideComponentsOnPaths = ['/'];
   const shouldHideMainUI = hideComponentsOnPaths.includes(location.pathname);
   const isProfilePage = location.pathname.startsWith("/profile");
 
@@ -38,18 +38,19 @@ const Layout = ({ children }) => {
     <>
       {/* Optional: Add blur class to main UI when modal shows */}
       <div className={`layout-container ${showModal ? 'blurred' : ''}`}>
-        {/* {role && !shouldHideMainUI && <MainNavbar />} */}
-        {/* <div style={{ marginTop: "150px" }}>
-          {role && !shouldHideMainUI && (
+        {role && !shouldHideMainUI && <MainNavbar />}
+        <div style={{ marginTop: "150px" }}>
+{role && !shouldHideMainUI && role !== "bh" && role !== "sbuh"  && (
   <Navbar handleOpenModal={handleOpenModal} />
 )}
-        </div> */}
+
+        </div>
 
         <main>{children}</main>
 
-        {/* {role && !shouldHideMainUI && <ActualCommit />}
+{role && role !== "bh" && role !== "sbuh" && !shouldHideMainUI && <ActualCommit />}
 
-{isProfilePage && <Chats />} */}
+{isProfilePage && !shouldHideMainUI && <Chats />}
 
        
       </div>

@@ -37,7 +37,7 @@ const sendInformation = async () => {
   };
 
   try {
-    await fetch("https://review-module-backend-3.onrender.com/putInfo", {
+    await fetch("http://localhost:8000/putInfo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -58,7 +58,7 @@ const sendInformation = async () => {
     const empterr=localStorage.getItem("empterr");
     try {
       const response = await fetch(
-        "https://review-module-backend-3.onrender.com/getMessagesByTerritory",
+        "http://localhost:8000/getMessagesByTerritory",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -127,18 +127,23 @@ const sendInformation = async () => {
 
           {/* Input box (only if logged in) */}
     
-            <div className="message-input-container">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                value={text}
-                className="message-input"
-                onChange={(e) => setText(e.target.value)}
-              />
-              <button className="send-button" onClick={sendInformation}>
-                Send
-              </button>
-            </div>
+           <div className="message-input-container">
+  <input
+    type="text"
+    placeholder="Type your message..."
+    value={text}
+    className="message-input"
+    onChange={(e) => setText(e.target.value)}
+  />
+  <button
+    className="send-button"
+    onClick={sendInformation}
+    disabled={!text.trim()} // ⬅️ disable when text is empty
+  >
+    Send
+  </button>
+</div>
+
   
         </div>
       </div>

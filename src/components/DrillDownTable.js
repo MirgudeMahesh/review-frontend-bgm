@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { useRole } from "./RoleContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../styles.css";
 
-const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
+const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
+  // 👇 Metric passed via URL (from Performance.js)
+  const rootMetric = queryParams.get("metric");
+
   const [expandedRows, setExpandedRows] = useState({});
   const [overlay, setOverlay] = useState({
     open: false,
@@ -12,15 +18,24 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
     territory: null,
   });
 
-  // 🔽 Only the top-most DrillDownTable manages filter state
-  const [selectedProduct, setSelectedProduct] = useState("");
-  const [localAppliedProduct, setLocalAppliedProduct] = useState("");
-
-  const { setName, setUserRole } = useRole();
+  const { setUserRole, setName } = useRole();
   const navigate = useNavigate();
+
+  const [selectedProduct, setSelectedProduct] = useState("");
+  const [localAppliedProduct, setLocalAppliedProduct] = useState(appliedProduct || "");
+
+  // 👇 Only root level manages metric
+  const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Sales");
 
   const toggleRow = (name) =>
     setExpandedRows((p) => ({ ...p, [name]: !p[name] }));
+
+  const openProfile = (empName, role, territory) => {
+    setName(empName);
+    setUserRole(role);
+    localStorage.setItem("territory", territory);
+    navigate(`/profile/${empName}/Review`);
+  };
 
   const styles = {
     th: { backgroundColor: "#eeeeee", padding: "8px 12px", textAlign: "left" },
@@ -36,6 +51,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
       fontSize: "13px",
     },
     row: { cursor: "pointer" },
+    empClickable: { cursor: "pointer" },
     questionMark: {
       marginLeft: 6,
       color: "black",
@@ -76,7 +92,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
   const openPivotOverlay = async (territory) => {
     setOverlay((o) => ({ ...o, open: true, loading: true, territory }));
     try {
-      const res = await fetch(`https://review-module-backend-3.onrender.com/getTable2`, {
+      const res = await fetch(`http://localhost:8000/getTable2`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ territory }),
@@ -103,7 +119,6 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
     return Array.from(cols).sort();
   };
 
-  // 🔽 Collect product names for dropdown
   const collectProducts = (node) => {
     let products = new Set();
     if (node.salesByProduct) {
@@ -127,41 +142,58 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
         ).sort()
       : [];
 
-  // 🔽 Determine which product filter is active
+  // 👇 Root controls applied metric + product
   const activeProduct = level === 1 ? localAppliedProduct : appliedProduct;
+  const activeMetric = level === 1 ? selectedMetric : appliedMetric;
 
   return (
     <>
-      {/* Filter dropdown only at top level */}
       {level === 1 && (
         <div style={{ marginBottom: "10px" }}>
+          {/* ✅ Product Filter only shown for Sales */}
+          {selectedMetric === "Sales" && (
+            <>
+              <select
+                value={selectedProduct}
+                onChange={(e) => setSelectedProduct(e.target.value)}
+              >
+                <option value="">-- All Products --</option>
+                {allProducts.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+              <button
+                style={{ marginLeft: "8px" }}
+                onClick={() => setLocalAppliedProduct(selectedProduct)}
+              >
+                Filter
+              </button>
+            </>
+          )}
+
+          {/* Metric Selector */}
           <select
-            value={selectedProduct}
-            onChange={(e) => setSelectedProduct(e.target.value)}
+            style={{ marginLeft: "20px" }}
+            value={selectedMetric}
+            onChange={(e) => setSelectedMetric(e.target.value)}
           >
-            <option value="">-- All Products --</option>
-            {allProducts.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
+            <option value="Coverage">Coverage</option>
+            <option value="Compliance">Compliance</option>
+            <option value="Calls">Calls</option>
+            <option value="Chemist_Calls">Chemist Calls</option>
+            <option value="Sales">Sales</option>
           </select>
-          <button
-            style={{ marginLeft: "8px" }}
-            onClick={() => setLocalAppliedProduct(selectedProduct)}
-          >
-            Filter
-          </button>
         </div>
       )}
 
-      {/* main drilldown table */}
       <table style={styles.table}>
         <thead>
           <tr>
             <th style={styles.th}>Name (Level {level})</th>
             <th style={styles.th}>Territory</th>
-            <th style={styles.th}>Sales</th>
+            <th style={styles.th}>{activeMetric}</th>
           </tr>
         </thead>
         <tbody>
@@ -169,10 +201,14 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
             const isLeaf =
               !child.children || Object.keys(child.children).length === 0;
 
-            // 🔽 Decide sales based on filter
             const salesToShow = activeProduct
               ? child.salesByProduct?.[activeProduct] || 0
               : child.totalSales;
+
+            let metricValue =
+              activeMetric === "Sales"
+                ? Math.floor(salesToShow)
+                : child[activeMetric] ?? "-";
 
             return (
               <React.Fragment key={empCode}>
@@ -180,15 +216,35 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
                   style={{
                     ...styles.row,
                     backgroundColor:
-                      child.amount <= 50 ? "rgb(255, 120, 120)" : "transparent",
+                      child.Coverage <= 50 ? "rgb(255, 120, 120)" : "transparent",
                   }}
                   onClick={() => toggleRow(empCode)}
                 >
-                  <td style={styles.td}>{child.empName}</td>
+                  <td style={styles.td}>
+                    {level === 1 ? (
+                      child.empName
+                    ) : (
+                      <span
+                        style={styles.empClickable}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openProfile(child.empName, child.role, child.territory);
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.target.style.textDecoration = "underline")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.target.style.textDecoration = "none")
+                        }
+                      >
+                        {child.empName}
+                      </span>
+                    )}
+                  </td>
                   <td style={styles.td}>{child.territory}</td>
                   <td style={styles.td}>
-                    {Math.floor(salesToShow)}
-                    {isLeaf && child.territory && (
+                    {metricValue}
+                    {activeMetric === "Sales" && isLeaf && child.territory && (
                       <span
                         title="Show Pivot Table"
                         style={styles.questionMark}
@@ -203,7 +259,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
                   </td>
                 </tr>
 
-                {/* Expand children */}
+                {/* Nested drilldown */}
                 {expandedRows[empCode] &&
                   child.children &&
                   Object.keys(child.children).length > 0 && (
@@ -212,7 +268,8 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
                         <DrillDownTable
                           childrenData={child.children}
                           level={level + 1}
-                          appliedProduct={activeProduct} // 🔑 pass filter down
+                          appliedProduct={activeProduct}
+                          appliedMetric={activeMetric}
                         />
                       </td>
                     </tr>
@@ -223,7 +280,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
         </tbody>
       </table>
 
-      {/* Overlay with Pivot table only */}
+      {/* Pivot overlay */}
       {overlay.open && (
         <div style={styles.overlayBg}>
           <div style={styles.overlayContent}>
@@ -261,7 +318,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct }) => {
                 <table style={styles.table}>
                   <thead>
                     <tr>
-                      <th style={styles.th}>Row Labels</th>
+                      <th style={styles.th}>Brand Name</th>
                       {getStockistColumns(overlay.table2).map((s) => (
                         <th key={s} style={styles.th}>
                           {s}

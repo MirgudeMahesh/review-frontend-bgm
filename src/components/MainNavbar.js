@@ -4,20 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { useRole } from './RoleContext';
 export default function Navbar() {
 
-
+const ec=localStorage.getItem("empByteCode");
   const { role, setRole, setName, setUserRole, setUser } = useRole();
 
   const navigate = useNavigate();
-  const Raise = () => { navigate('/disclosure');  window.scrollTo({ top: 0, behavior: 'smooth' }); }
-  const Review = () => { navigate('/');  window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  const Raise = () => { navigate(`/disclosure?ec=${ec}`);  window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  const Review = () => { navigate(`/FinalReport?ec=${ec}`);  window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-  const Info = () => { navigate('/info');  window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  const Info = () => { navigate(`/info?ec=${ec}`);  window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
   const selection = () => {
    
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate('/Selection');
+    navigate(`/Selection?ec=${ec}`);
 
   }
   const notselection = () => {
@@ -27,7 +27,8 @@ export default function Navbar() {
     setUser('');
     
     localStorage.removeItem('empterr');
-    localStorage.removeItem('empcode');
+    localStorage.removeItem('empcde');
+    localStorage.removeItem('empByteCode');
     localStorage.removeItem('territory');
 
     navigate('/', { replace: true });
@@ -58,23 +59,38 @@ export default function Navbar() {
 
   return (
     <div>
-      
+        
       <nav className="navbar">
+      <h2 >Review</h2>
+ <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
+          <option value="">Select</option>
+          <option value="report">Profile</option>
+          {(role === 'sbuh' || role === 'admin ') && (<option value="performance">Raise</option>)}
+          <option value="MyChats">Info</option>
+          {/* {role !== 'be' && <option value="hygine">Hygine</option>} */}
 
 
+       <option value={role === 'be' ? "notchose" : "chose"}>
+  {role === 'be' ? "logout" : "chose"}
+</option>
+
+        </select>
 
 
-        <h2 >Primary Sales</h2>
+       
 
      
 
         <ul className="navbar-menu">
 
-          {/* <li className="hide">
+        {(role !== 'sbuh' || role !== 'bh') && (<li className="hide">
             <button className="text-button" onClick={Review}>Profile</button>
-          </li>
+          </li>)
 
-          {(role === 'sbuh' || role === 'admin ') && (<li className="hide">
+        }
+         
+
+          {/* {(role === 'sbuh' || role === 'admin ') && (<li className="hide">
             <button className="text-button" onClick={Raise}  >Raise</button>
           </li>)} */}
 
@@ -95,27 +111,30 @@ export default function Navbar() {
 
         
 
-          {/* <li className="hide">
-            <a>
-              <button id="contact" className="text-button" onClick={Info}>
-                Info
-              </button>
-            </a>
-          </li> */}
+        {role !== "bh" && role !== "sbuh" && (
+        <li className="hide">
+          <a>
+            <button id="contact" className="text-button" onClick={Info}>
+              Info
+            </button>
+          </a>
+        </li>
+      )}
+
             <li className="hide">
             <a>
               {role === 'be' ? (<button id="contact" className="text-button" onClick={notselection}>
                 logout
-              </button>) :( <></>)}
+              </button>) :( <button id="contact" className="text-button" onClick={selection}>select</button>)}
               
             </a>
           </li>
-          {/* <li className="hide">
+          <li className="hide">
             <a>
               <button id="contact" className="text-button" onClick={Raise}  >Raise
               </button>
             </a>
-          </li> */}
+          </li>
         </ul>
       </nav>
     </div>
