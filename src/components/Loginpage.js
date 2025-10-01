@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRole } from './RoleContext';
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; // import styles
 export default function Loginpage() {
   const [warning, setWarning] = useState('');
   const [employees, setEmployees] = useState([]);
@@ -53,6 +54,8 @@ export default function Loginpage() {
       setWarning("Role not found for selected employee");
       return;
     }
+      // Start top loading bar
+    NProgress.start();
 
     const userRole =
       selectedEmp.Role.toLowerCase() === "te"
@@ -71,7 +74,7 @@ export default function Loginpage() {
     const encoded = btoa(selectedEmp.Emp_Code);
     localStorage.setItem("empByteCode", encoded);
     navigate(`/FinalReport?ec=${encoded}`, { replace: true });
-  };
+      NProgress.done();  };
 
   return (
     <div

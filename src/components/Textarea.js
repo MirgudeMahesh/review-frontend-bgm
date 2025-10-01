@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles.css';
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 export default function Textarea() {
   const [text, setText] = useState('');
   const [target, setTarget] = useState('');
@@ -10,7 +11,7 @@ export default function Textarea() {
   const [metric, setMetric] = useState('');
 
   const handleSubmit = async () => {
-    if (metric === '') {
+    if (metric=== '') {
       setWarning(true);
       setWarntext('Please select a metric');
       setTimeout(() => setWarning(false), 3000);
@@ -67,6 +68,7 @@ export default function Textarea() {
       };
 
       try {
+        NProgress.start();
         await fetch('http://localhost:8000/putData', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -75,7 +77,7 @@ export default function Textarea() {
 
         setWarning(true);
         setWarntext('Message delivered');
-        setTarget('');
+          NProgress.done();        setTarget('');
         setSelectedDate('');
         setText('');
         setMetric('');

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles.css' // optional if using separate CSS
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 export default function Escalating() {
   const [text, setText] = useState('');
   const [metric, setMetric] = useState('');
@@ -21,6 +22,7 @@ export default function Escalating() {
       return;
     }
  else {
+     NProgress.start();
       console.log('pressed');
       const payload = {
         metric: metric,
@@ -48,7 +50,8 @@ export default function Escalating() {
           .then(result => {
             setWarning(true);
             setWarntext('Message delivered');
-            
+                         NProgress.done();
+
             setText('');
             setMetric('');
           });
@@ -114,7 +117,7 @@ export default function Escalating() {
       color: warntext === 'Message delivered' ? 'blue' : 'red',
     }}
   >
-    {warntext || 'placeholder'}
+    {warntext || ''}
   </p>
 </div>
 

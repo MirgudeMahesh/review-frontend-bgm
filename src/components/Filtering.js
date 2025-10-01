@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 export default function Filtering() {
   const [text, setText] = useState('');
   const [metric, setMetric] = useState('');
@@ -10,12 +11,12 @@ export default function Filtering() {
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
   const [results, setResults] = useState([]); // backend response
-
+  
   // 🔍 Fetch filtered data
   const showList = async () => {
-    if (metric === '') {
+    if (metric!== 'Coverage') {
       setWarning(true);
-      setWarntext('select metric');
+      setWarntext('select metric with data');
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (isNaN(parseInt(from)) || isNaN(parseInt(to))) {
@@ -31,6 +32,7 @@ export default function Filtering() {
     }
 
     try {
+      NProgress.start();
       const response = await fetch("http://localhost:8000/filterData", {
         method: "POST",
         headers: {
@@ -42,17 +44,20 @@ export default function Filtering() {
           to: parseInt(to),
         }),
       });
-
+     
       if (!response.ok) throw new Error("Network response was not ok");
 
       const data = await response.json();
       setResults(data);
+NProgress.done(); 
    console.log(data);
       setWarning(true);
-      setWarntext('Data fetched successfully');
+      setWarntext('Data fetched successfully below');
       setTimeout(() => setWarning(false), 3000);
     } catch (error) {
       console.error("Error fetching data:", error);
+      NProgress.done(); 
+
       setWarning(true);
       setWarntext('Error fetching data');
       setTimeout(() => setWarning(false), 3000);
@@ -91,6 +96,7 @@ export default function Filtering() {
     }
 
     try {
+      NProgress.start();
       const payload = results.map(row => ({
         sender: localStorage.getItem('user'),
         sender_code: "", // vacant
@@ -111,6 +117,8 @@ export default function Filtering() {
       if (!res.ok) throw new Error("Failed to send messages");
 
       setWarning(true);
+       NProgress.done();
+
       setWarntext('Messages delivered successfully');
       setTimeout(() => setWarning(false), 3000);
 
@@ -122,6 +130,7 @@ export default function Filtering() {
       setResults([]);
     } catch (err) {
       console.error("Error sending messages:", err);
+      NProgress.done();
       setWarning(true);
       setWarntext('Error delivering messages');
       setTimeout(() => setWarning(false), 3000);
@@ -213,7 +222,7 @@ export default function Filtering() {
     visibility: warning ? 'visible' : 'hidden',
     color: (
       warntext === 'Messages delivered successfully' || 
-      warntext === 'Data fetched successfully'
+      warntext === 'Data fetched successfully below'
     ) ? 'blue' : 'red'
   }}
 >

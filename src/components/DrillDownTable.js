@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useRole } from "./RoleContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles.css";
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -31,10 +32,12 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
     setExpandedRows((p) => ({ ...p, [name]: !p[name] }));
 
   const openProfile = (empName, role, territory) => {
+    NProgress.start();
     setName(empName);
     setUserRole(role);
     localStorage.setItem("territory", territory);
     navigate(`/profile/${empName}/Review`);
+    NProgress.done()
   };
 
   const styles = {

@@ -6,14 +6,15 @@ import { useRole } from './RoleContext';
 import ActualCommit from './ActualCommit';
 import Filtering from './Filtering';
 import '../styles.css';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComment } from "@fortawesome/free-solid-svg-icons";
 import Escalating from './Escalating';
 import Chats from './dashboard/Chats';
 import MainNavbar from './MainNavbar';
 import Textarea from './Textarea';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 const Layout = ({ children }) => {
+  
   const navigate = useNavigate();
   const location = useLocation();
   const { role, name,userRole } = useRole();
@@ -38,13 +39,14 @@ const Layout = ({ children }) => {
     <>
       {/* Optional: Add blur class to main UI when modal shows */}
       <div className={`layout-container ${showModal ? 'blurred' : ''}`}>
-        {role && !shouldHideMainUI && <MainNavbar />}
+        {role && !shouldHideMainUI && <MainNavbar handleOpenModal={handleOpenModal} />}
         <div style={{ marginTop: "150px" }}>
-{role && !shouldHideMainUI && role !== "bh" && role !== "sbuh"  && (
+{/* {role && !shouldHideMainUI && role !== "bh" && role !== "sbuh"  && (
   <Navbar handleOpenModal={handleOpenModal} />
-)}
+)} */}
 
         </div>
+        
 
         <main>{children}</main>
 

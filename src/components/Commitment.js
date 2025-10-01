@@ -6,7 +6,8 @@ import ActualCommit from './ActualCommit';
 import Subnavbar from './Subnavbar';
 import Textarea from './Textarea';
 import { useNavigate } from "react-router-dom";
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 export default function Commitment() {
  const navigate = useNavigate();
   const ec = localStorage.getItem("empByteCode"); // 👈 empByteCode
@@ -26,8 +27,11 @@ export default function Commitment() {
     });
 
       const selection = (metric) => {
+        NProgress.start();
     window.scrollTo({ top: 0, behavior: "smooth" });
+
     navigate(`/Selection?ec=${ec}&metric=${metric}`);
+     NProgress.done();
   };
     const ClickableCell = ({ value, metric }) => (
     <span

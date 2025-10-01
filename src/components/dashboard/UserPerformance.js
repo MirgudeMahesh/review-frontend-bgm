@@ -8,6 +8,8 @@ import ActualCommit from '../ActualCommit';
 import { useState, useEffect } from 'react';
  import '../../styles.css';
 import Chats from './Chats';
+ 
+
 export default function UserPerformance() {
  
   
@@ -25,6 +27,7 @@ const [beData, setBeData] = useState({
 
   };
 useEffect(() => {
+  
   if (userRole && terr) {
     const fetchData = async () => {
       try {

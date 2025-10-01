@@ -2,37 +2,59 @@ import React from 'react'
 import { useNavigate } from "react-router-dom";
 
 import { useRole } from './RoleContext';
-export default function Navbar() {
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; // import styles
+export default function Navbar({ handleOpenModal }) {
 
-const ec=localStorage.getItem("empByteCode");
+  const ec = localStorage.getItem("empByteCode");
   const { role, setRole, setName, setUserRole, setUser } = useRole();
 
   const navigate = useNavigate();
-  const Raise = () => { navigate(`/disclosure?ec=${ec}`);  window.scrollTo({ top: 0, behavior: 'smooth' }); }
-  const Review = () => { navigate(`/FinalReport?ec=${ec}`);  window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  const Raise = () => {
+    NProgress.start();
+    navigate(`/disclosure?ec=${ec}`);
+      NProgress.done();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  const Review = () => {
+    NProgress.start();
+    navigate(`/FinalReport?ec=${ec}`);
+      NProgress.done();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-  const Info = () => { navigate(`/info?ec=${ec}`);  window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  const Info = () => {
+    NProgress.start();
+    navigate(`/info?ec=${ec}`);
+      NProgress.done();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
   const selection = () => {
-   
+    NProgress.start();
+
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     navigate(`/Selection?ec=${ec}`);
+      NProgress.done();
 
   }
   const notselection = () => {
-    
+    NProgress.start();
+
     setRole('');
     setName('');
     setUser('');
-    
+
     localStorage.removeItem('empterr');
     localStorage.removeItem('empcde');
     localStorage.removeItem('empByteCode');
     localStorage.removeItem('territory');
 
     navigate('/', { replace: true });
-
+      NProgress.done();
   }
   const handleSelect = (value) => {
     switch (value) {
@@ -59,10 +81,10 @@ const ec=localStorage.getItem("empByteCode");
 
   return (
     <div>
-        
+
       <nav className="navbar">
-      <h2 >Review</h2>
- <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
+        <h2 >Review</h2>
+        <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
           <option value="">Select</option>
           <option value="report">Profile</option>
           {(role === 'sbuh' || role === 'admin ') && (<option value="performance">Raise</option>)}
@@ -70,25 +92,25 @@ const ec=localStorage.getItem("empByteCode");
           {/* {role !== 'be' && <option value="hygine">Hygine</option>} */}
 
 
-       <option value={role === 'be' ? "notchose" : "chose"}>
-  {role === 'be' ? "logout" : "chose"}
-</option>
+          <option value={role === 'be' ? "notchose" : "chose"}>
+            {role === 'be' ? "logout" : "chose"}
+          </option>
 
         </select>
 
 
-       
 
-     
+
+
 
         <ul className="navbar-menu">
 
-        {(role !== 'sbuh' || role !== 'bh') && (<li className="hide">
+          {(role !== 'sbuh' || role !== 'bh') && (<li className="hide">
             <button className="text-button" onClick={Review}>Profile</button>
           </li>)
 
-        }
-         
+          }
+
 
           {/* {(role === 'sbuh' || role === 'admin ') && (<li className="hide">
             <button className="text-button" onClick={Raise}  >Raise</button>
@@ -109,24 +131,24 @@ const ec=localStorage.getItem("empByteCode");
           )} */}
 
 
-        
 
-        {role !== "bh" && role !== "sbuh" && (
-        <li className="hide">
-          <a>
-            <button id="contact" className="text-button" onClick={Info}>
-              Info
-            </button>
-          </a>
-        </li>
-      )}
 
+          {role !== "bh" && role !== "sbuh" && (
             <li className="hide">
+              <a>
+                <button id="contact" className="text-button" onClick={Info}>
+                  Info
+                </button>
+              </a>
+            </li>
+          )}
+
+          <li className="hide">
             <a>
               {role === 'be' ? (<button id="contact" className="text-button" onClick={notselection}>
                 logout
-              </button>) :( <button id="contact" className="text-button" onClick={selection}>select</button>)}
-              
+              </button>) : (<button id="contact" className="text-button" onClick={selection}>select</button>)}
+
             </a>
           </li>
           <li className="hide">
@@ -134,6 +156,21 @@ const ec=localStorage.getItem("empByteCode");
               <button id="contact" className="text-button" onClick={Raise}  >Raise
               </button>
             </a>
+          </li>
+          <li>
+            <button
+              onClick={handleOpenModal}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                color: 'white',
+                fontWeight: '500',
+                cursor: 'pointer',
+                fontSize: '18px',
+              }}
+            >
+              <FontAwesomeIcon icon={faTriangleExclamation} />
+            </button>
           </li>
         </ul>
       </nav>

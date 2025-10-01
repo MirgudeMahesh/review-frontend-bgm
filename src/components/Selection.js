@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useRole } from './RoleContext';
 import DrillDownHierarchy from './DrillDownHierarchy';
 import MainNavbar from './MainNavbar';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 function Selection() {
   const [expandedRows, setExpandedRows] = useState({});
   const navigate = useNavigate();
@@ -12,6 +14,7 @@ function Selection() {
 
 
     const logout = () => {
+      NProgress.start();
     setRole('');
     setName('');
     setUser('');
@@ -24,7 +27,7 @@ function Selection() {
 
     localStorage.removeItem('selectedTerritory');
     navigate('/', { replace: true });
-  };
+      NProgress.done();  };
   return (
     <div>
       <MainNavbar/>

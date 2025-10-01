@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react'   ;
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import {faFloppyDisk} from '@fortawesome/free-solid-svg-icons';
 export default function ActualCommit() {
   const [commitments, setCommitments] = useState([]);
   const location = useLocation();
 
-  // Fetch data whenever URL changes
   useEffect(() => {
-    // Determine territory dynamically
     const territory = location.pathname.startsWith("/profile")
       ? localStorage.getItem("territory")
       : localStorage.getItem("empterr");
 
     if (!territory) {
-      setCommitments([]); // Clear commitments if no territory
+      setCommitments([]);
       return;
     }
 
@@ -22,58 +22,91 @@ export default function ActualCommit() {
         if (!res.ok) throw new Error("Failed to fetch data");
         return res.json();
       })
-      .then((data) => {
-        setCommitments(data);
-        console.log("Fetched commitments:", data);
-      })
+      .then((data) => setCommitments(data))
       .catch((err) => {
         console.error("Error fetching commitments:", err);
         setCommitments([]);
       });
-  }, [location]); // Re-run on any route change
+  }, [location]);
 
-  // Update receiver_commit_date in state and save to DB
-  const handleDateChange = (index, newDate) => {
+  // Handle receiver commit date change
+const handleDateChange = (index, newDate) => {
+  const updatedCommitments = [...commitments];
+  updatedCommitments[index].receiver_commit_date = newDate;
+  updatedCommitments[index]._locked = true;
+  setCommitments(updatedCommitments);
+  saveToDB(updatedCommitments[index], "receiver_commit_date", newDate);
+};
+
+
+  // Enable goal edit mode
+  const enableGoalEdit = (index) => {
     const updatedCommitments = [...commitments];
-    updatedCommitments[index].receiver_commit_date = newDate;
-    updatedCommitments[index]._locked = true; // Lock after first edit
+    updatedCommitments[index]._editingGoal = true;
+    updatedCommitments[index]._tempGoal = updatedCommitments[index].goal || "";
     setCommitments(updatedCommitments);
-
-    saveDateToDB(updatedCommitments[index]);
   };
 
-  const saveDateToDB = (row) => {
-    fetch(`http://localhost:8000/updateReceiverCommitDate`, {
+// Update temp goal while typing
+const handleGoalInputChange = (index, value) => {
+  const updatedCommitments = [...commitments];
+  updatedCommitments[index]._tempGoal = value;
+  setCommitments(updatedCommitments);
+};
+
+
+ // Save goal to DB and exit edit mode
+const saveGoal = (index) => {
+  const updatedCommitments = [...commitments];
+  const row = updatedCommitments[index];
+
+  const goalValue = parseInt(row._tempGoal, 10);
+
+  // Validation before saving
+  if (isNaN(goalValue) || goalValue < 1) {
+    alert("Goal must be at least 1");
+    return;
+  }
+  if (goalValue > 100) {
+    alert("Goal cannot exceed 100");
+    return;
+  }
+
+  row.goal = goalValue; // commit validated value
+  row._goalLocked = true;
+  row._editingGoal = false;
+  setCommitments(updatedCommitments);
+
+  saveToDB(row, "goal", row.goal);
+};
+
+
+  // Save to DB (generic)
+  const saveToDB = (row, field, value) => {
+    fetch(`http://localhost:8000/updateCommitment`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         metric: row.metric,
         sender_territory: row.sender_territory,
         receiver_territory: row.receiver_territory,
-        receiver_commit_date: row.receiver_commit_date,
+        [field]: value,
       }),
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Failed to update date");
-        console.log("Date updated successfully");
+        if (!res.ok) throw new Error(`Failed to update ${field}`);
+        console.log(`${field} updated successfully`);
       })
-      .catch((err) => {
-        console.error("Error saving date:", err);
-      });
+      .catch((err) => console.error(`Error saving ${field}:`, err));
   };
 
-  // Helper to fix timezone shift issue
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    const tzOffset = date.getTimezoneOffset() * 60000; // shift in ms
-    const localISO = new Date(date.getTime() - tzOffset)
-      .toISOString()
-      .split("T")[0];
-    return localISO;
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - tzOffset).toISOString().split("T")[0];
   };
 
-  // Get today's date in YYYY-MM-DD format (local, no shift issue)
   const getToday = () => {
     const today = new Date();
     const tzOffset = today.getTimezoneOffset() * 60000;
@@ -100,33 +133,77 @@ export default function ActualCommit() {
             <tbody>
               {commitments.length > 0 ? (
                 commitments.map((row, index) => {
-                  const alreadySet = !!row.receiver_commit_date;
+                  const dateSet = !!row.receiver_commit_date;
 
                   return (
                     <tr key={index}>
                       <td>{row.metric}</td>
                       <td>{row.sender}</td>
                       <td>{row.commitment}</td>
-                      <td>{row.goal}</td>
+
+                      {/* Goal Column */}
+                      <td>
+                        {location.pathname.startsWith("/profile") || row._goalLocked ? (
+                          row.goal
+                        ) : row._editingGoal ? (
+                          <>
+                            <input
+                              type="text"
+                              value={row._tempGoal}
+                              onChange={(e) => handleGoalInputChange(index, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") saveGoal(index);
+                              }}
+                              style={{ borderRadius: "5px", padding: "4px",width:"30px" }}
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => saveGoal(index)}
+                              className="commit-link-button"
+                            >
+                            
+                               <FontAwesomeIcon icon={faFloppyDisk} />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {row.goal}
+                            <button
+                              onClick={() => enableGoalEdit(index)}
+                              className="commit-link-button"
+                            >
+                              <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                          </>
+                        )}
+                      </td>
+
                       <td>{formatDate(row.received_date)}</td>
                       <td>{formatDate(row.goal_date)}</td>
+
+                     {/* Receiver Commit Date Column */}
 <td>
-  {location.pathname.startsWith("/profile") ? (
-    // Always readonly if in /profile
-    formatDate(row.receiver_commit_date)
-  ) : alreadySet || row._locked ? (
-    // If already set or locked, show text
+  {location.pathname.startsWith("/profile") || dateSet || row._locked ? (
     formatDate(row.receiver_commit_date)
   ) : (
-    // Editable only outside /profile
-  <input
-  type="date"
-  value={row.receiver_commit_date ? formatDate(row.receiver_commit_date) : ""}
-  min={getToday()} // today or future
-  onChange={(e) => handleDateChange(index, e.target.value)}
-  style={{ borderRadius: "5px", padding: "4px" }}
-/>
-
+    <input
+      type="month"
+      value={
+        row.receiver_commit_date
+          ? row.receiver_commit_date.slice(0, 7) // keep only YYYY-MM for month input
+          : ""
+      }
+      min={getToday().slice(0, 7)} // prevent past months
+      onChange={(e) => {
+        const [year, month] = e.target.value.split("-").map(Number);
+        // get last day of the chosen month
+        const lastDayOfMonth = new Date(year, month, 0)
+          .toISOString()
+          .split("T")[0];
+        handleDateChange(index, lastDayOfMonth);
+      }}
+      style={{ borderRadius: "5px", padding: "4px" }}
+    />
   )}
 </td>
 
@@ -147,116 +224,3 @@ export default function ActualCommit() {
     </div>
   );
 }
-
-
-
-// import React, { useState, useEffect } from 'react';
-
-// export default function ActualCommit() {
-//   const [commitments, setCommitments] = useState([]);
-//   const territory = localStorage.getItem('empterr');
-
-//   useEffect(() => {
-//     if (!territory) return;
-
-//     fetch(`http://localhost:8000/getData/${territory}`)
-//       .then(res => {
-//         if (!res.ok) throw new Error('Failed to fetch data');
-//         return res.json();
-//       })
-//       .then(data => {
-//         setCommitments(data);
-//       })
-//       .catch(err => {
-//         console.error('Error fetching commitments:', err);
-//       });
-//   }, [territory]);
-
-//   const handleDateChange = (index, newDate) => {
-//     const updatedCommitments = [...commitments];
-//     updatedCommitments[index].receiver_commit_date = newDate;
-//     updatedCommitments[index]._locked = true; // Mark as locked after first edit
-//     setCommitments(updatedCommitments);
-
-//     saveDateToDB(updatedCommitments[index]);
-//   };
-
-//   const saveDateToDB = (row) => {
-//     fetch(`http://localhost:8000/updateReceiverCommitDate`, {
-//       method: 'PUT',
-//       headers: { 'Content-Type': 'application/json' },
-//       body: JSON.stringify({
-//         metric: row.metric,
-//         sender_territory: row.sender_territory,
-//         receiver_territory: row.receiver_territory,
-//         receiver_commit_date: row.receiver_commit_date
-//       }),
-//     })
-//       .then(res => {
-//         if (!res.ok) throw new Error('Failed to update date');
-//         console.log('Date updated successfully');
-//       })
-//       .catch(err => {
-//         console.error('Error saving date:', err);
-//       });
-//   };
-
-//   return (
-//     <div className='commitmenta'>
-//       <div className='commit-padding'>
-//         <h3 style={{ textAlign: 'center' }}>Commitment</h3>
-//         <div>
-//           <table className="custom-table-commit">
-//             <thead>
-//               <tr>
-//                 <th>metric</th>
-//                 <th>sender</th>
-//                 <th>commitment</th>
-//                 <th>goal</th>
-//                 <th>received_date</th>
-//                 <th>goal_date</th>
-//                 <th>receiver_commit_date</th>
-//               </tr>
-//             </thead>
-//             <tbody>
-//               {commitments.length > 0 ? (
-//                 commitments.map((row, index) => {
-//                   const alreadySet = !!row.receiver_commit_date;
-//                   return (
-//                     <tr key={index}>
-//                       <td>{row.metric}</td>
-//                       <td>{row.sender}</td>
-//                       <td>{row.commitment}</td>
-//                       <td>{row.goal}</td>
-//                       <td>{row.received_date ? row.received_date.split('T')[0] : ''}</td>
-//                       <td>{row.goal_date ? row.goal_date.split('T')[0] : ''}</td>
-//                       <td>
-//                         {alreadySet || row._locked ? (
-//                           // Show text if date already exists or locked after first edit
-//                           row.receiver_commit_date ? row.receiver_commit_date.split('T')[0] : ''
-//                         ) : (
-//                           <input
-//                             type="date"
-//                             value={row.receiver_commit_date ? row.receiver_commit_date.split('T')[0] : ''}
-//                             onChange={(e) => handleDateChange(index, e.target.value)}
-//                             style={{ borderRadius: '5px' }}
-//                           />
-//                         )}
-//                       </td>
-//                     </tr>
-//                   );
-//                 })
-//               ) : (
-//                 <tr>
-//                   <td colSpan="7" style={{ textAlign: 'center' }}>
-//                     no commitments added
-//                   </td>
-//                 </tr>
-//               )}
-//             </tbody>
-//           </table>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }

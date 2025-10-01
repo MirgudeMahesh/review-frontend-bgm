@@ -31,7 +31,6 @@ const DrillDownHierarchy = () => {
         marginTop: '100px'
       }}
     >
-      <h2>Hierarchy View (BH → BL → BM → BE)</h2>
       {data ? (
         <DrillDownTable childrenData={data} level={1} />
       ) : (

@@ -4,7 +4,8 @@ import ActualCommit from "./ActualCommit";
 import { useRole } from "./RoleContext";
 import Subnavbar from "./Subnavbar";
 import { useNavigate } from "react-router-dom";
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 export default function Performance() {
   const { role, setRole, name, setName } = useRole();
   const terr = localStorage.getItem("empterr");
@@ -49,9 +50,10 @@ export default function Performance() {
 
   // 👇 selection function with metric
   const selection = (metric) => {
+NProgress.start();
     window.scrollTo({ top: 0, behavior: "smooth" });
     navigate(`/Selection?ec=${ec}&metric=${metric}`);
-  };
+      NProgress.done();  };
 
   // 👇 helper wrapper to make value clickable
   const ClickableCell = ({ value, metric }) => (

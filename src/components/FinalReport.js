@@ -5,7 +5,9 @@ import Textarea from './Textarea';
 import { useRole } from './RoleContext';
 import Subnavbar from './Subnavbar';
 import { useNavigate } from 'react-router-dom';
-
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
 export default function FinalReport() {
   const { role, setRole, name, setName } = useRole();
   const [selectedDate, setSelectedDate] = useState('');
@@ -13,30 +15,38 @@ export default function FinalReport() {
     const navigate = useNavigate();
 
   const perform = () => { 
+    NProgress.start();
     navigate(`/TeamBuild?ec=${ec}`); 
+     NProgress.done();
      
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   const Home = () => { 
+        NProgress.start();
+
     navigate(`/Performance?ec=${ec}`); 
+          NProgress.done();
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
 
 
-  const misc = () => { 
+  const misc = () => {
+        NProgress.start();
+ 
     navigate(`/Hygine?ec=${ec}`); 
-         
+               NProgress.done();
 
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   const commitment = () => {
-          
+              NProgress.start();
+
  
     navigate(`/Compliance?ec=${ec}`); 
-     
+           NProgress.done();
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
