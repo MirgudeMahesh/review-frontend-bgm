@@ -6,11 +6,16 @@ import Subnavbar from "./Subnavbar";
 import { useNavigate } from "react-router-dom";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from '@fortawesome/free-solid-svg-icons';
+
 export default function Performance() {
   const { role, setRole, name, setName } = useRole();
   const terr = localStorage.getItem("empterr");
-  const ec = localStorage.getItem("empByteCode"); // 👈 empByteCode
+  const ec = localStorage.getItem("empByteCode"); 
   const navigate = useNavigate();
+
+ 
 
   const [beData, setBeData] = useState({
     Chemist_Calls: "",
@@ -48,14 +53,13 @@ export default function Performance() {
     }
   }, [role, terr]);
 
-  // 👇 selection function with metric
   const selection = (metric) => {
-NProgress.start();
+    NProgress.start();
     window.scrollTo({ top: 0, behavior: "smooth" });
     navigate(`/Selection?ec=${ec}&metric=${metric}`);
-      NProgress.done();  };
+    NProgress.done();
+  };
 
-  // 👇 helper wrapper to make value clickable
   const ClickableCell = ({ value, metric }) => (
     <span
       onClick={() => selection(metric)}
@@ -69,13 +73,49 @@ NProgress.start();
     console.log("ABC Submitted:", "performance");
   };
 
+  // ✅ Common heading with right-corner Home button
+   const HomePage = () => {
+    NProgress.start();
+    navigate(`/FinalReport?ec=${ec}`);
+    NProgress.done();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const HeadingWithHome = ({ level, children }) => {
+    const HeadingTag = "h3"
+    return (
+      <div
+        style={{
+         display: "flex", justifyContent: "center", alignItems: "center", gap: "10px"
+        }}
+      >
+        <HeadingTag style={{ margin: 0, textAlign: "center" }}>
+          {children}
+        </HeadingTag>
+        <button
+          style={{
+           background: "none",
+        border: "none",
+        color: "black",
+        fontSize: "16px",
+        cursor: "pointer",
+        padding: 0
+          }}
+          onClick={HomePage}
+        >
+          <FontAwesomeIcon icon={faHome} size='2x' />
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="table-box">
         {/* ---------------- BM TABLE ---------------- */}
         {role === "bm" && (
           <div className="table-container">
-            <h1 style={{ textAlign: "center" }}>Efforts and Effectiveness</h1>
+            <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
+
             <table className="custom-table">
               <thead>
                 <tr>
@@ -172,7 +212,8 @@ NProgress.start();
         {/* ---------------- BL TABLE ---------------- */}
         {role === "bl" && (
           <div className="table-container">
-            <h3 style={{ textAlign: "center" }}>Team Building & Development</h3>
+            <HeadingWithHome level="h3">Team Building & Development</HeadingWithHome>
+
             <table className="custom-table">
               <thead>
                 <tr>
@@ -271,10 +312,12 @@ NProgress.start();
         )}
 
         {/* ---------------- BE TABLE ---------------- */}
-        {(role === "be" || role==='te')&& (
+        {(role === "be" || role === "te") && (
           <div className="table-container">
             {name && <Subnavbar />}
-            <h1 style={{ textAlign: "center" }}>Efforts and Effectiveness</h1>
+
+            <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
+
             <table className="custom-table">
               <thead>
                 <tr>

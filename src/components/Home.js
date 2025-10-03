@@ -8,8 +8,13 @@ import Subnavbar from './Subnavbar';
 import ActualCommit from './ActualCommit';
  import { useRole } from './RoleContext';
 import Textarea from './Textarea';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css'; 
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 const Home = () => {
-  
+  const navigate = useNavigate();
      const { role,setRole } = useRole();
 
   const handleSubmit = (text) => {
@@ -17,7 +22,40 @@ const Home = () => {
 
   };
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
-
+  const ec= localStorage.getItem("empByteCode");
+  const HomePage = () => {
+    NProgress.start();
+    navigate(`/FinalReport?ec=${ec}`);
+    NProgress.done();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  const HeadingWithHome = ({ level, children }) => {
+    const HeadingTag = "h3"
+    return (
+      <div
+        style={{
+         display: "flex", justifyContent: "center", alignItems: "center", gap: "10px"
+        }}
+      >
+        <HeadingTag style={{ margin: 0, textAlign: "center" }}>
+          {children}
+        </HeadingTag>
+        <button
+          style={{
+           background: "none",
+        border: "none",
+        color: "black",
+        fontSize: "16px",
+        cursor: "pointer",
+        padding: 0
+          }}
+          onClick={HomePage}
+        >
+          <FontAwesomeIcon icon={faHome} size='2x' />
+        </button>
+      </div>
+    );
+  };
 
   return (
 
@@ -34,7 +72,8 @@ const Home = () => {
 
             <div className="table-container">
                 {/* {name && <Subnavbar/>} */}
-              <h1 style={{ textAlign: 'center' }}>Bussiness Performance</h1>
+                            <HeadingWithHome level="h1">Bussiness Performance</HeadingWithHome>
+
               <table className="custom-table">
   <thead>
     <tr>
@@ -103,7 +142,7 @@ const Home = () => {
 
           <div className="table-container">
              {/* {name && <Subnavbar/>} */}
-            <h1 style={{ textAlign: 'center' }}>Bussiness Performance</h1>
+                            <HeadingWithHome level="h1">Bussiness Performance</HeadingWithHome>
             <table className="custom-table">
               <thead>
                 <tr>
@@ -203,7 +242,7 @@ const Home = () => {
 
             <div className="table-container">
                 {/* {name && <Subnavbar/>} */}
-              <h1 style={{ textAlign: 'center' }}>Bussiness Performance</h1>
+                            <HeadingWithHome level="h1">Bussiness Performance</HeadingWithHome>
               <table className="custom-table">
                 <thead>
                   <tr>

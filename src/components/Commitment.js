@@ -8,6 +8,8 @@ import Textarea from './Textarea';
 import { useNavigate } from "react-router-dom";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from '@fortawesome/free-solid-svg-icons';
 export default function Commitment() {
  const navigate = useNavigate();
   const ec = localStorage.getItem("empByteCode"); // 👈 empByteCode
@@ -41,6 +43,40 @@ export default function Commitment() {
       {value}
     </span>
   );
+    const HomePage = () => {
+      NProgress.start();
+      navigate(`/FinalReport?ec=${ec}`);
+      NProgress.done();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+    const HeadingWithHome = ({ level, children }) => {
+      const HeadingTag = "h3"
+      return (
+        <div
+          style={{
+           display: "flex", justifyContent: "center", alignItems: "center", gap: "10px"
+          }}
+        >
+          <HeadingTag style={{ margin: 0, textAlign: "center" }}>
+            {children}
+          </HeadingTag>
+          <button
+            style={{
+             background: "none",
+          border: "none",
+          color: "black",
+          fontSize: "16px",
+          cursor: "pointer",
+          padding: 0
+            }}
+            onClick={HomePage}
+          >
+            <FontAwesomeIcon icon={faHome} size='2x' />
+          </button>
+        </div>
+      );
+    };
+  
   useEffect(() => {
     if (role && terr) {
       const fetchData = async () => {
@@ -87,7 +123,8 @@ export default function Commitment() {
 
 <div className="table-container">
   {/* {name && <Subnavbar />} */}
-  <h3 style={{ textAlign: 'center' }}>Compliance & Reporting</h3>
+                              <HeadingWithHome level="h3">Compliance & Reporting</HeadingWithHome>
+
 
   <table className="custom-table" style={{ fontSize: '12px' }}>
     <thead>

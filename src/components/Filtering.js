@@ -11,10 +11,10 @@ export default function Filtering() {
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
   const [results, setResults] = useState([]); // backend response
-  
+  const [count,setCount]=useState();
   // 🔍 Fetch filtered data
   const showList = async () => {
-    if (metric!== 'Coverage') {
+    if (metric=== '') {
       setWarning(true);
       setWarntext('select metric with data');
       setTimeout(() => setWarning(false), 3000);
@@ -49,10 +49,18 @@ export default function Filtering() {
 
       const data = await response.json();
       setResults(data);
+      
 NProgress.done(); 
-   console.log(data);
+   
       setWarning(true);
+
+      if(data.length===0){
+              setWarntext('No data in this range');
+
+      }
+      else{
       setWarntext('Data fetched successfully below');
+    setCount(data.length);}
       setTimeout(() => setWarning(false), 3000);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -105,7 +113,8 @@ NProgress.done();
         receiver_code: row.Emp_Code,
         receiver_territory: row.Territory,
         received_date: new Date().toISOString().split("T")[0],
-        message: text
+        message: text,
+        metric:metric
       }));
 
       const res = await fetch("http://localhost:8000/putInfo", {
@@ -152,10 +161,11 @@ NProgress.done();
             style={{ borderRadius: '5px', marginLeft: '30px' }}
           >
             <option value="">Select a metric</option>
-            <option value="Sales">Performance</option>
-            <option value="Revenue">TeamBuild</option>
-            <option value="Efficiency">Hygine</option>
+            
+            <option value="Calls">Calls</option>
+            <option value="Compliance">Compliance</option>
             <option value="Coverage">Coverage</option>
+            <option value="Drs_Met">Doctors meet</option>
           </select>
         </div>
 
@@ -226,7 +236,7 @@ NProgress.done();
     ) ? 'blue' : 'red'
   }}
 >
-  {warntext || 'placeholder'}
+  {warntext || ''}
 </p>
 
         </div>
@@ -255,7 +265,7 @@ NProgress.done();
             }}
           >
             <h4 style={{ textAlign: "center", marginBottom: "10px" }}>
-              Filtered Results
+              {count} records found
             </h4>
             <table
               border="1"
