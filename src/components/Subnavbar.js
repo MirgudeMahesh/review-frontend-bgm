@@ -47,7 +47,7 @@ export default function SubNavbar() {
           <option value="Miscelaneous">
             {userRole === "BE" || userRole==='TE' ||userRole === "BM" ? "Efforts" : "TeamBuild"}
           </option>
-          {userRole !== 'BE' && userRole!=='TE' && <option value="hygine">Hygine</option>}
+          {userRole !== 'BE' && userRole!=='TE' && <option value="hygine">Hygiene</option>}
           {userRole !== 'BE' && userRole!=='TE' &&  userRole !== 'BM' && <option value="compliance">Compliance</option>}
           <option value="Chats">Todo</option>
           <option value="Escalating">Commit</option>

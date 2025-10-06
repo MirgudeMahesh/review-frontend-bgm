@@ -113,7 +113,7 @@ export default function Textarea() {
           <option value="Efficiency">Efficiency</option>
           <option value="Performance">Performance</option>
           <option value="TeamBuild">TeamBuild</option>
-          <option value="Hygine">Hygine</option>
+          <option value="Hygine">Hygiene</option>
           <option value="Compliance">Compliance</option>
         </select>
       </div>

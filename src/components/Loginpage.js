@@ -56,11 +56,15 @@ export default function Loginpage() {
     }
       // Start top loading bar
     NProgress.start();
+    
+const role = selectedEmp.Role.toLowerCase();
+   
 
-    const userRole =
-      selectedEmp.Role.toLowerCase() === "te"
-        ? "be"
-        : selectedEmp.Role.toLowerCase();
+const userRole =
+  role === "be" || role === "te" || role === "kae"
+    ? "be"
+    : role;
+
 
     // Store territory, role, and name in localStorage
     localStorage.setItem("empterr", selectedEmp.Territory);

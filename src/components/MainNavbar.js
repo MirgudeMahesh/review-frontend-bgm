@@ -1,4 +1,5 @@
-import React from 'react'
+import React,{useState}from 'react'
+import Escalating from './Escalating';
 import { useNavigate } from "react-router-dom";
 
 import { useRole } from './RoleContext';
@@ -6,7 +7,7 @@ import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; // import styles
-export default function Navbar({ handleOpenModal }) {
+export default function Navbar() {
 
   const ec = localStorage.getItem("empByteCode");
   const { role, setRole, setName, setUserRole, setUser } = useRole();
@@ -56,6 +57,11 @@ export default function Navbar({ handleOpenModal }) {
     navigate('/', { replace: true });
       NProgress.done();
   }
+    const [showModal, setShowModal] = useState(false);
+  
+  
+    const handleOpenModal = () => setShowModal(true); 
+    const handleCloseModal = () => setShowModal(false); 
   const handleSelect = (value) => {
     switch (value) {
       case 'report':
@@ -174,6 +180,28 @@ export default function Navbar({ handleOpenModal }) {
           </li>
         </ul>
       </nav>
+          {showModal && (
+<div className="modal-overlay">
+  <div className="modal-box">
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+      <button
+        onClick={handleCloseModal}
+        style={{
+          border: 'none',
+          background: 'transparent',
+          fontSize: '24px',
+          cursor: 'pointer',
+        }}
+      >
+        &times;
+      </button>
+    </div>
+    <Escalating />
+  </div>
+</div>
+
+)}
+
     </div>
   )
 }

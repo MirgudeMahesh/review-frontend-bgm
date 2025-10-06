@@ -93,7 +93,7 @@ export default function Escalating() {
           <option value="">Select a metric</option>
           <option value="Sales">Performance</option>
           <option value="Revenue">TeamBuild</option>
-          <option value="Hygine">Hygine</option>
+          <option value="Hygine">Hygiene</option>
           <option value="Compliance">Compliance</option>
         </select>
       </div>

@@ -34,7 +34,12 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
   const openProfile = (empName, role, territory) => {
     NProgress.start();
     setName(empName);
-    setUserRole(role);
+    const normalizedRole = role.toUpperCase();
+   const userRole =
+    normalizedRole === "BE" || normalizedRole === "TE" || normalizedRole === "KAE"
+      ? "BE"
+      : normalizedRole;
+      setUserRole(userRole);
     localStorage.setItem("territory", territory);
     navigate(`/profile/${empName}/Review`);
     NProgress.done()

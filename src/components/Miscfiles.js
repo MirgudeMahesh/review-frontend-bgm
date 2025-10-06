@@ -111,7 +111,7 @@ const navigate = useNavigate();
                   <td>81</td>
                 </tr>
                 <tr className='shade'>
-                  <td>Hygine Score</td>
+                  <td>Hygiene Score</td>
                   <td>24</td>
                   <td>78%</td>
                   <td>68</td>
@@ -128,7 +128,8 @@ const navigate = useNavigate();
         {role === 'bl' && (
           <div className="table-container"  >
             {/* {name && <Subnavbar/>} */}
-            <h3 style={{ textAlign: 'center' }}>Business Hygine & Demand Quality</h3>
+                                          <HeadingWithHome level="h1">Business Hygiene & Demand Quality</HeadingWithHome>
+
 
             <table className="custom-table" style={{ fontSize: '12px', }}>
               <thead>

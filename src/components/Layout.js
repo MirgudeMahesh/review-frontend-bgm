@@ -24,22 +24,17 @@ const Layout = ({ children }) => {
   const isProfilePage = location.pathname.startsWith("/profile");
 
   // Modal State
+   const [inputText, setInputText] = useState('');
   const [showModal, setShowModal] = useState(false);
 
-  const [inputText, setInputText] = useState('');
+ 
 
-  const handleOpenModal = () => setShowModal(true); 
-  const handleCloseModal = () => setShowModal(false); 
-  const handleSubmit = () => {
-    alert(`Submitted: ${inputText}`);
-    setShowModal(false);
-  };
 
   return (
     <>
       {/* Optional: Add blur class to main UI when modal shows */}
       <div className={`layout-container ${showModal ? 'blurred' : ''}`}>
-        {role && !shouldHideMainUI && <MainNavbar handleOpenModal={handleOpenModal} />}
+        {role && !shouldHideMainUI && <MainNavbar  />}
         <div style={{ marginTop: "150px" }}>
 {/* {role && !shouldHideMainUI && role !== "bh" && role !== "sbuh"  && (
   <Navbar handleOpenModal={handleOpenModal} />
@@ -58,27 +53,6 @@ const Layout = ({ children }) => {
       </div>
 
 
-    {showModal && (
-<div className="modal-overlay">
-  <div className="modal-box">
-    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-      <button
-        onClick={handleCloseModal}
-        style={{
-          border: 'none',
-          background: 'transparent',
-          fontSize: '24px',
-          cursor: 'pointer',
-        }}
-      >
-        &times;
-      </button>
-    </div>
-    <Escalating />
-  </div>
-</div>
-
-)}
 
 
 

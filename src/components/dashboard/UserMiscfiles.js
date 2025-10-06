@@ -31,7 +31,7 @@ export default function UserMiscfiles() {
            
                    <div className="table-container">
                       {name && <Subnavbar/>}
-          <h3 style={{ textAlign: 'center' }}>Hygine</h3>
+          <h3 style={{ textAlign: 'center' }}>Hygiene</h3>
 
           <table className="custom-table">
             <thead>
@@ -74,7 +74,7 @@ export default function UserMiscfiles() {
                 <td>81</td>
               </tr>
               <tr className='shade'>
-                <td>Hygine Score</td>
+                <td>Hygiene Score</td>
                 <td>24</td>
                 <td>78%</td>
                 <td>68</td>
@@ -91,7 +91,7 @@ export default function UserMiscfiles() {
       {userRole === 'BL' && (
        <div className="table-container"  >
          {name && <Subnavbar/>}
-          <h3 style={{ textAlign: 'center' }}>Business Hygine & Demand Quality</h3>
+          <h3 style={{ textAlign: 'center' }}>Business Hygiene & Demand Quality</h3>
 
           <table className="custom-table" style={{ fontSize: '12px', }}>
             <thead>
