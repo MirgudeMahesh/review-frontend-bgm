@@ -312,7 +312,7 @@ export default function Performance() {
         )}
 
         {/* ---------------- BE TABLE ---------------- */}
-        {(role === "be" || role === "te") && (
+        {(role === "be") && (
           <div className="table-container">
             {name && <Subnavbar />}
 
@@ -362,6 +362,146 @@ export default function Performance() {
             </table>
           </div>
         )}
+        {
+          (role==='bh' || role==='sbuh') &&(
+            <div className="table-container">
+                              <HeadingWithHome level="h3">Team Culture and Building</HeadingWithHome>
+
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+        <th>Objective</th>
+        <th>Month</th>
+        <th>YTD</th>
+        <th>Month Val</th>
+        <th>YTD Val</th>
+        <th>Month</th>
+        <th>YTD</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {/* TP Adherence */}
+      <tr>
+        <td>TP Adherence Score</td>
+        <td>% adherence to TP</td>
+        <td>100%</td>
+        <td >43%</td>
+        <td >40%</td>
+        <td>43.44/100</td>
+        <td>39.83/100</td>
+        <td>2.17%</td>
+        <td>3.98%</td>
+      </tr>
+
+      {/* Reporting Integrity */}
+      <tr>
+        <td>Reporting Integrity Index</td>
+        <td>Secondary variance</td>
+        <td>10%</td>
+        <td >0%</td>
+        <td >13%</td>
+        <td>0/51.12</td>
+        <td>3.6/27.43</td>
+        <td>0.00%</td>
+        <td>7.61%</td>
+      </tr>
+
+      {/* Reviewing Effectiveness */}
+      <tr>
+        <td>Reviewing Effectiveness</td>
+        <td>BL Review Score</td>
+        <td>100%</td>
+        <td >0%</td>
+        <td >0%</td>
+        <td>0/0</td>
+        <td>0/0</td>
+        <td>0.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td>BM Review Score</td>
+        <td>100%</td>
+        <td >0%</td>
+        <td >0%</td>
+        <td>0/0</td>
+        <td>0/0</td>
+        <td>0.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      {/* MSPR Compliance */}
+      <tr>
+        <td>MSPR Compliance</td>
+        <td>% of headquarters of MSP (for HQ) vs Objective taken cumulatively by BH</td>
+        <td>90%</td>
+        <td >9%</td>
+        <td >35%</td>
+        <td>5/54</td>
+        <td>19/54</td>
+        <td>4.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td>% of headquarters having MSP compliance with respect to Average Secondary Sales</td>
+        <td>90%</td>
+        <td >83%</td>
+        <td >98%</td>
+        <td>45/54</td>
+        <td>53/54</td>
+        <td>4.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      {/* BE */}
+      <tr>
+        <td>BE</td>
+        <td># of BE Active vs Sanctioned Strength</td>
+        <td>100%</td>
+        <td >81%</td>
+        <td></td>
+        <td>44/54</td>
+        <td></td>
+        <td>4.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      {/* BM & BL */}
+      <tr>
+        <td>BM & BL</td>
+        <td># of BM & BL Active vs Sanctioned Strength</td>
+        <td>100%</td>
+        <td >100%</td>
+        <td></td>
+        <td>13/13</td>
+        <td></td>
+        <td>4.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      {/* Footer */}
+      <tr className="shade">
+        <td colSpan="2"><b>Team & Culture Building Score</b></td>
+        <td><b>25%</b></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><b>18.17%</b></td>
+        <td><b>11.60%</b></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+          )
+        }
       </div>
       {/* {role && name === '' && <ActualCommit />} */}
     </div>

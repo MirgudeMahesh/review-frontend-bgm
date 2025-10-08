@@ -218,7 +218,96 @@ const navigate = useNavigate();
           </div>
 
         )}
+{
+          (role ==='bh' || role==='sbuh') &&(
+           <div className="table-container">
+                              <HeadingWithHome level="h3">Bussiness Hygiene and Demand Quality</HeadingWithHome>
 
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+        <th>Objective</th>
+        <th>Month</th>
+        <th>YTD</th>
+        <th>Month Val</th>
+        <th>YTD Val</th>
+        <th>Month</th>
+        <th>YTD</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {/* Row 1 */}
+      <tr>
+        <td>Return Ratio</td>
+        <td>% of Returns as % of secondary sales (Objective &lt;2%)</td>
+        <td>2%</td>
+        <td >3%</td>
+        <td >28%</td>
+        <td>1.31/51.12</td>
+        <td>7.68/27.43</td>
+        <td>3.91%</td>
+        <td>0.36%</td>
+      </tr>
+
+      {/* Row 2 */}
+      <tr>
+        <td>Outstanding Days</td>
+        <td>DSO (Days Sales Outstanding) &lt;30</td>
+        <td>30</td>
+        <td >17</td>
+        <td></td>
+        <td>15.42/27.19</td>
+        <td></td>
+        <td>5.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      {/* Row 3 */}
+      <tr>
+        <td>Business generated through MA</td>
+        <td>% business driven by marketing activity</td>
+        <td>70%</td>
+        <td >46%</td>
+        <td >-669%</td>
+        <td>23.75/51.12</td>
+        <td>-183.5/27.43</td>
+        <td>3.32%</td>
+        <td>-47.78%</td>
+      </tr>
+
+      {/* Row 4 */}
+      <tr>
+        <td>Closing Stock Index</td>
+        <td>Avg. closing stock in days (should be &lt;30 days)</td>
+        <td>30</td>
+        <td >42</td>
+        <td></td>
+        <td>42</td>
+        <td></td>
+        <td>3.60%</td>
+        <td>0.00%</td>
+      </tr>
+
+      {/* Footer */}
+      <tr className="shade">
+        <td colSpan="2"><b>Performance Score</b></td>
+        <td><b>20%</b></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><b>15.8%</b></td>
+        <td><b>-132.0%</b></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+          )
+}
 
       </div>
       {/* {role && name === '' && <ActualCommit />} */}

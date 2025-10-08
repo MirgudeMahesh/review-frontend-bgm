@@ -122,7 +122,7 @@ const saveGoal = (index) => {
             <thead>
               <tr>
                 <th>Metric</th>
-                <th>Sender</th>
+                <th>Assigned by</th>
                 <th>Commitment</th>
                 <th>Goal</th>
                 <th>Received Date</th>

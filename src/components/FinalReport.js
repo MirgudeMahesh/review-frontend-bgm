@@ -55,7 +55,7 @@ export default function FinalReport() {
       {/* <Navbar /> */}
 
       <div className="table-box">
-        {(role === 'be' || role ==='te') && (
+        {(role === 'be' ) && (
           <div className="table-container">
             {/* {name && <Subnavbar />} */}
             <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
@@ -96,9 +96,60 @@ export default function FinalReport() {
             {/* {name && <Textarea onsubmit={handleSubmit} />} */}
           </div>
         )}
-      {  ((role ==='bh' || role==='sbuh') &&(
-          <h1>no dashboard for {role} yet</h1>
-        ))}
+      {  (role ==='bh' || role==='sbuh') &&(
+          <div className="table-container">
+  <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
+
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Objective</th>
+        <th>Month</th>
+        <th>YTD</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td onClick={() => perform()}>Team &amp; Culture Building </td>
+        <td>25%</td>
+        <td >18%</td>
+        <td >12%</td>
+      </tr>
+
+      <tr>
+        <td onClick={() => Home()}>Business &amp; Brand Performance </td>
+        <td>35%</td>
+        <td >19%</td>
+        <td >12%</td>
+      </tr>
+
+      <tr>
+        <td onClick={() => commitment()}>Activity &amp; Productivity</td>
+        <td>20%</td>
+        <td >13%</td>
+        <td >12%</td>
+      </tr>
+
+      <tr>
+        <td onClick={() => misc()}>Business Hygiene &amp; Demand Quality</td>
+        <td>20%</td>
+        <td >16%</td>
+        <td >-132%</td>
+      </tr>
+
+      <tr className="shade">
+        <td><b>Efficiency Index</b></td>
+        <td><b>100%</b></td>
+        <td><b>66.30%</b></td>
+        <td><b>-96.64%</b></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+        )}
 
         {role === 'bm' && (
           <div className="table-container">

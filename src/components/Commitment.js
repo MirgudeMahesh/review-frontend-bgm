@@ -110,18 +110,9 @@ export default function Commitment() {
   return (
     <div>
     
-      {(role === 'bm') ? (<div
-        className='table-box'
-      > 
-
-
-        <ActualCommit />
-      </div>) :
-
-        ((
-          <div className='table-box '>
-
-<div className="table-container">
+       <div className="table-box">
+        {(role === 'bl' ) && (
+          <div className="table-container">
   {/* {name && <Subnavbar />} */}
                               <HeadingWithHome level="h3">Compliance & Reporting</HeadingWithHome>
 
@@ -206,15 +197,113 @@ export default function Commitment() {
   </table>
   {/* {name && <Textarea onsubmit={handleSubmit} />} */}
 </div>
+          
+        )}
+         {(role === 'bh' || role==='sbuh' ) && (
+          <div className="table-container">
+                               <HeadingWithHome level="h3">Activity and Productivity</HeadingWithHome>
 
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+        <th>Objective</th>
+        <th>Month</th>
+        <th>YTD</th>
+        <th>Month Val</th>
+        <th>YTD Val</th>
+        <th>Month</th>
+        <th>YTD</th>
+      </tr>
+    </thead>
 
+    <tbody>
+      {/* SFPI Section */}
+      <tr>
+        <td rowSpan="3">SFPI</td>
+        <td>No of Calls done (Self)</td>
+        <td>180</td>
+        <td >102</td>
+        <td >89</td>
+        <td>102.00</td>
+        <td>89.00</td>
+        <td>5.00%</td>
+        <td>5.00%</td>
+      </tr>
+      <tr>
+        <td>Team's Customer Coverage</td>
+        <td>95%</td>
+        <td >75%</td>
+        <td >72%</td>
+        <td><ClickableCell value={beData.Coverage} metric="Coverage" /></td>
+        <td>71.74</td>
+        <td>2.24%</td>
+        <td>2.15%</td>
+      </tr>
+      <tr>
+        <td>Team's Customer Compliance</td>
+        <td>90%</td>
+        <td >55%</td>
+        <td >51%</td>
+        <td><ClickableCell value={beData.Compliance} metric="Compliance" /></td>
+        <td>51.34</td>
+        <td>1.66%</td>
+        <td>1.54%</td>
+      </tr>
 
+      {/* Corporate Customer Section */}
+      <tr>
+        <td rowSpan="3">Corporate Customer Engagement & Conversion Score</td>
+        <td>% of corporate doctors visited/2 months (Out of 100 Selected)</td>
+        <td>90%</td>
+        <td >42%</td>
+        <td >23%</td>
+        <td>42.00</td>
+        <td>23.00</td>
+        <td>1.40%</td>
+        <td>0.77%</td>
+      </tr>
+      <tr>
+        <td>% of Corporate doctors in active prescriber category</td>
+        <td>90%</td>
+        <td >4%</td>
+        <td >4%</td>
+        <td>4.00</td>
+        <td>4.00</td>
+        <td>0.12%</td>
+        <td>0.12%</td>
+      </tr>
+      <tr>
+        <td>Priority Customer Coverage of BM</td>
+        <td>90%</td>
+        <td >92%</td>
+        <td >80%</td>
+        <td>92.20</td>
+        <td>80.20</td>
+        <td>3.00%</td>
+        <td>2.67%</td>
+      </tr>
 
+      {/* Performance Score Footer */}
+      <tr className="shade">
+        <td colSpan="2"><b>Performance Score</b></td>
+        <td><b>20%</b></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><b>13%</b></td>
+        <td><b>12%</b></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-
-
-          </div>))}
-      {/* {role && name === '' && <ActualCommit />} */}
+        )}
+       </div>
     </div>
   )
 }
+
+

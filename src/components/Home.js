@@ -135,6 +135,101 @@ const Home = () => {
           </div>
 
         )}
+        {(role=== 'bh' || role==='sbuh') &&(
+          <div className="table-container">
+                              <HeadingWithHome level="h3">Bussiness and Brand Performance</HeadingWithHome>
+
+  <table className="custom-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+        <th>Objective</th>
+        <th>Month</th>
+        <th>YTD</th>
+        <th>Month Val</th>
+        <th>YTD Val</th>
+        <th>Month</th>
+        <th>YTD</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {/* Target / Objective Realization Section */}
+      <tr>
+        <td rowSpan="5">Target / Objective Realization</td>
+        <td>% of Targets achieved ≥100%</td>
+        <td>100%</td>
+        <td >53%</td>
+        <td >9%</td>
+        <td>51.12/95.76</td>
+        <td>27.43/305.4</td>
+        <td>5.00%</td>
+        <td>1.00%</td>
+      </tr>
+
+      <tr>
+        <td>Brand Performance</td>
+        <td>100%</td>
+        <td >57%</td>
+        <td >49%</td>
+        <td>56.57/100</td>
+        <td>56.57/100</td>
+        <td>6.00%</td>
+        <td>5.00%</td>
+      </tr>
+
+      <tr>
+        <td>% of BMs achieving ≥90% of targets</td>
+        <td>90%</td>
+        <td >0%</td>
+        <td >0%</td>
+        <td>0/10</td>
+        <td>0/10</td>
+        <td>0.00%</td>
+        <td>0.00%</td>
+      </tr>
+
+      <tr>
+        <td>Span of Performance</td>
+        <td>100%</td>
+        <td >57%</td>
+        <td >10%</td>
+        <td>57.46/100</td>
+        <td>10.31/100</td>
+        <td>2.87%</td>
+        <td>0.52%</td>
+      </tr>
+
+      <tr>
+        <td># Viability of Terr</td>
+        <td>100%</td>
+        <td >13%</td>
+        <td >0%</td>
+        <td>7/54</td>
+        <td>0/54</td>
+        <td>5.00%</td>
+        <td>5.00%</td>
+      </tr>
+
+      {/* Final Score Footer */}
+      <tr className="shade">
+        <td colSpan="2"><b>Compliance & Reporting Score</b></td>
+        <td><b>35%</b></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><b>18.87%</b></td>
+        <td><b>11.52%</b></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+        )
+
+        }
 
         {role === 'bl' && (
 
@@ -236,7 +331,7 @@ const Home = () => {
 
         )}
 
-        {(role === 'be' || role==='te') && (
+        {(role === 'be' ) && (
          
 
 
@@ -295,7 +390,6 @@ const Home = () => {
 
 
       </div>
-      {/* {role && name === '' && <ActualCommit />} */}
 
     </div>
   )

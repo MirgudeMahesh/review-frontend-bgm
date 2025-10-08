@@ -56,12 +56,12 @@ export default function Loginpage() {
     }
       // Start top loading bar
     NProgress.start();
-    
+
 const role = selectedEmp.Role.toLowerCase();
    
 
 const userRole =
-  role === "be" || role === "te" || role === "kae"
+  role === "be" || role === "te" || role === "kae" || role === "ne"
     ? "be"
     : role;
 

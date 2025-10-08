@@ -36,13 +36,13 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
     setName(empName);
     const normalizedRole = role.toUpperCase();
    const userRole =
-    normalizedRole === "BE" || normalizedRole === "TE" || normalizedRole === "KAE"
+    normalizedRole === "BE" || normalizedRole === "TE" || normalizedRole === "KAE" || normalizedRole === "NE"
       ? "BE"
       : normalizedRole;
       setUserRole(userRole);
     localStorage.setItem("territory", territory);
     navigate(`/profile/${empName}/Review`);
-    NProgress.done()
+    NProgress.done();
   };
 
   const styles = {
