@@ -8,8 +8,8 @@ import ActualCommit from '../ActualCommit';
 import { useState, useEffect } from 'react';
  import '../../styles.css';
 import Chats from './Chats';
- 
-
+ import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 export default function UserPerformance() {
  
   
@@ -31,6 +31,8 @@ useEffect(() => {
   if (userRole && terr) {
     const fetchData = async () => {
       try {
+        NProgress.start();
+
         const response = await fetch("http://localhost:8000/hierarchy-kpi", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -50,6 +52,9 @@ useEffect(() => {
         }
       } catch (err) {
         console.error("API error:", err);
+      }
+      finally{
+        NProgress.done();
       }
     };
 

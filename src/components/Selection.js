@@ -14,7 +14,7 @@ function Selection() {
 
 
     const logout = () => {
-      NProgress.start();
+    
     setRole('');
     setName('');
     setUser('');
@@ -27,7 +27,7 @@ function Selection() {
 
     localStorage.removeItem('selectedTerritory');
     navigate('/', { replace: true });
-      NProgress.done();  };
+      };
   return (
     <div>
       <MainNavbar/>

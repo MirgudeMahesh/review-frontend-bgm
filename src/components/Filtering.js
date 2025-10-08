@@ -50,7 +50,7 @@ export default function Filtering() {
       const data = await response.json();
       setResults(data);
       
-NProgress.done(); 
+
    
       setWarning(true);
 
@@ -70,6 +70,11 @@ NProgress.done();
       setWarntext('Error fetching data');
       setTimeout(() => setWarning(false), 3000);
     }
+
+    finally {
+      NProgress.done();
+    }
+
   };
 
   // 📤 Send messages to all filtered receivers
@@ -126,7 +131,7 @@ NProgress.done();
       if (!res.ok) throw new Error("Failed to send messages");
 
       setWarning(true);
-       NProgress.done();
+       
 
       setWarntext('Messages delivered successfully');
       setTimeout(() => setWarning(false), 3000);
@@ -144,6 +149,7 @@ NProgress.done();
       setWarntext('Error delivering messages');
       setTimeout(() => setWarning(false), 3000);
     }
+    finally {NProgress.done(); }
   };
 
   return (

@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import DrillDownTable from './DrillDownTable';
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 const DrillDownHierarchy = () => {
   const [data, setData] = useState(null);
   const empterr = localStorage.getItem("empterr"); // read territory from localStorage
 
   useEffect(() => {
     if (!empterr) return;
-
+    NProgress.start();
     fetch(`http://localhost:8000/hierarchy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -15,7 +16,7 @@ const DrillDownHierarchy = () => {
     })
       .then((res) => res.json())
       .then((actual) => setData(actual))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error(err)).finally(() => { NProgress.done(); });
   }, [empterr]);
 
   return (

@@ -29,11 +29,11 @@ export default function Commitment() {
     });
 
       const selection = (metric) => {
-        NProgress.start();
+      
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     navigate(`/Selection?ec=${ec}&metric=${metric}`);
-     NProgress.done();
+     
   };
     const ClickableCell = ({ value, metric }) => (
     <span
@@ -44,9 +44,9 @@ export default function Commitment() {
     </span>
   );
     const HomePage = () => {
-      NProgress.start();
+      
       navigate(`/FinalReport?ec=${ec}`);
-      NProgress.done();
+    
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     const HeadingWithHome = ({ level, children }) => {
@@ -79,8 +79,11 @@ export default function Commitment() {
   
   useEffect(() => {
     if (role && terr) {
+      
       const fetchData = async () => {
+        
         try {
+          NProgress.start();
           const response = await fetch("http://localhost:8000/hierarchy-kpi", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -100,6 +103,9 @@ export default function Commitment() {
           }
         } catch (err) {
           console.error("API error:", err);
+        }
+        finally{
+          NProgress.done();
         }
       };
   

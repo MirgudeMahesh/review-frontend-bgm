@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Subnavbar from '../Subnavbar';
 import { useRole } from '../RoleContext';
 import '../../styles.css';
-
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
 export default function Chats() {
   
   const { role, setRole, name, setName } = useRole();
@@ -27,6 +28,7 @@ const sendInformation = async () => {
   };
 
   try {
+
     await fetch('http://localhost:8000/putInfo', {
       method: 'POST',
       headers: {
@@ -48,6 +50,7 @@ const sendInformation = async () => {
   const fetchMessages = async () => {
     const empterr=localStorage.getItem("territory");
     try {
+      NProgress.start();
       const response = await fetch(
         "http://localhost:8000/getMessagesByTerritory",
         {
@@ -69,6 +72,9 @@ const sendInformation = async () => {
       console.error(err);
       setWarning("Error fetching messages");
       setTimeout(() => setWarning(""), 3000);
+    }
+    finally{
+      NProgress.done();
     }
   };
 

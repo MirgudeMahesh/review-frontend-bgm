@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import ActualCommit from './ActualCommit';
 import Textarea from './Textarea';
 import { useRole } from './RoleContext';
 import Subnavbar from './Subnavbar';
+import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
@@ -15,40 +16,42 @@ export default function FinalReport() {
     const navigate = useNavigate();
 
   const perform = () => { 
-    NProgress.start();
+  
     navigate(`/TeamBuild?ec=${ec}`); 
-     NProgress.done();
+    
      
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   const Home = () => { 
-        NProgress.start();
+      
 
     navigate(`/Performance?ec=${ec}`); 
-          NProgress.done();
+        
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
 
 
   const misc = () => {
-        NProgress.start();
+     
  
     navigate(`/Hygine?ec=${ec}`); 
-               NProgress.done();
+               
 
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
 
   const commitment = () => {
-              NProgress.start();
+              
 
  
     navigate(`/Compliance?ec=${ec}`); 
-           NProgress.done();
+          
     window.scrollTo({ top: 0, behavior: 'smooth' }); 
   };
+
+
 
   return (
     <div>

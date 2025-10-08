@@ -39,6 +39,7 @@ export default function Escalating() {
         
       };
       // try {
+      
         const response = await fetch('http://localhost:8000/putEscalations', {
           method: 'POST',
           headers: {
@@ -50,11 +51,11 @@ export default function Escalating() {
           .then(result => {
             setWarning(true);
             setWarntext('Message delivered');
-                         NProgress.done();
+                        
 
             setText('');
             setMetric('');
-          });
+          }).finally(() => { NProgress.done(); });
 
         setTimeout(() => {
           setWarntext('');

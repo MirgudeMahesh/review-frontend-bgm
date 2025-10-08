@@ -24,9 +24,9 @@ const Home = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
   const ec= localStorage.getItem("empByteCode");
   const HomePage = () => {
-    NProgress.start();
+    
     navigate(`/FinalReport?ec=${ec}`);
-    NProgress.done();
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const HeadingWithHome = ({ level, children }) => {

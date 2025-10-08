@@ -14,36 +14,35 @@ export default function Navbar() {
 
   const navigate = useNavigate();
   const Raise = () => {
-    NProgress.start();
+    
     navigate(`/disclosure?ec=${ec}`);
-      NProgress.done();
+     
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   const Review = () => {
-    NProgress.start();
+    
     navigate(`/FinalReport?ec=${ec}`);
-      NProgress.done();
+      
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const Info = () => {
-    NProgress.start();
+   
     navigate(`/info?ec=${ec}`);
-      NProgress.done();
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const selection = () => {
-    NProgress.start();
-
+    
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
     navigate(`/Selection?ec=${ec}`);
-      NProgress.done();
+      
 
   }
   const notselection = () => {
-    NProgress.start();
+   
 
     setRole('');
     setName('');
@@ -55,7 +54,7 @@ export default function Navbar() {
     localStorage.removeItem('territory');
 
     navigate('/', { replace: true });
-      NProgress.done();
+     
   }
     const [showModal, setShowModal] = useState(false);
   

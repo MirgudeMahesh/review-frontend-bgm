@@ -77,7 +77,7 @@ export default function Textarea() {
 
         setWarning(true);
         setWarntext('Message delivered');
-          NProgress.done();        setTarget('');
+              setTarget('');
         setSelectedDate('');
         setText('');
         setMetric('');
@@ -90,6 +90,9 @@ export default function Textarea() {
         setWarning(true);
         setWarntext('Error sending data');
         setTimeout(() => setWarning(false), 3000);
+      }
+      finally{
+        NProgress.done();
       }
     }
   };

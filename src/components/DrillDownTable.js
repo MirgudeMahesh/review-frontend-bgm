@@ -32,7 +32,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
     setExpandedRows((p) => ({ ...p, [name]: !p[name] }));
 
   const openProfile = (empName, role, territory) => {
-    NProgress.start();
+    
     setName(empName);
     const normalizedRole = role.toUpperCase();
    const userRole =
@@ -42,7 +42,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
       setUserRole(userRole);
     localStorage.setItem("territory", territory);
     navigate(`/profile/${empName}/Review`);
-    NProgress.done();
+   
   };
 
   const styles = {

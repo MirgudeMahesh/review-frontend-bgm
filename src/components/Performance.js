@@ -28,6 +28,7 @@ export default function Performance() {
     if (role && terr) {
       const fetchData = async () => {
         try {
+          NProgress.start();
           const response = await fetch("http://localhost:8000/hierarchy-kpi", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -47,6 +48,9 @@ export default function Performance() {
         } catch (err) {
           console.error("API error:", err);
         }
+        finally{
+          NProgress.done();
+        }
       };
 
       fetchData();
@@ -54,10 +58,10 @@ export default function Performance() {
   }, [role, terr]);
 
   const selection = (metric) => {
-    NProgress.start();
+    
     window.scrollTo({ top: 0, behavior: "smooth" });
     navigate(`/Selection?ec=${ec}&metric=${metric}`);
-    NProgress.done();
+   
   };
 
   const ClickableCell = ({ value, metric }) => (
@@ -75,9 +79,9 @@ export default function Performance() {
 
   // ✅ Common heading with right-corner Home button
    const HomePage = () => {
-    NProgress.start();
+   
     navigate(`/FinalReport?ec=${ec}`);
-    NProgress.done();
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   const HeadingWithHome = ({ level, children }) => {

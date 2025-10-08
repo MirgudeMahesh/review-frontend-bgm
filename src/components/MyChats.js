@@ -2,14 +2,16 @@ import React, { useState, useEffect, useRef } from "react";
 import Subnavbar from "./Subnavbar";
 import { useRole } from "./RoleContext";
 import "../styles.css";
-
+import nProgress from "nprogress";
+import "nprogress/nprogress.css"; // import styles
+import { useLocation } from "react-router-dom";
 export default function MyChats() {
   const { role, setRole, name, setName,textBox } = useRole();
   const [text, setText] = useState("");
   const [results, setResults] = useState([]);
   const [warning, setWarning] = useState("");
   const chatBoxRef = useRef(null);
-
+const location = useLocation();
   // Send message
 const sendInformation = async () => {
    if(text===''){
@@ -54,36 +56,38 @@ const sendInformation = async () => {
 
 
   // Fetch messages
-  const fetchMessages = async () => {
-    const empterr=localStorage.getItem("empterr");
-    try {
-      const response = await fetch(
-        "http://localhost:8000/getMessagesByTerritory",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            receiver_territory: empterr,
-          }),
-        }
-      );
+const fetchMessages = async () => {
+  try {
+    nProgress.start();
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch data");
-      }
+    const empterr = localStorage.getItem("empterr");
+    const response = await fetch("http://localhost:8000/getMessagesByTerritory", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ receiver_territory: empterr }),
+    });
 
-      const data = await response.json();
-      setResults(data.results || []);
-    } catch (err) {
-      console.error(err);
-      setWarning("Error fetching messages");
-      setTimeout(() => setWarning(""), 3000);
-    }
-  };
+    if (!response.ok) throw new Error("Failed to fetch data");
 
-  useEffect(() => {
+    const data = await response.json();
+    setResults(data.results || []);
+  } catch (err) {
+    console.error(err);
+    setWarning("Error fetching messages");
+    setTimeout(() => setWarning(""), 3000);
+  } finally {
+    nProgress.done();
+  }
+};
+
+
+
+useEffect(() => {
+
     fetchMessages();
-  }, []);
+  
+}, []);
+
 
   useEffect(() => {
     // Scroll to bottom when new messages arrive

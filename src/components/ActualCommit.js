@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import {faFloppyDisk} from '@fortawesome/free-solid-svg-icons';
+import nProgress from 'nprogress';
 export default function ActualCommit() {
   const [commitments, setCommitments] = useState([]);
   const location = useLocation();
@@ -17,6 +18,7 @@ export default function ActualCommit() {
       return;
     }
 
+    nProgress.start();
     fetch(`http://localhost:8000/getData/${territory}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch data");
@@ -26,7 +28,7 @@ export default function ActualCommit() {
       .catch((err) => {
         console.error("Error fetching commitments:", err);
         setCommitments([]);
-      });
+      }).finally(() => nProgress.done());
   }, [location]);
 
   // Handle receiver commit date change
@@ -83,6 +85,7 @@ const saveGoal = (index) => {
 
   // Save to DB (generic)
   const saveToDB = (row, field, value) => {
+    nProgress.start();
     fetch(`http://localhost:8000/updateCommitment`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -97,7 +100,7 @@ const saveGoal = (index) => {
         if (!res.ok) throw new Error(`Failed to update ${field}`);
         console.log(`${field} updated successfully`);
       })
-      .catch((err) => console.error(`Error saving ${field}:`, err));
+      .catch((err) => console.error(`Error saving ${field}:`, err)).finally(() => { nProgress.done()})
   };
 
   const formatDate = (dateString) => {

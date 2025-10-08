@@ -15,6 +15,7 @@ export default function Loginpage() {
 
   // Fetch employees once on mount
   useEffect(() => {
+    NProgress.start();
     fetch('http://localhost:8000/employees')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch employees');
@@ -27,7 +28,7 @@ export default function Loginpage() {
       .catch((err) => {
         console.error('Error fetching employees:', err);
         setWarning('Unable to load employees. Please try again later.');
-      });
+      }).finally(() => { NProgress.done(); });
   }, []);
 
   // Filter employees whenever searchTerm changes
@@ -55,7 +56,7 @@ export default function Loginpage() {
       return;
     }
       // Start top loading bar
-    NProgress.start();
+    
 
 const role = selectedEmp.Role.toLowerCase();
    
@@ -78,7 +79,7 @@ const userRole =
     const encoded = btoa(selectedEmp.Emp_Code);
     localStorage.setItem("empByteCode", encoded);
     navigate(`/FinalReport?ec=${encoded}`, { replace: true });
-      NProgress.done();  };
+     };
 
   return (
     <div
