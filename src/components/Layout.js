@@ -1,64 +1,48 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from './Navbar';
-import Subnavbar from './Subnavbar';
-import { useRole } from './RoleContext';
-import ActualCommit from './ActualCommit';
-import Filtering from './Filtering';
-import '../styles.css';
-import { faComment } from "@fortawesome/free-solid-svg-icons";
-import Escalating from './Escalating';
-import Chats from './dashboard/Chats';
-import MainNavbar from './MainNavbar';
-import Textarea from './Textarea';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from '@fortawesome/free-solid-svg-icons';
-import Ai from './Ai';
-const Layout = ({ children }) => {
-  
-  const navigate = useNavigate();
+import React, { useState } from "react";
+import { useLocation, Outlet } from "react-router-dom";
+import { useRole } from "./RoleContext";
+
+import MainNavbar from "./MainNavbar";
+import ActualCommit from "./ActualCommit";
+import Chats from "./dashboard/Chats";
+import Ai from "./Ai";
+import "../styles.css";
+
+const Layout = () => {
   const location = useLocation();
-  const { role, name,userRole } = useRole();
+  const { role } = useRole();
 
-  const hideComponentsOnPaths = ['/'];
-  const shouldHideMainUI = hideComponentsOnPaths.includes(location.pathname);
-  const isProfilePage = location.pathname.startsWith("/profile");
-
-  // Modal State
-   const [inputText, setInputText] = useState('');
   const [showModal, setShowModal] = useState(false);
 
- 
+  // Paths where layout should hide main UI (like login)
+  const hiddenPaths = ["/"];
+  const shouldHideMainUI = hiddenPaths.includes(location.pathname);
 
+  const isProfilePage = location.pathname.startsWith("/profile");
+
+  // Only show main UI when role exists and not on hidden paths
+  const showUI = role && !shouldHideMainUI;
 
   return (
     <>
-      {/* Optional: Add blur class to main UI when modal shows */}
-      <div className={`layout-container ${showModal ? 'blurred' : ''}`}>
-        {role && !shouldHideMainUI && <MainNavbar  />}
-        <div style={{ marginTop: "150px" }}>
-{/* {role && !shouldHideMainUI && role !== "bh" && role !== "sbuh"  && (
-  <Navbar handleOpenModal={handleOpenModal} />
-)} */}
+      <div className={`layout-container ${showModal ? "blurred" : ""}`}>
+        {/* ✅ Main Navbar */}
+        {showUI && <MainNavbar />}
 
-        </div>
-        
+        <div style={{ marginTop: "150px" }} />
 
-        <main>{children}</main>
+        {/* ✅ Route outlet for pages */}
+        <main>
+          <Outlet />
+        </main>
 
-{role && role !== "bh" && role !== "sbuh" && !shouldHideMainUI && <ActualCommit />}
-
-{isProfilePage && !shouldHideMainUI && <Chats />}
-
-       
+        {/* ✅ Role-based components */}
+        {showUI && role !== "bh" && role !== "sbuh" && <ActualCommit />}
+        {showUI && isProfilePage && <Chats />}
       </div>
 
- {role==='sbuh' && !shouldHideMainUI && <Ai/>}
-
-
-
-
-
+      {/* ✅ Floating AI Assistant (for SBUs only) */}
+      {showUI && role === "sbuh" && <Ai />}
     </>
   );
 };
