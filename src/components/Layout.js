@@ -13,6 +13,7 @@ import MainNavbar from './MainNavbar';
 import Textarea from './Textarea';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import Ai from './Ai';
 const Layout = ({ children }) => {
   
   const navigate = useNavigate();
@@ -52,7 +53,7 @@ const Layout = ({ children }) => {
        
       </div>
 
-
+ {role==='sbuh' && !shouldHideMainUI && <Ai/>}
 
 
 

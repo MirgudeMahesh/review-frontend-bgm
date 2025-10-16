@@ -117,10 +117,7 @@ export default function Navbar() {
           }
 
 
-          {/* {(role === 'sbuh' || role === 'admin ') && (<li className="hide">
-            <button className="text-button" onClick={Raise}  >Raise</button>
-          </li>)} */}
-
+         
 
 
 
@@ -156,12 +153,10 @@ export default function Navbar() {
 
             </a>
           </li>
-          <li className="hide">
-            <a>
-              <button id="contact" className="text-button" onClick={Raise}  >Raise
-              </button>
-            </a>
-          </li>
+           {(role === 'sbuh' || role === 'admin ') && (<li className="hide">
+            <button className="text-button" onClick={Raise}  >Raise</button>
+          </li>)}
+
           <li>
             <button
               onClick={handleOpenModal}
