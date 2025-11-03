@@ -24,12 +24,37 @@ export default function Performance() {
     Calls: "",
   });
 
-  useEffect(() => {
-    if (role && terr) {
-      const fetchData = async () => {
-        try {
-          NProgress.start();
-          const response = await fetch("http://localhost:8000/hierarchy-kpi", {
+useEffect(() => {
+  if (role && terr) {
+    const fetchData = async () => {
+      try {
+        NProgress.start();
+
+        let response;
+
+        if (role === "be") {
+          // 👇 Fetch from /sample if role is 'be'
+          response = await fetch("http://localhost:8000/dashboardData", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Territory: terr }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data) {
+            setBeData({
+              Chemist_Calls: data.Chemist_Calls || 0,
+              Compliance: data.Compliance || 0,
+              Coverage: data.Coverage || 0,
+              Calls: data.Calls || 0,
+            });
+            console.log("BE Data fetched:", data);
+          }
+
+        } else {
+          // 👇 Existing API call for other roles
+          response = await fetch("http://localhost:8000/hierarchy-kpi", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ empterr: terr }),
@@ -45,17 +70,17 @@ export default function Performance() {
               Calls: node.metrics.Calls || 0,
             });
           }
-        } catch (err) {
-          console.error("API error:", err);
         }
-        finally{
-          NProgress.done();
-        }
-      };
+      } catch (err) {
+        console.error("API error:", err);
+      } finally {
+        NProgress.done();
+      }
+    };
 
-      fetchData();
-    }
-  }, [role, terr]);
+    fetchData();
+  }
+}, [role, terr]);
 
   const selection = (metric) => {
     
@@ -322,48 +347,63 @@ export default function Performance() {
 
             <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
 
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Parameter</th>
-                  <th>Objective(%)</th>
-                  <th>Month(%)</th>
-                  <th>YTD(%)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Calls</td>
-                  <td>NA</td>
-                  <td><ClickableCell value={beData.Calls} metric="Calls" /></td>
-                  <td>NA</td>
-                </tr>
-                <tr>
-                  <td>Coverage</td>
-                  <td>NA</td>
-                  <td><ClickableCell value={beData.Coverage} metric="Coverage" /></td>
-                  <td>NA</td>
-                </tr>
-                <tr>
-                  <td>Compliance</td>
-                  <td>NA</td>
-                  <td><ClickableCell value={beData.Compliance} metric="Compliance" /></td>
-                  <td>NA</td>
-                </tr>
-                <tr>
-                  <td>Chemist_Calls</td>
-                  <td>NA</td>
-                  <td><ClickableCell value={beData.Chemist_Calls} metric="Chemist_Calls" /></td>
-                  <td>NA</td>
-                </tr>
-                <tr className="shade">
-                  <td>Effort Score</td>
-                  <td>NA</td>
-                  <td>—</td>
-                  <td>—</td>
-                </tr>
-              </tbody>
-            </table>
+<table className="custom-table">
+  <thead>
+    <tr>
+      <th>Weightage</th>
+      <th>Parameter</th>
+      <th>Objective(%)</th>
+      <th>Month(%)</th>
+      <th>YTD(%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>10%</td>
+      <td># Calls</td>
+      <td>240</td>
+      <td><ClickableCell value={beData.Calls} metric="Calls" /></td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>% Coverage</td>
+      <td>95</td>
+      <td><ClickableCell value={beData.Coverage} metric="Coverage" /></td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>% Compliance</td>
+      <td>90</td>
+      <td><ClickableCell value={beData.Compliance} metric="Compliance" /></td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>% RCPA</td>
+      <td>100</td>
+      <td><ClickableCell value={beData.Chemist_Calls} metric="Chemist_Calls" /></td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>% Activity Imple.</td>
+      <td>100</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+    <tr className="shade">
+      <td>50%</td>
+      <td>Effort Score</td>
+      <td>50.00</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+  </tbody>
+</table>
+
+
           </div>
         )}
         {

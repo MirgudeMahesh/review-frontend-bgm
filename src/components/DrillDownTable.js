@@ -336,29 +336,61 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
                     </tr>
                   </thead>
                   <tbody>
-                    {[...overlay.table2]
-                      .sort(
-                        (a, b) =>
-                          (Number(b.GrandTotal) || 0) -
-                          (Number(a.GrandTotal) || 0)
-                      )
-                      .map((row, idx) => {
-                        const stockCols = getStockistColumns(overlay.table2);
-                        return (
-                          <tr key={idx}>
-                            <td style={styles.td}>{row.ProductName || "-"}</td>
-                            {stockCols.map((s) => (
-                              <td key={s} style={styles.td}>
-                                {Number(row[s] ?? 0).toLocaleString()}
-                              </td>
-                            ))}
-                            <td style={styles.td}>
-                              {Number(Math.floor(row.GrandTotal) ?? 0).toLocaleString()}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
+  {[...overlay.table2]
+    .sort(
+      (a, b) =>
+        (Number(b.GrandTotal) || 0) -
+        (Number(a.GrandTotal) || 0)
+    )
+    .map((row, idx) => {
+      const stockCols = getStockistColumns(overlay.table2);
+      return (
+        <tr key={idx}>
+          <td style={styles.td}>{row.ProductName || "-"}</td>
+          {stockCols.map((s) => (
+            <td key={s} style={styles.td}>
+              {Number(row[s] ?? 0).toLocaleString()}
+            </td>
+          ))}
+          <td style={styles.td}>
+            {Number(Math.floor(row.GrandTotal) ?? 0).toLocaleString()}
+          </td>
+        </tr>
+      );
+    })}
+
+  {/* ✅ Stockist-wise Total Row */}
+  {(() => {
+    const stockCols = getStockistColumns(overlay.table2);
+    const totals = {};
+
+    // Calculate totals per stockist
+    stockCols.forEach((col) => {
+      totals[col] = overlay.table2.reduce(
+        (sum, row) => sum + (Number(row[col]) || 0),
+        0
+      );
+    });
+
+    const grandTotalSum = overlay.table2.reduce(
+      (sum, row) => sum + (Number(row.GrandTotal) || 0),
+      0
+    );
+
+    return (
+      <tr style={{ backgroundColor: "#f3f3f3", fontWeight: "bold" }}>
+        <td style={styles.td}>Stockist-wise Total</td>
+        {stockCols.map((s) => (
+          <td key={s} style={styles.td}>
+            {totals[s].toLocaleString()}
+          </td>
+        ))}
+        <td style={styles.td}>{grandTotalSum.toLocaleString()}</td>
+      </tr>
+    );
+  })()}
+</tbody>
+
                 </table>
               </div>
             )}

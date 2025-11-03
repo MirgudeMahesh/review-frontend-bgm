@@ -338,49 +338,55 @@ const Home = () => {
             <div className="table-container">
                 {/* {name && <Subnavbar/>} */}
                             <HeadingWithHome level="h1">Bussiness Performance</HeadingWithHome>
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Parameter</th>
-                    <th>Objective(%)</th>
-                    <th>Month(%)</th>
-                    <th>YTD(%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Secondary Gr%</td>
-                    <td>#N/A</td>
-                    <td>#N/A</td>
-                    <td>#N/A</td>
-                  </tr>
-                  <tr>
-                    <td>MSR Acheivement%</td>
-                    <td>100</td>
-                    <td>#N/A</td>
-                    <td>#N/A</td>
-                  </tr>
-                  <tr>
-                    <td>%Gr in Rxer</td>
-                    <td>5</td>
-                    <td>#N/A</td>
-                    <td>#N/A</td>
-                  </tr>
-                  <tr>
-                    <td>Brand Perf. Index</td>
-                    <td>100</td>
-                    <td>#N/A</td>
-                    <td>#N/A</td>
-                  </tr>
+             <table className="custom-table">
+  <thead>
+    <tr>
+      <th>Weightage</th>
+      <th>Parameter</th>
+      <th>Objective(%)</th>
+      <th>Month(%)</th>
+      <th>YTD(%)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>20%</td>
+      <td>Secondary Gr%</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>MSR Achievement%</td>
+      <td>100</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>% Gr in Rxer</td>
+      <td>5</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+    <tr>
+      <td>10%</td>
+      <td>Brand Perf. Index</td>
+      <td>100</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+    <tr className="shade">
+      <td>50%</td>
+      <td>Performance Score</td>
+      <td>50.00</td>
+      <td>#N/A</td>
+      <td>#N/A</td>
+    </tr>
+  </tbody>
+</table>
 
-                  <tr className='shade'>
-                    <td>Performance Score</td>
-                    <td>24</td>
-                    <td>#N/A</td>
-                    <td>68</td>
-                  </tr>
-                </tbody>
-              </table>
               {/* { name && < Textarea onsubmit={handleSubmit}/>} */}
 
           </div>

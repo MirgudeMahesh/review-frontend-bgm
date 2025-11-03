@@ -4,20 +4,20 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 const DrillDownHierarchy = () => {
   const [data, setData] = useState(null);
-  const empterr = localStorage.getItem("empterr"); // read territory from localStorage
+  const territory = localStorage.getItem("empterr"); // read territory from localStorage
 
   useEffect(() => {
-    if (!empterr) return;
+    if (!territory) return;
     NProgress.start();
     fetch(`http://localhost:8000/hierarchy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ empterr })
+      body: JSON.stringify({ territory })
     })
       .then((res) => res.json())
       .then((actual) => setData(actual))
       .catch((err) => console.error(err)).finally(() => { NProgress.done(); });
-  }, [empterr]);
+  }, [territory]);
 
   return (
     <div
