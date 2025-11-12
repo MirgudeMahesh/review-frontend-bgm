@@ -215,7 +215,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
 
             let metricValue =
               activeMetric === "Sales"
-                ? Math.floor(salesToShow)
+                ? Math.round(salesToShow)
                 : child[activeMetric] ?? "-";
 
             return (
@@ -353,7 +353,7 @@ const DrillDownTable = ({ childrenData, level, appliedProduct, appliedMetric }) 
             </td>
           ))}
           <td style={styles.td}>
-            {Number(Math.floor(row.GrandTotal) ?? 0).toLocaleString()}
+            {Number(Math.round(row.GrandTotal) ?? 0).toLocaleString()}
           </td>
         </tr>
       );
