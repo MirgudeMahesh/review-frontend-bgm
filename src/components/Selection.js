@@ -35,7 +35,23 @@ function Selection() {
 
       
 
-     <div style={{justifyContent:'center',alignItems:'center',display:'flex',padding:'10px'}}> <button  onClick={logout}>Logout</button></div>
+<div 
+  style={{
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex',
+    padding: '10px',
+    flexDirection: 'column',
+    textAlign: 'center',
+    fontSize: '14px',
+    color: '#444'
+  }}
+>
+  <p>🔹 <b>Click on any information</b> to expand the hierarchy.</p>
+  <p>🔹 <b>Click on a BE’s name</b> (after drill-down) to view their dashboard.</p>
+    <p>⚠️ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+
+</div>
     </div>
   );
 }

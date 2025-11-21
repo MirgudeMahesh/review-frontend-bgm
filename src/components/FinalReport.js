@@ -141,6 +141,10 @@ if (!score1 || !score3) {
               </tr>
             </tbody>
           </table>
+          <div className="notes-box">
+  <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+  <p>⚠️ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+</div>
         </div>
       </div>
      </div>

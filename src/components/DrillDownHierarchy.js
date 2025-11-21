@@ -36,7 +36,7 @@ const territory=decoded;
         height: '60vh',
         marginLeft: '50px',
         marginRight: '50px',
-        marginTop: '100px'
+        marginTop: '-20px'
       }}
     >
       {data ? (

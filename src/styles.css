@@ -151,6 +151,14 @@
   max-height: 87vh;
   overflow-y: auto;
 }
+.notes-box {
+  margin-top: 55px;
+  font-size: 14px;
+  color: #333;
+  padding: 10px;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
 
 
 .modal-box input {
