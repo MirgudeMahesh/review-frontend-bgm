@@ -1082,21 +1082,20 @@ margin-top:20px;
   padding: 10px;               /* Better spacing */
 }
 
+/* Make table scroll properly on both sides */
 .table-container {
-  width: 100%;
-  max-width: 900px;            /* optional */
-  height: 70vh;
-  background-color: #faf9f9;
-  border-radius: 10px;
-
-  overflow-y: auto;
-  overflow-x: auto;            /* ✅ FIX: enables full horizontal scroll */
-
-  -webkit-overflow-scrolling: touch;  /* smoother scrolling in mobile */
-
-  padding-top: 10px;
-  margin: auto;
+  overflow-x: auto !important;  /* horizontal scroll */
+  -webkit-overflow-scrolling: touch; 
+  padding-left: 10px;           /* equal left padding */
+  padding-right: 10px;          /* equal right padding */
 }
+
+/* Important so table doesn’t stick to left edge */
+.custom-table {
+  display: block;               /* allow horizontal scroll */
+  min-width: 650px;             /* force scroll on small screens */
+}
+
 
 
   .commit-padding {
