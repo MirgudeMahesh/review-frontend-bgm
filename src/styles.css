@@ -1073,28 +1073,40 @@ margin-top:20px;
     border-radius: 10px;
     margin: auto;
   } */
-   .table-box {
+ .table-box {
   display: flex;
   justify-content: center;
+  align-items: center;
+
+  height: 80vh;
   margin-top: -10px;
-  align-items: flex-start;     /* FIX: do not vertically center */
-  height: auto;                /* FIX: remove fixed 80vh */
-  padding: 10px;               /* Better spacing */
+
+  padding: 10px;    /* ← THIS creates spacing without breaking scroll */
 }
 
-/* Make table scroll properly on both sides */
+
 .table-container {
-  overflow-x: auto !important;  /* horizontal scroll */
-  -webkit-overflow-scrolling: touch; 
-  padding-left: 10px;           /* equal left padding */
-  padding-right: 10px;          /* equal right padding */
+  height: 70vh;
+  width: 90%;
+  overflow-x: auto;
+  overflow-y: auto;
+
+  background-color: #faf9f9;
+  border-radius: 10px;
+
+  margin: auto;
+
+  padding: 0 !important;   /* ← remove padding */
+  -webkit-overflow-scrolling: touch;
 }
 
-/* Important so table doesn’t stick to left edge */
+
 .custom-table {
-  display: block;               /* allow horizontal scroll */
-  min-width: 650px;             /* force scroll on small screens */
+  min-width: 650px;    /* force scroll on small phones */
+  border-collapse: separate;   /* ← IMPORTANT */
+  border-spacing: 0;           /* keep borders tight */
 }
+
 
 
 
