@@ -58,19 +58,22 @@ export default function UserPerformance() {
   // ----------------------------
   // ✅ CALCULATE TOTAL YTD SCORE
   // ----------------------------
-  const totalYTDScore = (
-    (ytdData?.Calls_Score || 0) +
-    (ytdData?.Coverage_Score || 0) +
-    (ytdData?.Compliance_Score || 0) +
-    (ytdData?.RCPA_Score || 0) +
-    (ytdData?.Activity_Implementation_Score || 0)
-  ).toFixed(2);
- const totalFTDScore =(
-    (Number(beData?.Calls_Score) || 0) +
-    (Number(beData?.Coverage_Score) || 0) +
-    (Number(beData?.Compliance_Score) || 0) +
-    (Number(beData?.RCPA_Score) || 0) +
-    (Number(beData?.Activity_Implementation_Score) || 0)).toFixed(2);
+ const totalYTDScore = (
+  Number(ytdData?.Calls_Score || 0) +
+  Number(ytdData?.Coverage_Score || 0) +
+  Number(ytdData?.Compliance_Score || 0) +
+  Number(ytdData?.RCPA_Score || 0) +
+  Number(ytdData?.Activity_Implementation_Score || 0)
+).toFixed(2);
+
+const totalFTDScore = (
+  (Number(beData?.Calls_Score) || 0) +
+  (Number(beData?.Coverage_Score) || 0) +
+  (Number(beData?.Compliance_Score) || 0) +
+  (Number(beData?.RCPA_Score) || 0) +
+  (Number(beData?.Activity_Implementation_Score) || 0)
+).toFixed(2);
+
   return (
     <div>
       <div className="table-box">

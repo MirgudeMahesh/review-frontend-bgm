@@ -127,10 +127,10 @@ if (!score1 || !score3) {
               <tr className="shade">
                 <td>Efficiency Index</td>
                 <td>100</td>
-                <td>{(score3 + score4).toFixed(2)}</td>
+                <td>{Number(parseFloat((score3 + score4))).toFixed(2)}</td>
 
                 {/* SUM (1 decimal) */}
-                <td>{(score1 + score2).toFixed(2)}</td>
+                <td>{Number(parseFloat((score1 + score2))).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>

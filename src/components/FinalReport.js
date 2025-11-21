@@ -62,6 +62,7 @@ const fetchFTD = async () => {
         if (response.ok) {
           setScore3(data.totalScore3 || 0);
           setScore4(data.totalScore4 || 0);
+          console.log("FTD Data:", data);
         }
       } catch (err) {
         console.error("YTD API error:", err);
@@ -133,18 +134,19 @@ if (!score1 || !score3) {
               <tr className="shade">
                 <td>Efficiency Index</td>
                 <td>100</td>
-                <td>{(score3 + score4).toFixed(2)}</td>
+                <td>{Number(parseFloat((score3 + score4))).toFixed(2)}</td>
 
                 {/* ROW 3 YTD → score1 + score2 */}
-                <td>{(score1 + score2).toFixed(2)}</td>
+                <td>{Number(parseFloat((score1 + score2))).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
+     </div>
   );
 }
+
 
 
 //temporaray

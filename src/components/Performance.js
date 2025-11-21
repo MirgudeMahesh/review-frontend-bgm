@@ -192,11 +192,11 @@ export default function Performance() {
                 <td>Effort Score</td>
                 <td>-</td>
                 <td>-</td>
-                <td><b>{Number(totalFTDScore).toFixed(2)}</b></td>
+                <td><b>{Number(parseFloat(totalFTDScore)).toFixed(2)}</b></td>
                 <td>-</td>
 
                 {/* ⭐ Replace last value with total */}
-                <td><b>{Number(totalYTDScore).toFixed(2)}</b></td>
+                <td><b>{Number(parseFloat(totalYTDScore)).toFixed(2)}</b></td>
 
                 
               </tr>

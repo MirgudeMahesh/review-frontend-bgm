@@ -23,7 +23,7 @@ const Home = () => {
   const [beData, setBeData] = useState(null);
   const [ytdData, setYtdData] = useState(null);
 
-  const fmt = (v) => Number(v || 0).toFixed(2);   // <--- 1 DECIMAL FORMATTER
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);   // <--- 1 DECIMAL FORMATTER
 
   const HomePage = () => {
     navigate(`/FinalReport?ec=${encoded}`);
@@ -203,6 +203,7 @@ const Home = () => {
 };
 
 export default Home;
+
 
 
 

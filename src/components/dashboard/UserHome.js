@@ -19,7 +19,7 @@ const UserHome = () => {
   const [beData, setBeData] = useState(null);
   const [ytdData, setYtdData] = useState(null);
 
-  const fmt = (v) => Number(v || 0).toFixed(2); // <-- 1 DECIMAL FORMAT
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2); // <-- 1 DECIMAL FORMAT
 
   const { profileTerritory } = useProfileTerritory();
 
