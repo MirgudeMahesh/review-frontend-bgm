@@ -30,7 +30,7 @@ export default function FinalReport() {
     const fetchYTD = async () => {
       try {
         NProgress.start();
-        const response = await fetch("http://localhost:8000/dashboardYTD", {
+        const response = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ Territory: decoded })
