@@ -92,7 +92,9 @@ const fetchFTD = async () => {
     navigate(`/Compliance?ec=${encoded}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
+if (!score1 || !score3) {
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  }
   return (
     <div>
       <div className="table-box">
