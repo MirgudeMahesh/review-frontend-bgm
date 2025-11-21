@@ -186,7 +186,7 @@ const totalFTDScore =
   <tr className="shade">
     <td>50%</td>
     <td>Performance Score</td>
-    <td>50.00</td>
+    <td>-</td>
     <td>-</td>
     <td><b>{fmt(totalFTDScore)}</b></td>
     <td>-</td>
