@@ -74,16 +74,20 @@ const UserHome = () => {
   // ---------------------------------------------------------
   // TOTAL YTD SCORE (SUM OF ALL SCORES)
   // ---------------------------------------------------------
-  const totalYTDScore =
-    (ytdData?.Secondary_Sales_growth_Score || 0) +
-    (ytdData?.MSR_Achievement_Score || 0) +
-    (ytdData?.RX_Growth_Score || 0) +
-    (ytdData?.Brand_Performance_Index_Score || 0);
- const totalFTDScore=
-  (beData?.Secondary_Sales_growth_Score || 0) +
-    (beData?.MSR_Achievement_Score || 0) +
-    (beData?.RX_Growth_Score || 0) +
-    (beData?.Brand_Performance_Index_Score || 0);
+ const totalYTDScore = (
+  Number(ytdData?.Secondary_Sales_growth_Score) +
+  Number(ytdData?.MSR_Achievement_Score) +
+  Number(ytdData?.RX_Growth_Score) +
+  Number(ytdData?.Brand_Performance_Index_Score)
+).toFixed(2);
+
+const totalFTDScore = (
+  Number(beData?.Secondary_Sales_growth_Score) +
+  Number(beData?.MSR_Achievement_Score) +
+  Number(beData?.RX_Growth_Score) +
+  Number(beData?.Brand_Performance_Index_Score)
+).toFixed(2);
+
   return (
     <div>
       <div className='table-box'>

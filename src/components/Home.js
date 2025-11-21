@@ -109,16 +109,18 @@ const Home = () => {
   // ------------------------------------------------
   //        FINAL YTD TOTAL SCORE (1 DECIMAL)
   // ------------------------------------------------
-  const totalYTDScore =
-    (ytdData?.Secondary_Sales_growth_Score || 0) +
-    (ytdData?.MSR_Achievement_Score || 0) +
-    (ytdData?.RX_Growth_Score || 0) +
-    (ytdData?.Brand_Performance_Index_Score || 0);
-  const totalFTDScore=
-  (beData?.Secondary_Sales_growth_Score || 0) +
-    (beData?.MSR_Achievement_Score || 0) +
-    (beData?.RX_Growth_Score || 0) +
-    (beData?.Brand_Performance_Index_Score || 0);
+const totalYTDScore =
+  (Number(ytdData?.Secondary_Sales_growth_Score) || 0) +
+  (Number(ytdData?.MSR_Achievement_Score) || 0) +
+  (Number(ytdData?.RX_Growth_Score) || 0) +
+  (Number(ytdData?.Brand_Performance_Index_Score) || 0);
+
+const totalFTDScore =
+  (Number(beData?.Secondary_Sales_growth_Score) || 0) +
+  (Number(beData?.MSR_Achievement_Score) || 0) +
+  (Number(beData?.RX_Growth_Score) || 0) +
+  (Number(beData?.Brand_Performance_Index_Score) || 0);
+
 
   return (
     <div>
