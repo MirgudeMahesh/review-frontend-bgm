@@ -5,6 +5,7 @@ import "../styles.css";
 import nProgress from "nprogress";
 import "nprogress/nprogress.css"; // import styles
 import { useLocation } from "react-router-dom";
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function MyChats() {
   const { role, setRole, name, setName,textBox } = useRole();
   const [text, setText] = useState("");
@@ -12,7 +13,13 @@ export default function MyChats() {
   const [warning, setWarning] = useState("");
   const chatBoxRef = useRef(null);
 const location = useLocation();
-  // Send message
+  
+
+
+
+  // decode base64 -> original territory
+  const {decoded} = useEncodedTerritory();
+
 const sendInformation = async () => {
    if(text===''){
     return
@@ -22,7 +29,7 @@ const sendInformation = async () => {
   const payload = {
     sender: localStorage.getItem("user"),
     sender_code: localStorage.getItem("empcode"),
-    sender_territory: localStorage.getItem("empterr"),
+    sender_territory: decoded,
 
     receiver: isTextBoxEmpty 
       ? localStorage.getItem("user") 
@@ -31,7 +38,7 @@ const sendInformation = async () => {
     receiver_code: "abc", // placeholder
 
     receiver_territory: isTextBoxEmpty 
-      ? localStorage.getItem("empterr") 
+      ? decoded
       : localStorage.getItem("territory"),
 
     received_date: new Date().toISOString().split("T")[0], // YYYY-MM-DD
@@ -55,36 +62,37 @@ const sendInformation = async () => {
 };
 
 
-  // Fetch messages
-const fetchMessages = async () => {
-  try {
-    nProgress.start();
+//temporary
 
-    const empterr = localStorage.getItem("empterr");
-    const response = await fetch("http://localhost:8000/getMessagesByTerritory", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ receiver_territory: empterr }),
-    });
+//   const fetchMessages = async () => {
+//   try {
+//     nProgress.start();
 
-    if (!response.ok) throw new Error("Failed to fetch data");
+    
+//     const response = await fetch("http://localhost:8000/getMessagesByTerritory", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ receiver_territory: decoded }),
+//     });
 
-    const data = await response.json();
-    setResults(data.results || []);
-  } catch (err) {
-    console.error(err);
-    setWarning("Error fetching messages");
-    setTimeout(() => setWarning(""), 3000);
-  } finally {
-    nProgress.done();
-  }
-};
+//     if (!response.ok) throw new Error("Failed to fetch data");
+
+//     const data = await response.json();
+//     setResults(data.results || []);
+//   } catch (err) {
+//     console.error(err);
+//     setWarning("Error fetching messages");
+//     setTimeout(() => setWarning(""), 3000);
+//   } finally {
+//     nProgress.done();
+//   }
+// };
 
 
 
 useEffect(() => {
 
-    fetchMessages();
+    // fetchMessages();
   
 }, []);
 
@@ -130,7 +138,8 @@ useEffect(() => {
 
 
           {/* Input box (only if logged in) */}
-    
+
+  
            <div className="message-input-container">
   <input
     type="text"
@@ -142,7 +151,7 @@ useEffect(() => {
   <button
     className="send-button"
     onClick={sendInformation}
-    disabled={!text.trim()} // ⬅️ disable when text is empty
+    disabled={!text.trim() || text.trim()} // ⬅️ disable when text is empty
   >
     Send
   </button>

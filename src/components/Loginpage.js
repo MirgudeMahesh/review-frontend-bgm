@@ -16,7 +16,7 @@ export default function Loginpage() {
   // Fetch employees once on mount
   useEffect(() => {
     NProgress.start();
-    fetch('http://localhost:8000/employees')
+    fetch('https://review-backend-bgm.onrender.com/employees')
       .then((res) => {
         if (!res.ok) throw new Error('Failed to fetch employees');
         return res.json();
@@ -57,27 +57,26 @@ export default function Loginpage() {
     }
       // Start top loading bar
     
-
-const role = selectedEmp.Role.toLowerCase();
+//temporary
+// const role = selectedEmp.Role.toLowerCase();
    
 
-const userRole =
-  role === "be" || role === "te" || role === "kae" || role === "ne"
-    ? "be"
-    : role;
+// const userRole =
+//   role === "be" || role === "te" || role === "kae" || role === "ne"
+//     ? "be"
+//     : role;
 
 
-    // Store territory, role, and name in localStorage
-    localStorage.setItem("empterr", selectedEmp.Territory);
-    localStorage.setItem("role", userRole);
-    localStorage.setItem("empcde", selectedEmp.Emp_Code);
+  
+  
+    
 
-    setRole(userRole);
+//     setRole(userRole);
     setUser(selectedEmp.name);
 
     // Encode empCode in Base64 for URL
-    const encoded = btoa(selectedEmp.Emp_Code);
-    localStorage.setItem("empByteCode", encoded);
+    const encoded = btoa(selectedEmp.Territory);
+  
     navigate(`/FinalReport?ec=${encoded}`, { replace: true });
      };
 

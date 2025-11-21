@@ -4,14 +4,17 @@ import { useRole } from '../RoleContext';
 import '../../styles.css';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
+import useEncodedTerritory from '../hooks/useEncodedTerritory';
+import useProfileTerritory from '../hooks/useProfileTerritory';
 export default function Chats() {
+       const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
   
   const { role, setRole, name, setName } = useRole();
   const [text, setText] = useState('');
   const [results, setResults] = useState([]);
    const [warning, setWarning] = useState("");
   const chatBoxRef = useRef(null); // 👈 Attach this to chat box
-
+const {decoded}=useEncodedTerritory();
 const sendInformation = async () => {
   if(text===''){
     return
@@ -19,10 +22,10 @@ const sendInformation = async () => {
   const payload = {
     sender: localStorage.getItem('user'),
     sender_code: localStorage.getItem('empcode'),
-    sender_territory: localStorage.getItem('empterr'),
+    sender_territory: decoded,
     receiver: localStorage.getItem('name'),
     receiver_code: 'abc', // placeholder
-    receiver_territory: localStorage.getItem('territory'),
+    receiver_territory: profileTerritory,
     received_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
     message: text
   };
@@ -48,7 +51,7 @@ const sendInformation = async () => {
 };
 
   const fetchMessages = async () => {
-    const empterr=localStorage.getItem("territory");
+    const empterr=profileTerritory
     try {
       NProgress.start();
       const response = await fetch(

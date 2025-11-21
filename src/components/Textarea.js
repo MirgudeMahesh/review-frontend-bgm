@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import '../styles.css';
+import { useLocation } from 'react-router-dom';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
+import useEncodedTerritory from './hooks/useEncodedTerritory';
+import useProfileTerritory from "./hooks/useProfileTerritory";
 export default function Textarea() {
   const [text, setText] = useState('');
   const [target, setTarget] = useState('');
@@ -9,6 +12,13 @@ export default function Textarea() {
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
   const [metric, setMetric] = useState('');
+    const location = useLocation();
+     const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
+
+  
+
+  // decode base64 -> original territory
+  const {decoded} = useEncodedTerritory();
 
   const handleSubmit = async () => {
     if (metric=== '') {
@@ -56,10 +66,10 @@ export default function Textarea() {
         metric,
         sender: localStorage.getItem('user'),
         sender_code: localStorage.getItem('empcode'),
-        sender_territory: localStorage.getItem('empterr'),
+        sender_territory: decoded,
         receiver: localStorage.getItem('name'),
         receiver_code: 'abc', // placeholder
-        receiver_territory: localStorage.getItem('territory'),
+        receiver_territory: profileTerritory,
         goal: parseInt(target),
         received_date: new Date().toISOString().split('T')[0],
         goal_date: goalDate,

@@ -20,10 +20,10 @@ function Selection() {
     setUser('');
     setUserRole('');
    
-    localStorage.removeItem('empterr');   
+  
     localStorage.removeItem('empcde');
-     localStorage.removeItem('territory');
-     localStorage.removeItem('empByteCode');
+     
+     
 
     localStorage.removeItem('selectedTerritory');
     navigate('/', { replace: true });

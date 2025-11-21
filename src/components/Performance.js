@@ -4,73 +4,51 @@ import ActualCommit from "./ActualCommit";
 import { useRole } from "./RoleContext";
 import Subnavbar from "./Subnavbar";
 import { useNavigate } from "react-router-dom";
-import NProgress from 'nprogress';
-import 'nprogress/nprogress.css'; 
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
+import { useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faHome } from "@fortawesome/free-solid-svg-icons";
+import useEncodedTerritory from "./hooks/useEncodedTerritory";
+import FinalReport from "./FinalReport";
 
 export default function Performance() {
-  const { role, setRole, name, setName } = useRole();
-  const terr = localStorage.getItem("empterr");
-  const ec = localStorage.getItem("empByteCode"); 
+  const isAuthenticated = useState(!!localStorage.getItem("token"));
+
+  const { role, name } = useRole();
+  const location = useLocation();
+  const { decoded, encoded } = useEncodedTerritory();
   const navigate = useNavigate();
 
- 
+  const [beData, setBeData] = useState(null);
+  const [ytdData, setYtdData] = useState(null);
 
-  const [beData, setBeData] = useState({
-    Chemist_Calls: "",
-    Compliance: "",
-    Coverage: "",
-    Calls: "",
-  });
+  useEffect(() => {
+    if (!decoded) return;
 
-useEffect(() => {
-  if (role && terr) {
-    const fetchData = async () => {
+    const loadAll = async () => {
       try {
         NProgress.start();
 
-        let response;
-
-        if (role === "be") {
-          // 👇 Fetch from /sample if role is 'be'
-          response = await fetch("http://localhost:8000/dashboardData", {
+        const [beRes, ytdRes] = await Promise.all([
+          fetch("https://review-backend-bgm.onrender.com/dashboardData", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ Territory: terr }),
-          });
-
-          const data = await response.json();
-
-          if (response.ok && data) {
-            setBeData({
-              Chemist_Calls: data.Chemist_Calls || 0,
-              Compliance: data.Compliance || 0,
-              Coverage: data.Coverage || 0,
-              Calls: data.Calls || 0,
-            });
-            console.log("BE Data fetched:", data);
-          }
-
-        } else {
-          // 👇 Existing API call for other roles
-          response = await fetch("http://localhost:8000/hierarchy-kpi", {
+            body: JSON.stringify({ Territory: decoded }),
+          }),
+          fetch("https://review-backend-bgm.onrender.com/dashboardytdData", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ empterr: terr }),
-          });
+            body: JSON.stringify({ Territory: decoded }),
+          })
+        ]);
 
-          const data = await response.json();
-          if (response.ok && data[terr]) {
-            const node = data[terr];
-            setBeData({
-              Chemist_Calls: node.metrics.Chemist_Calls || 0,
-              Compliance: node.metrics.Compliance || 0,
-              Coverage: node.metrics.Coverage || 0,
-              Calls: node.metrics.Calls || 0,
-            });
-          }
-        }
+        const beJson = await beRes.json();
+        const ytdJson = await ytdRes.json();
+
+        if (beRes.ok) setBeData(beJson);
+        if (ytdRes.ok) setYtdData(ytdJson);
+
       } catch (err) {
         console.error("API error:", err);
       } finally {
@@ -78,69 +56,165 @@ useEffect(() => {
       }
     };
 
-    fetchData();
-  }
-}, [role, terr]);
+    loadAll();
+  }, [decoded]);
+
 
   const selection = (metric) => {
-    
     window.scrollTo({ top: 0, behavior: "smooth" });
-    navigate(`/Selection?ec=${ec}&metric=${metric}`);
-   
+    navigate(`/Selection?ec=${encoded}&metric=${metric}`);
   };
 
-  const ClickableCell = ({ value, metric }) => (
-    <span
-      onClick={() => selection(metric)}
-      style={{ cursor: "pointer", display: "inline-block" }}
-    >
-      {value}
-    </span>
-  );
-
-  const handleSubmit = (text) => {
-    console.log("ABC Submitted:", "performance");
+  const HomePage = () => {
+    navigate(`/FinalReport?ec=${encoded}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ✅ Common heading with right-corner Home button
-   const HomePage = () => {
-   
-    navigate(`/FinalReport?ec=${ec}`);
-    
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
   const HeadingWithHome = ({ level, children }) => {
-    const HeadingTag = "h3"
+    const HeadingTag = "h3";
     return (
-      <div
-        style={{
-         display: "flex", justifyContent: "center", alignItems: "center", gap: "10px"
-        }}
-      >
-        <HeadingTag style={{ margin: 0, textAlign: "center" }}>
-          {children}
-        </HeadingTag>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
+        <HeadingTag style={{ margin: 0, textAlign: "center" }}>{children}</HeadingTag>
         <button
           style={{
-           background: "none",
-        border: "none",
-        color: "black",
-        fontSize: "16px",
-        cursor: "pointer",
-        padding: 0
+            background: "none",
+            border: "none",
+            color: "black",
+            fontSize: "16px",
+            cursor: "pointer",
+            padding: 0,
           }}
           onClick={HomePage}
         >
-          <FontAwesomeIcon icon={faHome} size='2x' />
+          <FontAwesomeIcon icon={faHome} size="2x" />
         </button>
       </div>
     );
   };
 
+  if (!beData || !ytdData) {
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  }
+
+  // -------------------------------------------------------
+  // ⭐ Calculate YTD SCORE TOTAL (last row requirement)
+  // -------------------------------------------------------
+  const totalYTDScore =
+    (Number(ytdData?.Calls_Score) || 0) +
+    (Number(ytdData?.Coverage_Score) || 0) +
+    (Number(ytdData?.Compliance_Score) || 0) +
+    (Number(ytdData?.RCPA_Score) || 0) +
+    (Number(ytdData?.Activity_Implementation_Score) || 0);
+  const totalFTDScore =
+    (Number(beData?.Calls_Score) || 0) +
+    (Number(beData?.Coverage_Score) || 0) +
+    (Number(beData?.Compliance_Score) || 0) +
+    (Number(beData?.RCPA_Score) || 0) +
+    (Number(beData?.Activity_Implementation_Score) || 0);
+
   return (
     <div>
       <div className="table-box">
-        {/* ---------------- BM TABLE ---------------- */}
+        <div className="table-container">
+          {/* {name && <Subnavbar />} */}
+
+          <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
+
+          <table className="custom-table">
+            <thead>
+              <tr>
+                <th>Weightage</th>
+                <th>Parameter</th>
+                <th>Objective</th>
+                <th>Month</th>
+                <th>Month_Score</th>
+                <th>YTD</th>
+                <th>YTD_Score</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>10%</td>
+                <td>Calls</td>
+                <td>240</td>
+                <td>{beData?.Doctor_Calls}</td>
+                <td>{beData?.Calls_Score}</td>
+                <td>{ytdData?.Doctor_Calls}</td>
+                <td>{ytdData?.Calls_Score}</td>
+              </tr>
+
+              <tr>
+                <td>10%</td>
+                <td>Coverage %</td>
+                <td>95</td>
+                <td>{beData?.Coverage}</td>
+                <td>{beData?.Coverage_Score}</td>
+                <td>{ytdData?.Coverage}</td>
+                <td>{ytdData?.Coverage_Score}</td>
+              </tr>
+
+              <tr>
+                <td>10%</td>
+                <td>Compliance %</td>
+                <td>90</td>
+                <td>{beData?.Compliance}</td>
+                <td>{beData?.Compliance_Score}</td>
+                <td>{ytdData?.Compliance}</td>
+                <td>{ytdData?.Compliance_Score}</td>
+              </tr>
+
+              <tr>
+                <td>10%</td>
+                <td>RCPA %</td>
+                <td>100</td>
+                <td>{beData?.Chemist_Met}</td>
+                <td>{beData?.RCPA_Score}</td>
+                <td>{ytdData?.Chemist_Met}</td>
+                <td>{ytdData?.RCPA_Score}</td>
+              </tr>
+
+              <tr>
+                <td>10%</td>
+                <td>Activity Implementation %</td>
+                <td>100</td>
+                <td>{beData?.Activity_Implementation}</td>
+                <td>{beData?.Activity_Implementation_Score}</td>
+                <td>{ytdData?.Activity_Implementation}</td>
+                <td>{ytdData?.Activity_Implementation_Score}</td>
+              </tr>
+
+              {/* -------------------------------------------- */}
+              {/* ⭐ LAST ROW WITH TOTAL YTD SCORE             */}
+              {/* -------------------------------------------- */}
+              <tr className="shade">
+                <td>50%</td>
+                <td>Effort Score</td>
+                <td>-</td>
+                <td>-</td>
+                <td><b>{Number(totalFTDScore).toFixed(2)}</b></td>
+                <td>-</td>
+
+                {/* ⭐ Replace last value with total */}
+                <td><b>{Number(totalYTDScore).toFixed(2)}</b></td>
+
+                
+              </tr>
+
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+
+
+//temporary
+{/* <div className="table-box">
         {role === "bm" && (
           <div className="table-container">
             <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
@@ -238,7 +312,6 @@ useEffect(() => {
           </div>
         )}
 
-        {/* ---------------- BL TABLE ---------------- */}
         {role === "bl" && (
           <div className="table-container">
             <HeadingWithHome level="h3">Team Building & Development</HeadingWithHome>
@@ -340,7 +413,6 @@ useEffect(() => {
           </div>
         )}
 
-        {/* ---------------- BE TABLE ---------------- */}
         {(role === "be") && (
           <div className="table-container">
             {name && <Subnavbar />}
@@ -363,42 +435,42 @@ useEffect(() => {
       <td># Calls</td>
       <td>240</td>
       <td><ClickableCell value={beData.Calls} metric="Calls" /></td>
-      <td>#N/A</td>
+      <td>-</td>
     </tr>
     <tr>
       <td>10%</td>
       <td>% Coverage</td>
       <td>95</td>
       <td><ClickableCell value={beData.Coverage} metric="Coverage" /></td>
-      <td>#N/A</td>
+      <td>-</td>
     </tr>
     <tr>
       <td>10%</td>
       <td>% Compliance</td>
       <td>90</td>
       <td><ClickableCell value={beData.Compliance} metric="Compliance" /></td>
-      <td>#N/A</td>
+      <td>-</td>
     </tr>
     <tr>
       <td>10%</td>
       <td>% RCPA</td>
       <td>100</td>
       <td><ClickableCell value={beData.Chemist_Calls} metric="Chemist_Calls" /></td>
-      <td>#N/A</td>
+      <td>-</td>
     </tr>
     <tr>
       <td>10%</td>
       <td>% Activity Imple.</td>
       <td>100</td>
-      <td>#N/A</td>
-      <td>#N/A</td>
+      <td>-</td>
+      <td>-</td>
     </tr>
     <tr className="shade">
       <td>50%</td>
       <td>Effort Score</td>
       <td>50.00</td>
-      <td>#N/A</td>
-      <td>#N/A</td>
+      <td>-</td>
+      <td>-</td>
     </tr>
   </tbody>
 </table>
@@ -427,7 +499,6 @@ useEffect(() => {
     </thead>
 
     <tbody>
-      {/* TP Adherence */}
       <tr>
         <td>TP Adherence Score</td>
         <td>% adherence to TP</td>
@@ -440,7 +511,6 @@ useEffect(() => {
         <td>3.98%</td>
       </tr>
 
-      {/* Reporting Integrity */}
       <tr>
         <td>Reporting Integrity Index</td>
         <td>Secondary variance</td>
@@ -453,7 +523,6 @@ useEffect(() => {
         <td>7.61%</td>
       </tr>
 
-      {/* Reviewing Effectiveness */}
       <tr>
         <td>Reviewing Effectiveness</td>
         <td>BL Review Score</td>
@@ -478,7 +547,6 @@ useEffect(() => {
         <td>0.00%</td>
       </tr>
 
-      {/* MSPR Compliance */}
       <tr>
         <td>MSPR Compliance</td>
         <td>% of headquarters of MSP (for HQ) vs Objective taken cumulatively by BH</td>
@@ -503,7 +571,6 @@ useEffect(() => {
         <td>0.00%</td>
       </tr>
 
-      {/* BE */}
       <tr>
         <td>BE</td>
         <td># of BE Active vs Sanctioned Strength</td>
@@ -516,7 +583,6 @@ useEffect(() => {
         <td>0.00%</td>
       </tr>
 
-      {/* BM & BL */}
       <tr>
         <td>BM & BL</td>
         <td># of BM & BL Active vs Sanctioned Strength</td>
@@ -529,7 +595,6 @@ useEffect(() => {
         <td>0.00%</td>
       </tr>
 
-      {/* Footer */}
       <tr className="shade">
         <td colSpan="2"><b>Team & Culture Building Score</b></td>
         <td><b>25%</b></td>
@@ -546,8 +611,64 @@ useEffect(() => {
 
           )
         }
-      </div>
-      {/* {role && name === '' && <ActualCommit />} */}
-    </div>
-  );
-}
+      </div>  */}
+
+
+//       useEffect(() => {
+//   if (role && decoded) {
+//     const fetchData = async () => {
+//       try {
+//         NProgress.start();
+
+//         let response;
+
+//         if (role === "be") {
+//           // 👇 Fetch from /sample if role is 'be'
+//           response = await fetch("http://localhost:8000/dashboardData", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ Territory: decoded }),
+//           });
+
+//           const data = await response.json();
+
+//           if (response.ok && data) {
+//             setBeData({
+//               Chemist_Calls: data.Chemist_Calls || 0,
+//               Compliance: data.Compliance || 0,
+//               Coverage: data.Coverage || 0,
+//               Calls: data.Calls || 0,
+//             });
+//             console.log("BE Data fetched:", data);
+//           }
+
+//         } 
+//         else {
+//           // 👇 Existing API call for other roles
+//           response = await fetch("http://localhost:8000/hierarchy-kpi", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ empterr: decoded }),
+//           });
+
+//           const data = await response.json();
+//           if (response.ok && data[decoded]) {
+//             const node = data[decoded];
+//             setBeData({
+//               Chemist_Calls: node.metrics.Chemist_Calls || 0,
+//               Compliance: node.metrics.Compliance || 0,
+//               Coverage: node.metrics.Coverage || 0,
+//               Calls: node.metrics.Calls || 0,
+//             });
+//           }
+//         }
+//       } catch (err) {
+//         console.error("API error:", err);
+//       } finally {
+//         NProgress.done();
+//       }
+//     };
+
+//     fetchData();
+//   }
+// }, [role, decoded]);

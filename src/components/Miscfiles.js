@@ -1,16 +1,15 @@
 import React from 'react'
-import Navbar from './Navbar';
-// ------------------------Hygine---------------------
 
-import ActualCommit from './ActualCommit';
-import Textarea from './Textarea';
-import Subnavbar from './Subnavbar';
+// ------------------------Hygine---------------------
+import { useLocation } from 'react-router-dom';
+
 import { useRole } from './RoleContext';
-import NProgress from 'nprogress';
+
 import 'nprogress/nprogress.css'; 
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function Miscfiles() {
 const navigate = useNavigate();
   const { role, setRole, name, setName } = useRole();
@@ -19,10 +18,13 @@ const navigate = useNavigate();
     console.log("ABC Submitted:", text);
 
   };
-   const ec= localStorage.getItem("empByteCode");
+  const {decoded,encoded} = useEncodedTerritory();
+    
+                
+       
     const HomePage = () => {
     
-      navigate(`/FinalReport?ec=${ec}`);
+      navigate(`/FinalReport?ec=${encoded}`);
      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };

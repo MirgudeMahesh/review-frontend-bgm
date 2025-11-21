@@ -5,22 +5,29 @@ import { useState, useEffect } from 'react';
 import ActualCommit from './ActualCommit';
 import Subnavbar from './Subnavbar';
 import Textarea from './Textarea';
+import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome } from '@fortawesome/free-solid-svg-icons';
+import useEncodedTerritory from './hooks/useEncodedTerritory';
+
 export default function Commitment() {
  const navigate = useNavigate();
-  const ec = localStorage.getItem("empByteCode"); // 👈 empByteCode
-
+  
+ 
 
   const { role, setRole, name, setName } = useRole();
   const handleSubmit = (text) => {
     console.log("ABC Submitted:", text);
 
   };
-           const terr=localStorage.getItem("empterr");
+          //  const terr=localStorage.getItem("empterr");
+     
+        
+             // decode base64 -> original territory
+             const {decoded,encoded} = useEncodedTerritory();
   const [beData, setBeData] = useState({
       Chemist_Calls: "",
       Compliance: "",
@@ -32,8 +39,9 @@ export default function Commitment() {
       
     window.scrollTo({ top: 0, behavior: "smooth" });
 
-    navigate(`/Selection?ec=${ec}&metric=${metric}`);
-     
+   
+      navigate(`/Selection?ec=${encoded}&metric=${metric}`);
+       
   };
     const ClickableCell = ({ value, metric }) => (
     <span
@@ -45,7 +53,7 @@ export default function Commitment() {
   );
     const HomePage = () => {
       
-      navigate(`/FinalReport?ec=${ec}`);
+      navigate(`/FinalReport?ec=${encoded}`);
     
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -78,7 +86,7 @@ export default function Commitment() {
     };
   
   useEffect(() => {
-    if (role && terr) {
+    if (role && decoded) {
       
       const fetchData = async () => {
         
@@ -87,13 +95,13 @@ export default function Commitment() {
           const response = await fetch("http://localhost:8000/hierarchy-kpi", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ empterr: terr })
+            body: JSON.stringify({ empterr:decoded })
           });
   
           const data = await response.json();
-          if (response.ok && data[terr]) {
+          if (response.ok && data[decoded]) {
             // 👇 Pick BE/BM/BL node based on current territory
-            const node = data[terr];
+            const node = data[decoded];
             setBeData({
               Chemist_Calls: node.metrics.Chemist_Calls || 0,
               Compliance: node.metrics.Compliance || 0,
@@ -111,7 +119,7 @@ export default function Commitment() {
   
       fetchData();
     }
-  }, [role, terr]);
+  }, [role, decoded]);
   
   return (
     <div>

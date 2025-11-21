@@ -21,8 +21,8 @@ const Layout = () => {
   const isProfilePage = location.pathname.startsWith("/profile");
 
   // Only show main UI when role exists and not on hidden paths
-  const showUI = role && !shouldHideMainUI;
-
+  // const showUI = role && !shouldHideMainUI;temporary
+const showUI = location.pathname !== "/";
   return (
     <>
       <div className={`layout-container ${showModal ? "blurred" : ""}`}>
@@ -37,12 +37,13 @@ const Layout = () => {
         </main>
 
         {/* ✅ Role-based components */}
-        {showUI && role !== "bh" && role !== "sbuh" && <ActualCommit />}
-        {showUI && isProfilePage && <Chats />}
+        {/* {showUI && role !== "bh" && role !== "sbuh" && <ActualCommit />} temporary*/}
+        {/* {showUI && <ActualCommit />} */}
+        {/* {showUI && isProfilePage && <Chats />} temporary*/}
       </div>
 
       {/* ✅ Floating AI Assistant (for SBUs only) */}
-      {showUI && role === "sbuh" && <Ai />}
+      {/* {showUI && role === "sbuh" && <Ai />} temporary */}
     </>
   );
 };

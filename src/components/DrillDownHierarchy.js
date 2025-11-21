@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import DrillDownTable from './DrillDownTable';
 import NProgress from 'nprogress';
+import { useLocation } from 'react-router-dom';
 import 'nprogress/nprogress.css';
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 const DrillDownHierarchy = () => {
   const [data, setData] = useState(null);
-  const territory = localStorage.getItem("empterr"); // read territory from localStorage
+  // const territory = localStorage.getItem("empterr");
+   const location = useLocation();
 
+  // decode base64 -> original territory
+  const {decoded} = useEncodedTerritory();
+   // read territory from localStorage
+const territory=decoded;
   useEffect(() => {
     if (!territory) return;
     NProgress.start();
-    fetch(`http://localhost:8000/hierarchy`, {
+    fetch(`https://review-backend-bgm.onrender.com/hierarchy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ territory })
+      body: JSON.stringify({ territory})
     })
       .then((res) => res.json())
       .then((actual) => setData(actual))

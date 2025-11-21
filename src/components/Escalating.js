@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import '../styles.css' // optional if using separate CSS
 import NProgress from 'nprogress';
+import { useLocation } from 'react-router-dom';
 import 'nprogress/nprogress.css'; 
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function Escalating() {
   const [text, setText] = useState('');
   const [metric, setMetric] = useState('');
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
+   const location = useLocation();
+  
+  
+    // decode base64 -> original territory
+    const {decoded} = useEncodedTerritory();
 
   const handleSubmit =async () => {
     if (metric === '') {
@@ -29,7 +36,7 @@ export default function Escalating() {
         message: text,
         role: localStorage.getItem('role'),
         employee_name: localStorage.getItem('user'),
-        territory_code: localStorage.getItem('empterr'),
+        territory_code: decoded,
         employee_code: localStorage.getItem('empcode'),
 
      
@@ -71,13 +78,7 @@ export default function Escalating() {
       return;
     }
     
-    // setWarning(true);
-    // setWarntext('Message delivered');
-    // setTimeout(() => setWarning(false), 3000);
-    // console.log("Submitted:", text);
-    // console.log("Selected Metric:", metric);
-    // setText('');
-    // setMetric('');
+  
   };
 
   return (

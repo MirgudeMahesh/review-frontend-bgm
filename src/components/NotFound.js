@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { Link,useLocation } from "react-router-dom";
-
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function NotFound() {
   const location = useLocation();
-const ec = localStorage.getItem("empByteCode"); 
 
 
+const {encoded,decoded}= useEncodedTerritory();
+       
     
   useEffect(() => {
     console.error(
@@ -46,7 +47,7 @@ const ec = localStorage.getItem("empByteCode");
           Oops! Page not found
         </p>
          <Link
-          to={`/FinalReport?ec=${encodeURIComponent(ec || "")}`}
+          to={`/FinalReport?ec=${encodeURIComponent(encoded || "")}`}
           style={{
             color: "#2563eb",
             textDecoration: "underline",

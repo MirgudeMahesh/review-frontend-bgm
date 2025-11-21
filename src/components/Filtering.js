@@ -3,6 +3,8 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
+import { useLocation } from 'react-router-dom';
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function Filtering() {
   const [text, setText] = useState('');
   const [metric, setMetric] = useState('');
@@ -12,6 +14,12 @@ export default function Filtering() {
   const [warntext, setWarntext] = useState('');
   const [results, setResults] = useState([]); // backend response
   const [count,setCount]=useState();
+    const location = useLocation();
+
+
+
+  // decode base64 -> original territory
+  const {decoded} = useEncodedTerritory();
   // 🔍 Fetch filtered data
   const showList = async () => {
     if (metric=== '') {
@@ -113,7 +121,7 @@ export default function Filtering() {
       const payload = results.map(row => ({
         sender: localStorage.getItem('user'),
         sender_code: "", // vacant
-        sender_territory: localStorage.getItem('empterr'),
+        sender_territory: decoded,
         receiver: row.Emp_Name,
         receiver_code: row.Emp_Code,
         receiver_territory: row.Territory,

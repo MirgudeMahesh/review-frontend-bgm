@@ -20,8 +20,7 @@ export default function UserCommitment() {
   };
   return (
     <div>
-      {/* <Navbar/>
-      {name && <Subnavbar/>} */}
+      
       {(userRole === 'BM') ? (<div
         className='table-box'
       >  {name && <Subnavbar />}

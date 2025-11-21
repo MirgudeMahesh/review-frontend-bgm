@@ -1,4 +1,5 @@
 import React,{useState}from 'react'
+import { useLocation } from 'react-router-dom';
 import Escalating from './Escalating';
 import { useNavigate } from "react-router-dom";
 
@@ -7,28 +8,34 @@ import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; // import styles
+import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function Navbar() {
-
-  const ec = localStorage.getItem("empByteCode");
+const{encoded}=useEncodedTerritory();
+const location = useLocation();
   const { role, setRole, setName, setUserRole, setUser } = useRole();
+ const isSelectionPage = 
+  location.pathname.startsWith("/Selection") || 
+  location.pathname.startsWith("/profile");
 
+    // includes ?ec=....
   const navigate = useNavigate();
   const Raise = () => {
-    
-    navigate(`/disclosure?ec=${ec}`);
+  
+    navigate(`/disclosure?ec=${encoded}`);
+   
      
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
   const Review = () => {
     
-    navigate(`/FinalReport?ec=${ec}`);
+    navigate(`/FinalReport?ec=${encoded}`);
       
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   const Info = () => {
    
-    navigate(`/info?ec=${ec}`);
+    navigate(`/info?ec=${encoded}`);
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -37,21 +44,21 @@ export default function Navbar() {
     
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    navigate(`/Selection?ec=${ec}`);
+    navigate(`/Selection?ec=${encoded}`);
       
 
   }
   const notselection = () => {
    
-
-    setRole('');
+setRole('');
     setName('');
     setUser('');
-
-    localStorage.removeItem('empterr');
-    localStorage.removeItem('empcde');
-    localStorage.removeItem('empByteCode');
-    localStorage.removeItem('territory');
+    setUserRole('');
+   
+  
+    
+     
+     
 
     navigate('/', { replace: true });
      
@@ -84,6 +91,7 @@ export default function Navbar() {
   };
 
 
+
   return (
     <div>
 
@@ -92,9 +100,97 @@ export default function Navbar() {
         <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
           <option value="">Select</option>
           <option value="report">Profile</option>
-          {(role === 'sbuh' || role === 'admin ') && (<option value="performance">Raise</option>)}
+          {/* {(role === 'sbuh' || role === 'admin ') && (<option value="performance">Raise</option>)} */}
           <option value="MyChats">Info</option>
           {/* {role !== 'be' && <option value="hygine">Hygine</option>} */}
+
+
+          <option value="notchose">
+            logout 
+          </option>
+
+        </select>
+
+
+
+
+
+
+       
+         <ul className="navbar-menu">
+
+      {/* ⭐ ONLY show Select when URL contains /Selection */}
+      {isSelectionPage ? (
+        <li className="hide">
+          <button id="contact" className="text-button" onClick={selection}>
+            select
+          </button>
+        </li>
+      ) : (
+        <>
+          {/* ⭐ These buttons will show only when NOT on /Selection */}
+          <li className="hide">
+            <button className="text-button" onClick={Review}>Profile</button>
+          </li>
+
+          <li className="hide">
+            <button id="contact" className="text-button" onClick={Info}>
+              Info
+            </button>
+          </li>
+
+          <li className="hide">
+            <button id="contact" className="text-button" onClick={notselection}>
+              logout
+            </button>
+          </li>
+        </>
+      )}
+
+    </ul>
+      </nav>
+          {showModal && (
+<div className="modal-overlay">
+  <div className="modal-box">
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+      <button
+        onClick={handleCloseModal}
+        style={{
+          border: 'none',
+          background: 'transparent',
+          fontSize: '24px',
+          cursor: 'pointer',
+        }}
+      >
+        &times;
+      </button>
+    </div>
+    <Escalating />
+  </div>
+</div>
+
+)}
+
+    </div>
+  )
+}
+
+
+
+
+
+
+//temporary
+
+{/* <div>
+
+      <nav className="navbar">
+        <h2 >Review</h2>
+        <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
+          <option value="">Select</option>
+          <option value="report">Profile</option>
+          {(role === 'sbuh' || role === 'admin ') && (<option value="performance">Raise</option>)}
+          <option value="MyChats">Info</option>
 
 
           <option value={role === 'be' ? "notchose" : "chose"}>
@@ -122,15 +218,7 @@ export default function Navbar() {
 
 
 
-          {/* {role !== 'be' && role !== 'bm' && (
-            <li className="hide">
-              <a>
-                <button id="resume" className="text-button" onClick={commitment} >
-                  Compliance
-                </button>
-              </a>
-            </li>
-          )} */}
+       
 
 
 
@@ -196,6 +284,4 @@ export default function Navbar() {
 
 )}
 
-    </div>
-  )
-}
+    </div> */}
