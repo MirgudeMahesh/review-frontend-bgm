@@ -471,7 +471,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             <option value="Coverage">Coverage</option>
             <option value="Compliance">Compliance</option>
             <option value="Calls">Calls</option>
-            <option value="Chemist_Calls">Chemist Calls</option>
+            <option value="Chemist_Calls">Chemists_Met</option>
           </select>
         </div>
       )}
