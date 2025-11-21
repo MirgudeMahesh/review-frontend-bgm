@@ -1039,7 +1039,7 @@ margin-top:20px;
     overflow-x: hidden;
   }
 
-  .table-box {
+  /* .table-box {
     display: flex;
     justify-content: center;
     margin-top: -10px;
@@ -1048,7 +1048,7 @@ margin-top:20px;
     height: 80vh;
     /* width: 90%; */
 
-  }
+  } */
 
   .compli-style {
     display: flex;
@@ -1063,7 +1063,7 @@ margin-top:20px;
     padding: 30px;
   }
 
-  .table-container {
+  /* .table-container {
     height: 70vh;
     width: 90%;
     overflow-y: auto;
@@ -1072,7 +1072,32 @@ margin-top:20px;
     background-color: #faf9f9;
     border-radius: 10px;
     margin: auto;
-  }
+  } */
+   .table-box {
+  display: flex;
+  justify-content: center;
+  margin-top: -10px;
+  align-items: flex-start;     /* FIX: do not vertically center */
+  height: auto;                /* FIX: remove fixed 80vh */
+  padding: 10px;               /* Better spacing */
+}
+
+.table-container {
+  width: 100%;
+  max-width: 900px;            /* optional */
+  height: 70vh;
+  background-color: #faf9f9;
+  border-radius: 10px;
+
+  overflow-y: auto;
+  overflow-x: auto;            /* ✅ FIX: enables full horizontal scroll */
+
+  -webkit-overflow-scrolling: touch;  /* smoother scrolling in mobile */
+
+  padding-top: 10px;
+  margin: auto;
+}
+
 
   .commit-padding {
     margin-top: 35px;
