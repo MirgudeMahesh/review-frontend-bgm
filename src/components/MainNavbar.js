@@ -97,19 +97,19 @@ setRole('');
 
       <nav className="navbar">
         <h2 >Review</h2>
-        <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
+         {/* <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
           <option value="">Select</option>
-          <option value="report">Profile</option>
+          <option value="report">Profile</option> */}
           {/* {(role === 'sbuh' || role === 'admin ') && (<option value="performance">Raise</option>)} */}
-          <option value="MyChats">Info</option>
+          {/* <option value="MyChats">Info</option> */}
           {/* {role !== 'be' && <option value="hygine">Hygine</option>} */}
 
 
-          <option value="notchose">
+          {/* <option value="notchose">
             logout 
-          </option>
+          </option> */}
 
-        </select>
+        {/* </select>  */}
 
 
 
@@ -139,11 +139,11 @@ setRole('');
             </button>
           </li>
 
-          <li className="hide">
+          {/* <li className="hide">
             <button id="contact" className="text-button" onClick={notselection}>
               logout
             </button>
-          </li>
+          </li> */}
         </>
       )}
 
