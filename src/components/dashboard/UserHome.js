@@ -96,7 +96,7 @@ const totalFTDScore = (
           {name && <Subnavbar />}
 
           <h3 style={{ textAlign: 'center' }}>Bussiness Performance</h3>
-
+ <div className="table-scroll">
           <table className="custom-table">
             <thead>
               <tr>
@@ -166,7 +166,7 @@ const totalFTDScore = (
 </tbody>
 
           </table>
-
+</div>
         </div>
       </div>
     </div>

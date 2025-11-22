@@ -97,6 +97,7 @@ setRole('');
 
       <nav className="navbar">
         <h2 >Review</h2>
+        
          {/* <select className="scb" id="options" onChange={(e) => handleSelect(e.target.value)}>
           <option value="">Select</option>
           <option value="report">Profile</option> */}
@@ -110,7 +111,14 @@ setRole('');
           </option> */}
 
         {/* </select>  */}
+<div className='scb'>
+   <li>
+          <button id="contact" className="text-button" onClick={selection}>
+            select
+          </button>
+        </li>
 
+</div>
 
 
 

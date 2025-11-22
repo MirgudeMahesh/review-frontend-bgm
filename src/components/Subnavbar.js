@@ -13,11 +13,13 @@ export default function SubNavbar() {
 
   const handleOpenModal1 = () => setShowModal1(true);
   const handleCloseModal1 = () => setShowModal1(false);
+const [selectedMenu, setSelectedMenu] = useState("");
 
       const {encoded,decoded}= useEncodedTerritory();
      const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
    
   const handleSelect = (value) => {
+     setSelectedMenu(value); 
     switch (value) {
       case 'performance':
          
@@ -47,7 +49,8 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
   return (
     <div>
       <div className='select-wrapper'>
-        <select className="scb2" id="options" onChange={(e) => handleSelect(e.target.value)}>
+        <select className="scb2" id="options" value={selectedMenu} onChange={(e) => handleSelect(e.target.value)}>
+          <option value="">select</option>
           <option value="Review">Report</option>
           <option value="performance">Performance</option>
           <option value="Miscelaneous">

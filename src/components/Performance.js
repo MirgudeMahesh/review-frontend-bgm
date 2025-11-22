@@ -119,7 +119,7 @@ export default function Performance() {
           {/* {name && <Subnavbar />} */}
 
           <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
-
+  <div className="table-scroll">
           <table className="custom-table">
             <thead>
               <tr>
@@ -203,7 +203,7 @@ export default function Performance() {
 
             </tbody>
           </table>
-
+</div>
         </div>
       </div>
     </div>

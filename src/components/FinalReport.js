@@ -7,149 +7,127 @@ import Subnavbar from './Subnavbar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { faHome } from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
-import 'nprogress/nprogress.css'; 
+import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function FinalReport() {
   const { role, setRole, name, setName } = useRole();
-  const [selectedDate, setSelectedDate] = useState('');
-  const [score1, setScore1] = useState(0);
-  const [score2, setScore2] = useState(0);
-  const [score3, setScore3] = useState(0);
-      const [score4, setScore4] = useState(0);
+  const [score1, setScore1] = useState(null);
+  const [score2, setScore2] = useState(null);
+  const [score3, setScore3] = useState(null);
+  const [score4, setScore4] = useState(null);
 
   const location = useLocation();
   const navigate = useNavigate();
-
   const { decoded, encoded } = useEncodedTerritory();
 
-  // Fetch YTD Scores from backend
   useEffect(() => {
     if (!decoded) return;
 
-    const fetchYTD = async () => {
+    const loadScores = async () => {
+      NProgress.start();
+
       try {
-        NProgress.start();
-        const response = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
+        // YTD
+        const ytdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ Territory: decoded })
         });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          setScore1(data.totalScore1 || 0);
-          setScore2(data.totalScore2 || 0);
+        const ytdData = await ytdRes.json();
+        if (ytdRes.ok) {
+          setScore1(Number(ytdData.totalScore1) || 0);
+          setScore2(Number(ytdData.totalScore2) || 0);
         }
+
+        // FTD
+        const ftdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardFTD", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Territory: decoded })
+        });
+        const ftdData = await ftdRes.json();
+        if (ftdRes.ok) {
+          setScore3(Number(ftdData.totalScore3) || 0);
+          setScore4(Number(ftdData.totalScore4) || 0);
+        }
+
       } catch (err) {
         console.error("API error:", err);
       } finally {
         NProgress.done();
       }
     };
-const fetchFTD = async () => {
-      try {
-        NProgress.start();
-        const response = await fetch("https://review-backend-bgm.onrender.com/dashboardFTD", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Territory: decoded })
-        });
 
-        const data = await response.json();
-
-        if (response.ok) {
-          setScore3(data.totalScore3 || 0);
-          setScore4(data.totalScore4 || 0);
-          console.log("FTD Data:", data);
-        }
-      } catch (err) {
-        console.error("YTD API error:", err);
-      } finally {
-        NProgress.done();
-      }
-    };
-    fetchYTD();
-    fetchFTD();
+    loadScores();
   }, [decoded]);
 
-  const perform = () => {
-    navigate(`/TeamBuild?ec=${encoded}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+  const perform = () => navigate(`/TeamBuild?ec=${encoded}`);
+  const Home = () => navigate(`/Performance?ec=${encoded}`);
+  const misc = () => navigate(`/Hygine?ec=${encoded}`);
+  const commitment = () => navigate(`/Compliance?ec=${encoded}`);
 
-  const Home = () => {
-    navigate(`/Performance?ec=${encoded}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const misc = () => {
-    navigate(`/Hygine?ec=${encoded}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const commitment = () => {
-    navigate(`/Compliance?ec=${encoded}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-if (!score1 || !score3) {
+  // Safe Loading State
+  if ([score1, score2, score3, score4].includes(null)) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   }
+
   return (
     <div>
       <div className="table-box">
         <div className="table-container">
+
           <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
 
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Parameter</th>
-                <th>Objective(%)</th>
-                <th>Month(%)</th>
-                <th>YTD(%)</th>
-              </tr>
-            </thead>
+          <div className="table-scroll">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Objective(%)</th>
+                  <th>Month(%)</th>
+                  <th>YTD(%)</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              <tr>
-                <td onClick={() => perform()}>Team Building and Development</td>
-                <td>50</td>
-                <td>{score3}</td>
+              <tbody>
+                <tr>
+                  <td onClick={perform}>Team Building and Development</td>
+                  <td>50</td>
+                  <td>{score3}</td>
+                  <td>{score1}</td>
+                </tr>
 
-                {/* ROW 1 YTD → totalScore1 */}
-                <td>{score1}</td>
-              </tr>
+                <tr>
+                  <td onClick={Home}>Business Performance</td>
+                  <td>50</td>
+                  <td>{score4}</td>
+                  <td>{score2}</td>
+                </tr>
 
-              <tr>
-                <td onClick={() => Home()}>Business Performance</td>
-                <td>50</td>
-                <td>{score4}</td>
+                <tr className="shade">
+                  <td>Efficiency Index</td>
+                  <td>100</td>
 
-                {/* ROW 2 YTD → totalScore2 */}
-                <td>{score2}</td>
-              </tr>
+                  {/* FIXED: true numeric addition */}
+                  <td>{(score3 + score4).toFixed(2)}</td>
+                  <td>{(score1 + score2).toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-              <tr className="shade">
-                <td>Efficiency Index</td>
-                <td>100</td>
-                <td>{Number(parseFloat((score3 + score4))).toFixed(2)}</td>
-
-                {/* ROW 3 YTD → score1 + score2 */}
-                <td>{Number(parseFloat((score1 + score2))).toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
           <div className="notes-box">
-  <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
-  <p>⚠️ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
-</div>
+            <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+            <p>⚠️ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+          </div>
+
         </div>
       </div>
-     </div>
+    </div>
   );
 }
+
 
 
 

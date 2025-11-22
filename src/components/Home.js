@@ -124,82 +124,81 @@ const totalFTDScore =
 
   return (
     <div>
-      <div className="table-box">
-        <div className="table-container">
-          <HeadingWithHome>Bussiness Performance</HeadingWithHome>
+     <div className="table-box">
+  <div className="table-container">
+    <HeadingWithHome>Bussiness Performance</HeadingWithHome>
 
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Weightage</th>
-                <th>Parameter</th>
-                <th>Objective</th>
-                <th>Month</th>
-                <th>Month_Score</th>
-                <th>YTD</th>
-                <th>YTD_Score</th>
-              </tr>
-            </thead>
+    <div className="table-scroll">
+      <table className="custom-table">
+        <thead>
+          <tr>
+            <th>Weightage</th>
+            <th>Parameter</th>
+            <th>Objective</th>
+            <th>Month</th>
+            <th>Month_Score</th>
+            <th>YTD</th>
+            <th>YTD_Score</th>
+          </tr>
+        </thead>
 
-           <tbody>
-  <tr>
-    <td>20%</td>
-    <td>Secondary Gr%</td>
-    <td>40</td>
-    <td>{beData?.Secondary_Sales_growth_Percent}</td>
-    <td>{beData?.Secondary_Sales_growth_Score}</td>
-    <td>{ytdData?.Secondary_Sales_growth}</td>
-    <td>{ytdData?.Secondary_Sales_growth_Score}</td>
-  </tr>
+        <tbody>
+          <tr>
+            <td>20%</td>
+            <td>Secondary Gr%</td>
+            <td>40</td>
+            <td>{beData?.Secondary_Sales_growth_Percent}</td>
+            <td>{beData?.Secondary_Sales_growth_Score}</td>
+            <td>{ytdData?.Secondary_Sales_growth}</td>
+            <td>{ytdData?.Secondary_Sales_growth_Score}</td>
+          </tr>
 
-  <tr>
-    <td>10%</td>
-    <td>MSR Achievement%</td>
-    <td>100</td>
-    <td>{beData?.MSR_Achievement}</td>
-    <td>{beData?.MSR_Achievement_Score}</td>
-    <td>{ytdData?.MSR_Achievement}</td>
-    <td>{ytdData?.MSR_Achievement_Score}</td>
-  </tr>
+          <tr>
+            <td>10%</td>
+            <td>MSR Achievement%</td>
+            <td>100</td>
+            <td>{beData?.MSR_Achievement}</td>
+            <td>{beData?.MSR_Achievement_Score}</td>
+            <td>{ytdData?.MSR_Achievement}</td>
+            <td>{ytdData?.MSR_Achievement_Score}</td>
+          </tr>
 
-  <tr>
-    <td>10%</td>
-    <td>RX Growth %</td>
-    <td>5</td>
-    <td>{beData?.RX_Growth}</td>
-    <td>{beData?.RX_Growth_Score}</td>
-    <td>{ytdData?.RX_Growth}</td>
-    <td>{ytdData?.RX_Growth_Score}</td>
-  </tr>
+          <tr>
+            <td>10%</td>
+            <td>RX Growth %</td>
+            <td>5</td>
+            <td>{beData?.RX_Growth}</td>
+            <td>{beData?.RX_Growth_Score}</td>
+            <td>{ytdData?.RX_Growth}</td>
+            <td>{ytdData?.RX_Growth_Score}</td>
+          </tr>
 
-  <tr>
-    <td>10%</td>
-    <td>Brand Performance Index</td>
-    <td>100</td>
-    <td>{beData?.Brand_Performance_Index}</td>
-    <td>{beData?.Brand_Performance_Index_Score}</td>
-    <td>{ytdData?.Brand_Performance_Index}</td>
-    <td>{ytdData?.Brand_Performance_Index_Score}</td>
-  </tr>
+          <tr>
+            <td>10%</td>
+            <td>Brand Performance Index</td>
+            <td>100</td>
+            <td>{beData?.Brand_Performance_Index}</td>
+            <td>{beData?.Brand_Performance_Index_Score}</td>
+            <td>{ytdData?.Brand_Performance_Index}</td>
+            <td>{ytdData?.Brand_Performance_Index_Score}</td>
+          </tr>
 
-  {/* FINAL ROW */}
-  <tr className="shade">
-    <td>50%</td>
-    <td>Performance Score</td>
-    <td>-</td>
-    <td>-</td>
-    <td><b>{fmt(totalFTDScore)}</b></td>
-    <td>-</td>
+          <tr className="shade">
+            <td>50%</td>
+            <td>Performance Score</td>
+            <td>-</td>
+            <td>-</td>
+            <td><b>{fmt(totalFTDScore)}</b></td>
+            <td>-</td>
+            <td><b>{fmt(totalYTDScore)}</b></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    {/* FINAL YTD TOTAL SCORE (SUM OF ALL SCORES) */}
-    <td><b>{fmt(totalYTDScore)}</b></td>
-  </tr>
-</tbody>
+  </div>
+</div>
 
-          </table>
-
-        </div>
-      </div>
     </div>
   );
 };

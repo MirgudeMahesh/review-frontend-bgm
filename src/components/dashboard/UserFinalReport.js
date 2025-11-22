@@ -14,10 +14,10 @@ export default function UserFinalReport() {
   const { userRole, role, setRole, name, setName } = useRole();
   const { profileTerritory } = useProfileTerritory();
 
-  const [score1, setScore1] = useState(0);
-  const [score2, setScore2] = useState(0);
-   const [score3, setScore3] = useState(0);
-    const [score4, setScore4] = useState(0);
+  const [score1, setScore1] = useState(null);
+  const [score2, setScore2] = useState(null);
+  const [score3, setScore3] = useState(null);
+  const [score4, setScore4] = useState(null);
 
   const handleSubmit = ({ text, selectedDate, warning, warntext, setWarning, setWarntext }) => {
     if (text === '') {
@@ -31,7 +31,7 @@ export default function UserFinalReport() {
     console.log("Selected Date:", selectedDate);
   };
 
-  // Fetch YTD scores using profileTerritory
+  // Fetch YTD + FTD
   useEffect(() => {
     if (!profileTerritory) return;
 
@@ -56,6 +56,7 @@ export default function UserFinalReport() {
         NProgress.done();
       }
     };
+
     const fetchFTD = async () => {
       try {
         NProgress.start();
@@ -72,7 +73,7 @@ export default function UserFinalReport() {
           setScore4(data.totalScore4 || 0);
         }
       } catch (err) {
-        console.error("YTD API error:", err);
+        console.error("FTD API error:", err);
       } finally {
         NProgress.done();
       }
@@ -81,65 +82,62 @@ export default function UserFinalReport() {
     fetchYTD();
     fetchFTD();
   }, [profileTerritory]);
-if (!score1 || !score3) {
+
+  if (score1 === null || score3 === null) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   }
+
   return (
     <div>
       <div className="table-box">
         <div className="table-container">
+
           {name && <Subnavbar />}
 
           <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
 
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Parameter</th>
-                <th>Objective</th>
-                <th>Month</th>
-                <th>YTD</th>
-              </tr>
-            </thead>
+          {/* SCROLL WRAPPER FIX */}
+          <div className="table-scroll">
+            <table className="custom-table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Objective</th>
+                  <th>Month</th>
+                  <th>YTD</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {/* ROW 1 */}
-              <tr>
-                <td>Team Building and Development</td>
-                <td>50</td>
-                <td>{score3}</td>
+              <tbody>
+                <tr>
+                  <td>Team Building and Development</td>
+                  <td>50</td>
+                  <td>{score3}</td>
+                  <td>{score1}</td>
+                </tr>
 
-                {/* totalScore1 */}
-                <td>{score1}</td>
-              </tr>
+                <tr>
+                  <td>Business Performance</td>
+                  <td>50</td>
+                  <td>{score4}</td>
+                  <td>{score2}</td>
+                </tr>
 
-              {/* ROW 2 */}
-              <tr>
-                <td>Business Performance</td>
-                <td>50</td>
-                <td>{score4}</td>
+                <tr className="shade">
+                  <td>Efficiency Index</td>
+                  <td>100</td>
+                  <td>{Number(parseFloat(score3 + score4)).toFixed(2)}</td>
+                  <td>{Number(parseFloat(score1 + score2)).toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-                {/* totalScore2 */}
-                <td>{score2}</td>
-              </tr>
-
-              {/* ROW 3 */}
-              <tr className="shade">
-                <td>Efficiency Index</td>
-                <td>100</td>
-                <td>{Number(parseFloat((score3 + score4))).toFixed(2)}</td>
-
-                {/* SUM (1 decimal) */}
-                <td>{Number(parseFloat((score1 + score2))).toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
   );
 }
-
 
 
 
