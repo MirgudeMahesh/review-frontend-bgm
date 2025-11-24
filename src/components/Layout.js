@@ -27,7 +27,7 @@ const showUI = location.pathname !== "/";
     <>
       <div className={`layout-container ${showModal ? "blurred" : ""}`}>
         {/* ✅ Main Navbar */}
-        {showUI && <MainNavbar />}
+        {/* {showUI && <MainNavbar />} */}
 
         <div style={{ marginTop: "150px" }} />
 
