@@ -624,7 +624,7 @@ export default function Performance() {
 
 //         if (role === "be") {
 //           // 👇 Fetch from /sample if role is 'be'
-//           response = await fetch("http://localhost:8000/dashboardData", {
+//           response = await fetch("https://review-backend-bgm.onrender.com/dashboardData", {
 //             method: "POST",
 //             headers: { "Content-Type": "application/json" },
 //             body: JSON.stringify({ Territory: decoded }),
@@ -645,7 +645,7 @@ export default function Performance() {
 //         } 
 //         else {
 //           // 👇 Existing API call for other roles
-//           response = await fetch("http://localhost:8000/hierarchy-kpi", {
+//           response = await fetch("https://review-backend-bgm.onrender.com/hierarchy-kpi", {
 //             method: "POST",
 //             headers: { "Content-Type": "application/json" },
 //             body: JSON.stringify({ empterr: decoded }),

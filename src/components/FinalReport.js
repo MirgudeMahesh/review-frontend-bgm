@@ -16,51 +16,66 @@ export default function FinalReport() {
   const [score2, setScore2] = useState(null);
   const [score3, setScore3] = useState(null);
   const [score4, setScore4] = useState(null);
+const [roleAllowed, setRoleAllowed] = useState(null); 
 
   const location = useLocation();
   const navigate = useNavigate();
   const { decoded, encoded } = useEncodedTerritory();
 
-  useEffect(() => {
-    if (!decoded) return;
+  const gotoselection = () => {
+     navigate(`/Selection?ec=${encoded}`);
+  }
+ useEffect(() => {
+  if (!decoded) return;
 
-    const loadScores = async () => {
+  const verifyRole = async () => {
+    try {
+      const res = await fetch(`https://review-backend-bgm.onrender.com/checkrole?territory=${decoded}`);
+      const data = await res.json();
+
+      setRoleAllowed(data.allowed);
+
+      if (!data.allowed) {
+        return; // stop here — do NOT fetch YTD/FTD
+      }
+
+      // ---- Load scores only if allowed ----
       NProgress.start();
 
-      try {
-        // YTD
-        const ytdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Territory: decoded })
-        });
-        const ytdData = await ytdRes.json();
-        if (ytdRes.ok) {
-          setScore1(Number(ytdData.totalScore1) || 0);
-          setScore2(Number(ytdData.totalScore2) || 0);
-        }
-
-        // FTD
-        const ftdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardFTD", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ Territory: decoded })
-        });
-        const ftdData = await ftdRes.json();
-        if (ftdRes.ok) {
-          setScore3(Number(ftdData.totalScore3) || 0);
-          setScore4(Number(ftdData.totalScore4) || 0);
-        }
-
-      } catch (err) {
-        console.error("API error:", err);
-      } finally {
-        NProgress.done();
+      // YTD
+      const ytdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Territory: decoded })
+      });
+      const ytdData = await ytdRes.json();
+      if (ytdRes.ok) {
+        setScore1(Number(ytdData.totalScore1) || 0);
+        setScore2(Number(ytdData.totalScore2) || 0);
       }
-    };
 
-    loadScores();
-  }, [decoded]);
+      // FTD
+      const ftdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardFTD", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Territory: decoded })
+      });
+      const ftdData = await ftdRes.json();
+      if (ftdRes.ok) {
+        setScore3(Number(ftdData.totalScore3) || 0);
+        setScore4(Number(ftdData.totalScore4) || 0);
+      }
+
+    } catch (err) {
+      console.error("API error:", err);
+    } finally {
+      NProgress.done();
+    }
+  };
+
+  verifyRole();
+}, [decoded]);
+
 
   const perform = () => navigate(`/TeamBuild?ec=${encoded}`);
   const Home = () => navigate(`/Performance?ec=${encoded}`);
@@ -68,6 +83,53 @@ export default function FinalReport() {
   const commitment = () => navigate(`/Compliance?ec=${encoded}`);
 
   // Safe Loading State
+  if (roleAllowed === false) {
+  return (
+   <div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "70vh",
+    textAlign: "center",
+    padding: "20px"
+  }}
+>
+  <p
+    style={{
+      fontSize: "20px",
+      fontWeight: "600",
+      marginBottom: "15px",
+      color: "#333"
+    }}
+  >
+    Your dashboards are yet to be updated
+  </p>
+
+  <button
+    style={{
+      padding: "12px 26px",
+      backgroundColor: "#2c2d2e",
+      color: "white",
+      border: "none",
+      borderRadius: "10px",
+      fontSize: "18px",
+      cursor: "pointer",
+      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+      transition: "0.2s ease",
+    }}
+    onMouseOver={e => (e.target.style.backgroundColor = "#1d1e1f")}
+    onMouseOut={e => (e.target.style.backgroundColor = "#2c2d2e")}
+    onClick={gotoselection}
+  >
+    Review Others
+  </button>
+</div>
+
+  );
+}
+
   if ([score1, score2, score3, score4].includes(null)) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   }

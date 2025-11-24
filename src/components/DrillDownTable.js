@@ -101,7 +101,7 @@
 //   const openPivotOverlay = async (territory) => {
 //     setOverlay((o) => ({ ...o, open: true, loading: true, territory }));
 //     try {
-//       const res = await fetch(`http://localhost:8000/getTable2`, {
+//       const res = await fetch(`https://review-backend-bgm.onrender.com/getTable2`, {
 //         method: "POST",
 //         headers: { "Content-Type": "application/json" },
 //         body: JSON.stringify({ territory }),
