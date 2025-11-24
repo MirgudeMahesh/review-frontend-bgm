@@ -29,7 +29,7 @@ const showUI = location.pathname !== "/";
         {/* ✅ Main Navbar */}
         {/* {showUI && <MainNavbar />} */}
 
-        <div style={{ marginTop: "70px" }} />
+        <div style={{ marginTop: "80px" }} />
 
         {/* ✅ Route outlet for pages */}
         <main>
