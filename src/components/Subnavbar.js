@@ -65,6 +65,8 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
       </div>
 
       <div className="tabs7">
+                <li><Link to={`/Selection?ec=${encoded}`}>Home</Link></li>
+
         <li><Link to={`/profile/${name}/Review?ec=${encoded}&pec=${profileEncodedTerritory}`}>Report</Link></li>
         <li><Link to={`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerritory}`}>Performance</Link></li>
         <li>
