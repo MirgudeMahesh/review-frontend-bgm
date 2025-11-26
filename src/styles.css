@@ -130,7 +130,7 @@
   box-sizing: border-box;
 } */
 .modal-overlay {
-  position: fixed;
+  
   top: 0;
   left: 0;
   width: 100%;
@@ -139,7 +139,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+   position: fixed;
+  z-index: 999999 !important;
 }
 
 .modal-box {
@@ -150,7 +151,9 @@
   width: 90%;
   max-height: 87vh;
   overflow-y: auto;
-  z-index: 1000;
+
+   z-index: 1000000 !important;
+  position: relative;
 }
 .notes-box {
   margin-top: 55px;
