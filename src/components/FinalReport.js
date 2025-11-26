@@ -154,7 +154,7 @@ const [roleAllowed, setRoleAllowed] = useState(null);
 
               <tbody>
                 <tr>
-                  <td onClick={perform}>Team Building and Development</td>
+                  <td onClick={perform}>Efforts and Effectiveness</td>
                   <td>50</td>
                   <td>{score3}</td>
                   <td>{score1}</td>
@@ -211,7 +211,7 @@ const [roleAllowed, setRoleAllowed] = useState(null);
 //               </thead>
 //               <tbody>
 //                 <tr>
-//                   <td onClick={() => perform()}>Team Building and Development</td>
+//                   <td onClick={() => perform()}>Efforts and Effectiveness</td>
 //                   <td>100%</td>
 //                   <td>#REF!</td>
 //                   <td>88</td>
@@ -307,7 +307,7 @@ const [roleAllowed, setRoleAllowed] = useState(null);
 //               </thead>
 //               <tbody>
 //                 <tr>
-//                   <td onClick={() => perform()}>Team Building and Development</td>
+//                   <td onClick={() => perform()}>Efforts and Effectiveness</td>
 //                   <td>100%</td>
 //                   <td>#REF!</td>
 //                   <td>88</td>
@@ -354,7 +354,7 @@ const [roleAllowed, setRoleAllowed] = useState(null);
 //               </thead>
 //               <tbody>
 //                 <tr>
-//                   <td onClick={() => perform()}>Team Building and Development</td>
+//                   <td onClick={() => perform()}>Efforts and Effectiveness</td>
 //                   <td>100%</td>
 //                   <td>#REF!</td>
 //                   <td>88</td>

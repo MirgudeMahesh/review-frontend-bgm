@@ -110,7 +110,7 @@ export default function UserFinalReport() {
 
               <tbody>
                 <tr>
-                  <td>Team Building and Development</td>
+                  <td>Efforts and Effectiveness</td>
                   <td>50</td>
                   <td>{score3}</td>
                   <td>{score1}</td>
@@ -159,7 +159,7 @@ export default function UserFinalReport() {
   //             </thead>
   //             <tbody>
   //               <tr>
-  //                 <td>Team Building and Development</td>
+  //                 <td>Efforts and Effectiveness</td>
   //                 <td>100%</td>
   //                 <td>#REF!</td>
   //                 <td>88</td>
@@ -200,7 +200,7 @@ export default function UserFinalReport() {
   //             </thead>
   //             <tbody>
   //               <tr>
-  //                 <td>Team Building and Development</td>
+  //                 <td>Efforts and Effectiveness</td>
   //                 <td>100%</td>
   //                 <td>#REF!</td>
   //                 <td>88</td>
@@ -247,7 +247,7 @@ export default function UserFinalReport() {
   //             </thead>
   //             <tbody>
   //               <tr>
-  //                 <td>Team Building and Development</td>
+  //                 <td>Efforts and Effectiveness</td>
   //                 <td>100%</td>
   //                 <td>#REF!</td>
   //                 <td>88</td>
