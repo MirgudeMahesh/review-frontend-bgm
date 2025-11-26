@@ -85,21 +85,25 @@ export default function SubNavbar() {
             <button
               onClick={handleCloseModal1}
               style={{
-                position: "absolute",
-                top: "-15px",
-                right: "-15px",
-                width: "18px",
-                height: "18px",
-                borderRadius: "50%",
-                border: "none",
-                background: "#ff4d4f",
-                color: "white",
-                fontSize: "16px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-                zIndex: 2000
-              }}
+  position: "absolute",
+  top: "10px",
+  right: "10px",
+  width: "30px",
+  height: "30px",
+  borderRadius: "50%",
+  border: "none",
+  background: "#ff4d4f",
+  color: "white",
+  fontSize: "18px",
+  fontWeight: "bold",
+  cursor: "pointer",
+  boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 999999
+}}
+
             >
               ✕
             </button>
