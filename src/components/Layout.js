@@ -37,8 +37,8 @@ const showUI = location.pathname !== "/";
         </main>
 
         {/* ✅ Role-based components */}
-        {/* {showUI && role !== "bh" && role !== "sbuh" && <ActualCommit />} temporary*/}
-        {/* {showUI && <ActualCommit />} */}
+        {/* {showUI && role !== "bh" && role !== "sbuh" && <ActualCommit />}  */}
+        {showUI && <ActualCommit />}
         {/* {showUI && isProfilePage && <Chats />} temporary*/}
       </div>
 

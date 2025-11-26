@@ -19,93 +19,124 @@ export default function Textarea() {
 
   // decode base64 -> original territory
   const {decoded} = useEncodedTerritory();
+// Fetch Emp_Name from backend using territory (decoded)
+const fetchEmpNameByTerritory = async () => {
+  try {
+    const res = await fetch(`https://review-backend-bgm.onrender.com/emp-name/${decoded}`);
+    const data = await res.json();
+    console.log("Fetched Emp Name:", data.Emp_Name);
+    return data.Emp_Name || null;
+  } catch (error) {
+    console.error("Error fetching Emp Name:", error);
+    return null;
+  }
+};
 
-  const handleSubmit = async () => {
-    if (metric=== '') {
+const handleSubmit = async () => {
+  if (metric === '') {
+    setWarning(true);
+    setWarntext('Please select a metric');
+    setTimeout(() => setWarning(false), 3000);
+    return;
+  } else if (text === '') {
+    setWarning(true);
+    setWarntext('Add text');
+    setTimeout(() => setWarning(false), 3000);
+    return;
+  } else if (selectedDate === '') {
+    setWarning(true);
+    setWarntext('Please select a date');
+    setTimeout(() => setWarning(false), 3000);
+    return;
+  } else {
+    const [year, month] = selectedDate.split('-').map(Number);
+    const lastDayOfMonth = new Date(year, month, 0);
+    const today = new Date();
+
+    if (lastDayOfMonth <= today) {
       setWarning(true);
-      setWarntext('Please select a metric');
+      setWarntext('Date should be in the future');
       setTimeout(() => setWarning(false), 3000);
       return;
-    } else if (text === '') {
-      setWarning(true);
-      setWarntext('Add text');
-      setTimeout(() => setWarning(false), 3000);
-      return;
-    } else if (selectedDate === '') {
-      setWarning(true);
-      setWarntext('Please select a date');
-      setTimeout(() => setWarning(false), 3000);
-      return;
-    } else {
-      // Calculate last day of selected month
-      const [year, month] = selectedDate.split('-').map(Number);
-      const lastDayOfMonth = new Date(year, month, 0); // 0 gives last day of previous month (so month index works)
-      const today = new Date();
-
-      if (lastDayOfMonth <= today) {
-        setWarning(true);
-        setWarntext('Date should be in the future');
-        setTimeout(() => setWarning(false), 3000);
-        return;
-      }
-
-      if (isNaN(parseInt(target))) {
-        setWarning(true);
-        setWarntext('Target should be integer');
-        setTimeout(() => setWarning(false), 3000);
-        return;
-      }
-
-      // Format last day as YYYY-MM-DD
-      const goalDate = `${selectedDate}-${lastDayOfMonth
-        .getDate()
-        .toString()
-        .padStart(2, '0')}`;
-
-      const payload = {
-        metric,
-        sender: localStorage.getItem('user'),
-        sender_code: localStorage.getItem('empcode'),
-        sender_territory: decoded,
-        receiver: localStorage.getItem('name'),
-        receiver_code: 'abc', // placeholder
-        receiver_territory: profileTerritory,
-        goal: parseInt(target),
-        received_date: new Date().toISOString().split('T')[0],
-        goal_date: goalDate,
-        receiver_commit_date: '',
-        commitment: text,
-      };
-
-      try {
-        NProgress.start();
-        await fetch('http://localhost:8000/putData', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        setWarning(true);
-        setWarntext('Message delivered');
-              setTarget('');
-        setSelectedDate('');
-        setText('');
-        setMetric('');
-
-        setTimeout(() => {
-          setWarntext('');
-          setWarning(false);
-        }, 1000);
-      } catch (error) {
-        setWarning(true);
-        setWarntext('Error sending data');
-        setTimeout(() => setWarning(false), 3000);
-      }
-      finally{
-        NProgress.done();
-      }
     }
-  };
+
+    if (isNaN(parseInt(target))) {
+      setWarning(true);
+      setWarntext('Target should be integer');
+      setTimeout(() => setWarning(false), 3000);
+      return;
+    }
+
+    const goalDate = `${selectedDate}-${lastDayOfMonth
+      .getDate()
+      .toString()
+      .padStart(2, '0')}`;
+
+    // ⭐ NEW — Fetch Emp_Name for the sender
+    const fetchedEmpName = await fetchEmpNameByTerritory();
+
+    if (!fetchedEmpName) {
+      setWarning(true);
+      setWarntext('Unable to fetch sender name');
+      setTimeout(() => setWarning(false), 3000);
+      return;
+    }
+
+    const payload = {
+      metric,
+      sender: fetchedEmpName,                 // ⭐ updated
+      sender_code: 'vacant',
+      sender_territory: decoded,
+      receiver: localStorage.getItem('name'),
+      receiver_code: 'abc',
+      receiver_territory: profileTerritory,
+      goal: parseInt(target),
+      received_date: new Date().toISOString().split('T')[0],
+      goal_date: goalDate,
+      receiver_commit_date: '',
+      commitment: text,
+    };
+
+    try {
+      NProgress.start();
+      await fetch('https://review-backend-bgm.onrender.com/putData', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      setWarning(true);
+      setWarntext('Message delivered');
+      setTarget('');
+      setSelectedDate('');
+      setText('');
+      setMetric('');
+      setTimeout(() => {
+        setWarntext('');
+        setWarning(false);
+      }, 1000);
+    } catch (error) {
+      setWarning(true);
+      setWarntext('Error sending data');
+      setTimeout(() => setWarning(false), 3000);
+    } finally {
+      NProgress.done();
+    }
+  }
+};
+const metricOptions = [
+  "Secondary Gr%",
+  "MSR Achievement%",
+  "RX Growth %",
+  "Brand Performance Index",
+  "Calls",
+  "Coverage %",
+  "Compliance %",
+  "RCPA %",
+  "Activity Implementation %"
+];
+
+
 
   return (
     <div className="escalating-container">
@@ -117,18 +148,19 @@ export default function Textarea() {
 
       <div className="form-group">
         <label htmlFor="metric">Metric:</label>
-        <select
-          id="metric"
-          value={metric}
-          onChange={(e) => setMetric(e.target.value)}
-        >
-          <option value="">Select a metric</option>
-          <option value="Efficiency">Efficiency</option>
-          <option value="Performance">Performance</option>
-          <option value="TeamBuild">TeamBuild</option>
-          <option value="Hygine">Hygiene</option>
-          <option value="Compliance">Compliance</option>
-        </select>
+       <select
+  id="metric"
+  value={metric}
+  onChange={(e) => setMetric(e.target.value)}
+>
+  <option value="">Select a metric</option>
+  {metricOptions.map((item, index) => (
+    <option key={index} value={item}>
+      {item}
+    </option>
+  ))}
+</select>
+
       </div>
 
       <textarea

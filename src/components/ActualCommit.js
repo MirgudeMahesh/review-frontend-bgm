@@ -27,7 +27,7 @@ export default function ActualCommit() {
     }
 
     nProgress.start();
-    fetch(`http://localhost:8000/getData/${territory}`)
+    fetch(`https://review-backend-bgm.onrender.com/getData/${territory}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch data");
         return res.json();
@@ -44,7 +44,7 @@ export default function ActualCommit() {
 
   const saveToDB = (row, field, value) => {
     nProgress.start();
-    fetch("http://localhost:8000/updateCommitment", {
+    fetch("https://review-backend-bgm.onrender.com/updateCommitment", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

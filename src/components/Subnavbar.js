@@ -60,7 +60,7 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
           {/* {userRole !== 'BE' && userRole!=='TE' && <option value="hygine">Hygiene</option>}
           {userRole !== 'BE' && userRole!=='TE' &&  userRole !== 'BM' && <option value="compliance">Compliance</option>}
           <option value="Chats">Todo</option> */}
-          {/* <option value="Escalating">Commit</option> */}
+          <option value="Escalating">Commit</option>
         </select>
       </div>
 
@@ -77,7 +77,7 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
         </li>
         {/* {userRole !== 'BE' && userRole!=='TE' && <li><Link to={`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`}>Hygine</Link></li>} */}
         {/* {userRole !== 'BE' && userRole!=='TE' && userRole !== 'BM' && <li><Link to={`/profile/${name}/Compliance?ec=${encoded}&pec=${profileEncodedTerritory}`}>Compliance</Link></li>} */}
-        {/* <li><b>Todo</b></li>
+        {/* <li><b>Todo</b></li> */}
         <button
           onClick={handleOpenModal1}
           style={{
@@ -90,7 +90,7 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
           }}
         >
           ?
-        </button> */}
+        </button>
       </div>
 
       <p style={{textAlign:'center'}}>{name}</p>
