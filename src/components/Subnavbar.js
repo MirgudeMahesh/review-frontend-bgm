@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../styles.css';
 import { useRole } from './RoleContext';
 import Textarea from './Textarea';
-import { useLocation } from 'react-router-dom';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 import useProfileTerritory from "./hooks/useProfileTerritory";
+
 export default function SubNavbar() {
   const navigate = useNavigate();
   const { userRole, name } = useRole();
@@ -13,30 +13,24 @@ export default function SubNavbar() {
 
   const handleOpenModal1 = () => setShowModal1(true);
   const handleCloseModal1 = () => setShowModal1(false);
-const [selectedMenu, setSelectedMenu] = useState("");
 
-      const {encoded,decoded}= useEncodedTerritory();
-     const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
-   
+  const [selectedMenu, setSelectedMenu] = useState("");
+
+  const { encoded } = useEncodedTerritory();
+  const { profileEncodedTerritory } = useProfileTerritory();
+
   const handleSelect = (value) => {
-     setSelectedMenu(value); 
+    setSelectedMenu(value);
+
     switch (value) {
       case 'performance':
-         
-navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerritory}`);
-        
+        navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerritory}`);
         break;
       case 'Review':
         navigate(`/profile/${name}/Review?ec=${encoded}&pec=${profileEncodedTerritory}`);
         break;
       case 'Miscelaneous':
         navigate(`/profile/${name}/TeamBuild?ec=${encoded}&pec=${profileEncodedTerritory}`);
-        break;
-      case 'hygine':
-        navigate(`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`);
-        break;
-      case 'compliance':
-        navigate(`/profile/${name}/Compliance?ec=${encoded}&pec=${profileEncodedTerritory}`);
         break;
       case 'Escalating':
         handleOpenModal1();
@@ -53,31 +47,18 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
           <option value="">select</option>
           <option value="Review">Report</option>
           <option value="performance">Performance</option>
-          <option value="Miscelaneous">
-            {/* {userRole === "BE" || userRole==='TE' ||userRole === "BM" ? "Efforts" : "TeamBuild"} */}
-            Efforts
-          </option>
-          {/* {userRole !== 'BE' && userRole!=='TE' && <option value="hygine">Hygiene</option>}
-          {userRole !== 'BE' && userRole!=='TE' &&  userRole !== 'BM' && <option value="compliance">Compliance</option>}
-          <option value="Chats">Todo</option> */}
+          <option value="Miscelaneous">Efforts</option>
           <option value="Escalating">Commit</option>
         </select>
       </div>
 
       <div className="tabs7">
-                <li><Link to={`/Selection?ec=${encoded}`}>Home</Link></li>
-
+        <li><Link to={`/Selection?ec=${encoded}`}>Home</Link></li>
         <li><Link to={`/profile/${name}/Review?ec=${encoded}&pec=${profileEncodedTerritory}`}>Report</Link></li>
         <li><Link to={`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerritory}`}>Performance</Link></li>
-        <li>
-          <Link to={`/profile/${name}/TeamBuild?ec=${encoded}&pec=${profileEncodedTerritory}`}>
-            {/* {userRole === "BE" || userRole==='TE' || userRole === "BM" ? "Efforts" : "TeamBuild"} */}
-            Efforts
-          </Link>
-        </li>
-        {/* {userRole !== 'BE' && userRole!=='TE' && <li><Link to={`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`}>Hygine</Link></li>} */}
-        {/* {userRole !== 'BE' && userRole!=='TE' && userRole !== 'BM' && <li><Link to={`/profile/${name}/Compliance?ec=${encoded}&pec=${profileEncodedTerritory}`}>Compliance</Link></li>} */}
-        {/* <li><b>Todo</b></li> */}
+        <li><Link to={`/profile/${name}/TeamBuild?ec=${encoded}&pec=${profileEncodedTerritory}`}>Efforts</Link></li>
+
+        {/* Help button */}
         <button
           onClick={handleOpenModal1}
           style={{
@@ -93,30 +74,36 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
         </button>
       </div>
 
-      <p style={{textAlign:'center'}}>{name}</p>
+      <p style={{ textAlign: 'center' }}>{name}</p>
 
       {/* Modal */}
       {showModal1 && (
         <div className="modal-overlay">
-          <div className="modal-box">
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-            <button
-  onClick={handleCloseModal1}
-  style={{
-    border: "none",
-    background: "transparent",
-    fontSize: "24px",
-    cursor: "pointer",
-    position: "absolute",
-    top: "12px",
-    right: "12px",
-    zIndex: 2000000
-  }}
->
-  &times;
-</button>
+          <div className="modal-box" style={{ position: "relative" }}>
 
-            </div>
+            {/* ⭐ NEW BEAUTIFUL CLOSE BUTTON ⭐ */}
+            <button
+              onClick={handleCloseModal1}
+              style={{
+                position: "absolute",
+                top: "-15px",
+                right: "-15px",
+                width: "38px",
+                height: "38px",
+                borderRadius: "50%",
+                border: "none",
+                background: "#ff4d4f",
+                color: "white",
+                fontSize: "22px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
+                zIndex: 2000
+              }}
+            >
+              ✕
+            </button>
+
             <Textarea />
           </div>
         </div>
