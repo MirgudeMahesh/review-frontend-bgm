@@ -14,31 +14,37 @@ export default function ActualCommit() {
   const { decoded } = useEncodedTerritory();
 
   // ================= FETCH DATA =================
+const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
-    const territory = location.pathname.startsWith("/profile")
-      ? profileTerritory
-      : decoded;
+ useEffect(() => {
+  const territory = location.pathname.startsWith("/profile")
+    ? profileTerritory
+    : decoded;
 
-    if (!territory) {
+  if (!territory) {
+    setCommitments([]);
+    setLoading(false);
+    return;
+  }
+
+  nProgress.start();
+  fetch(`https://review-backend-bgm.onrender.com/getData/${territory}`)
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to fetch data");
+      return res.json();
+    })
+    .then((data) => setCommitments(data))
+    .catch((err) => {
+      console.error("Error fetching commitments:", err);
       setCommitments([]);
-      return;
-    }
+    })
+    .finally(() => {
+      nProgress.done();
+      setLoading(false);   // ⭐ correct place
+    });
+}, [location]);
 
-    nProgress.start();
-    fetch(`https://review-backend-bgm.onrender.com/getData/${territory}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch data");
-        return res.json();
-      })
-      .then((data) => setCommitments(data))
-      .catch((err) => {
-        console.error("Error fetching commitments:", err);
-        setCommitments([]);
-      })
-      .finally(() => nProgress.done());
-  }, [location]);
 
   // ================= HELPER FUNCTIONS =================
 
@@ -126,6 +132,9 @@ export default function ActualCommit() {
   };
 
   // ================= RENDER UI =================
+if (loading) 
+  return (<div></div>);
+
   return (
     <div className="commitmenta">
       <div className="commit-padding">
