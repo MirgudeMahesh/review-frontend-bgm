@@ -100,17 +100,22 @@ navigate(`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerrito
         <div className="modal-overlay">
           <div className="modal-box">
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-              <button
-                onClick={handleCloseModal1}
-                style={{
-                  border: 'none',
-                  background: 'transparent',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                }}
-              >
-                &times;
-              </button>
+            <button
+  onClick={handleCloseModal1}
+  style={{
+    border: "none",
+    background: "transparent",
+    fontSize: "24px",
+    cursor: "pointer",
+    position: "absolute",
+    top: "12px",
+    right: "12px",
+    zIndex: 2000000
+  }}
+>
+  &times;
+</button>
+
             </div>
             <Textarea />
           </div>
