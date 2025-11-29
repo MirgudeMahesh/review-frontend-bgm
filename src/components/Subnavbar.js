@@ -70,7 +70,7 @@ export default function SubNavbar() {
             color: 'black',
           }}
         >
-          ?
+          commit
         </button>
       </div>
 
