@@ -60,13 +60,7 @@ const handleSubmit = async () => {
       return;
     }
 
-    if (isNaN(parseInt(target))) {
-      setWarning(true);
-      setWarntext('Target should be integer');
-      setTimeout(() => setWarning(false), 3000);
-      return;
-    }
-
+   
     const goalDate = `${selectedDate}-${lastDayOfMonth
       .getDate()
       .toString()
@@ -90,7 +84,7 @@ const handleSubmit = async () => {
       receiver: localStorage.getItem('name'),
       receiver_code: 'abc',
       receiver_territory: profileTerritory,
-      goal: parseInt(target),
+      goal: target,
       received_date: new Date().toISOString().split('T')[0],
       goal_date: goalDate,
       receiver_commit_date: '',

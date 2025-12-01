@@ -108,16 +108,16 @@ export default function ActualCommit() {
     const updated = [...commitments];
     const row = updated[index];
 
-    const goalValue = parseInt(row._tempGoal, 10);
+    const goalValue = row._tempGoal;
 
-    if (isNaN(goalValue) || goalValue < 1) {
-      alert("Goal must be at least 1");
-      return;
-    }
-    if (goalValue > 100) {
-      alert("Goal cannot exceed 100");
-      return;
-    }
+    // if (isNaN(goalValue) || goalValue < 1) {
+    //   alert("Goal must be at least 1");
+    //   return;
+    // }
+    // if (goalValue > 100) {
+    //   alert("Goal cannot exceed 100");
+    //   return;
+    // }
 
     row.goal = goalValue;
     row._goalLocked = true;     // lock after saving (same pattern you already have)
