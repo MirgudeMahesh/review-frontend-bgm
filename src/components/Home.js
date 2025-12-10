@@ -126,7 +126,7 @@ const totalFTDScore =
     <div>
      <div className="table-box">
   <div className="table-container">
-    <HeadingWithHome>Bussiness Performance</HeadingWithHome>
+    <HeadingWithHome>Business Performance</HeadingWithHome>
 
     <div className="table-scroll">
       <table className="custom-table">
