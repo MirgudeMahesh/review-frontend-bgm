@@ -411,7 +411,7 @@
 // };
 
 // export default DrillDownTable;
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRole } from "./RoleContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../styles.css";
@@ -421,18 +421,108 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
-  const { encoded } = useEncodedTerritory();
+  const { decoded, encoded } = useEncodedTerritory();
   const rootMetric = queryParams.get("metric");
 
   const [expandedRows, setExpandedRows] = useState({});
   const [editingCell, setEditingCell] = useState(null);
   const [editValue, setEditValue] = useState("");
   const [saving, setSaving] = useState(false);
+  const [division, setDivision] = useState(null);
+  const [loadingDivision, setLoadingDivision] = useState(false);
+  const [divisionError, setDivisionError] = useState(null);
 
   const { setName } = useRole();
   const navigate = useNavigate();
 
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
+
+  // Fetch division based on decoded territory
+  useEffect(() => {
+    const fetchDivision = async () => {
+      if (!decoded) {
+        console.log("No territory decoded yet");
+        return;
+      }
+
+      try {
+        setLoadingDivision(true);
+        setDivisionError(null);
+
+        console.log("Fetching division for territory:", decoded);
+
+        const response = await fetch(
+          `https://review-backend-bgm.onrender.com/getdivision?territory=${encodeURIComponent(decoded)}`
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        setDivision(data.division);
+        console.log("Division fetched successfully:", data.division);
+
+      } catch (error) {
+        console.error("Error fetching division:", error);
+        setDivisionError(error.message);
+        setDivision(null);
+      } finally {
+        setLoadingDivision(false);
+      }
+    };
+
+    fetchDivision();
+  }, [decoded]);
+
+  // Get allowed metrics based on division
+  const getAllowedMetrics = () => {
+    const baseMetrics = [
+      { value: "Coverage", label: "Coverage" },
+      { value: "Compliance", label: "Compliance" },
+      { value: "Calls", label: "Calls" },
+      { value: "Chemist_Calls", label: "Chemists Met" }
+    ];
+
+    if (!division) return baseMetrics;
+
+    const divisionUpper = division.toUpperCase();
+
+    // Nucleus, Maximus, Impetus, Stimulus: Only Deksel
+    if (["NUCLEUS", "MAXIMUS", "IMPETUS", "STIMULUS"].includes(divisionUpper)) {
+      return [
+        ...baseMetrics,
+        { value: "Deksel_Midmonth_Qty", label: "Deksel Midmonth Qty" }
+      ];
+    }
+
+    // Gladius: Only Voltaneuron and Proaxen
+    if (divisionUpper === "GLADIUS") {
+      return [
+        ...baseMetrics,
+        { value: "Voltaneuron_Midmonth_Qty", label: "Voltaneuron Midmonth Qty" },
+        { value: "Proaxen_Midmonth_Qty", label: "Proaxen Midmonth Qty" }
+      ];
+    }
+
+    // Glamus: All three
+    if (divisionUpper === "GLAMUS") {
+      return [
+        ...baseMetrics,
+        { value: "Deksel_Midmonth_Qty", label: "Deksel Midmonth Qty" },
+        { value: "Voltaneuron_Midmonth_Qty", label: "Voltaneuron Midmonth Qty" },
+        { value: "Proaxen_Midmonth_Qty", label: "Proaxen Midmonth Qty" }
+      ];
+    }
+
+    // Default: return base metrics only
+    return baseMetrics;
+  };
 
   const toggleRow = (code) =>
     setExpandedRows((p) => ({ ...p, [code]: !p[code] }));
@@ -442,8 +532,8 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
   };
 
-  const startEditing = (territory, currentValue) => {
-    setEditingCell(territory);
+  const startEditing = (territory, metricType, currentValue) => {
+    setEditingCell(`${territory}_${metricType}`);
     setEditValue(currentValue || "0");
   };
 
@@ -452,11 +542,10 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     setEditValue("");
   };
 
-  const saveDekselMidmonthQty = async (territory) => {
+  const saveProductQty = async (territory, metricType) => {
     try {
-      // Validate input before sending
       const value = parseFloat(editValue);
-      
+
       if (isNaN(value)) {
         alert("Please enter a valid number");
         return;
@@ -464,14 +553,23 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
 
       setSaving(true);
       console.log("Saving for territory:", territory);
+      console.log("Metric type:", metricType);
       console.log("Value:", value);
 
-      const response = await fetch("https://review-backend-bgm.onrender.com/updateDekselMidmonthQty", {
+      // Map metric type to column name
+      const columnMap = {
+        "Deksel_Midmonth_Qty": "deksel_midmonth_qty",
+        "Voltaneuron_Midmonth_Qty": "voltaneuron_midmonth_qty",
+        "Proaxen_Midmonth_Qty": "proaxen_midmonth_qty"
+      };
+
+      const response = await fetch("https://review-backend-bgm.onrender.com/updateProductQty", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          territory: territory.trim(), // Trim whitespace
-          deksel_midmonth_qty: value
+          territory: territory.trim(),
+          metric_type: columnMap[metricType],
+          value: value
         })
       });
 
@@ -479,25 +577,22 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       console.log("Server response:", result);
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to update Deksel Midmonth Qty");
+        throw new Error(result.error || "Failed to update product quantity");
       }
 
-      // Reset edit state
       setEditingCell(null);
       setEditValue("");
 
-      // Show appropriate message
       if (result.alreadyUpToDate) {
         alert("Value is already up to date!");
       } else {
-        alert(`Deksel Midmonth Qty updated successfully! (${result.affectedRows} row(s) affected)`);
+        alert(`${metricType.replace(/_/g, " ")} updated successfully! (${result.affectedRows} row(s) affected)`);
       }
-      
-      // Reload to fetch updated hierarchy
+
       window.location.reload();
 
     } catch (error) {
-      console.error("Error saving Deksel Midmonth Qty:", error);
+      console.error("Error saving product quantity:", error);
       alert(`Failed to save: ${error.message}`);
     } finally {
       setSaving(false);
@@ -554,24 +649,78 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       borderRadius: "4px",
       cursor: "pointer",
       fontSize: "11px",
+    },
+    divisionContainer: {
+      marginBottom: "10px",
+      display: "flex",
+      alignItems: "center",
+      gap: "15px"
+    },
+    divisionBadge: {
+      padding: "6px 12px",
+      backgroundColor: "#2196F3",
+      color: "white",
+      borderRadius: "5px",
+      fontWeight: "bold",
+      fontSize: "14px"
+    },
+    errorText: {
+      color: "#f44336",
+      fontSize: "12px"
     }
   };
 
   const activeMetric = level === 1 ? selectedMetric : appliedMetric;
+  const allowedMetrics = getAllowedMetrics();
+
+  // Check if metric is a product quantity metric
+  const isProductQtyMetric = (metric) => {
+    return ["Deksel_Midmonth_Qty", "Voltaneuron_Midmonth_Qty", "Proaxen_Midmonth_Qty"].includes(metric);
+  };
 
   return (
     <>
       {level === 1 && (
-        <div style={{ marginBottom: "10px" }}>
+        <div style={styles.divisionContainer}>
+          {loadingDivision && (
+            <span style={{ fontSize: "13px", color: "#666" }}>
+              Loading division...
+            </span>
+          )}
+
+          {!loadingDivision && division && (
+            <div style={styles.divisionBadge}>
+              Division: {division}
+            </div>
+          )}
+
+          {!loadingDivision && !division && !divisionError && (
+            <span style={{ fontSize: "13px", color: "#999" }}>
+              No division found
+            </span>
+          )}
+
+          {divisionError && (
+            <span style={styles.errorText}>
+              Error loading division: {divisionError}
+            </span>
+          )}
+
           <select
             value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value)}
+            style={{
+              padding: "6px 10px",
+              fontSize: "13px",
+              borderRadius: "4px",
+              border: "1px solid #ccc"
+            }}
           >
-            <option value="Coverage">Coverage</option>
-            <option value="Compliance">Compliance</option>
-            <option value="Calls">Calls</option>
-            <option value="Chemist_Calls">Chemists_Met</option>
-            <option value="Deksel_Midmonth_Qty">Deksel Midmonth Qty</option>
+            {allowedMetrics.map((metric) => (
+              <option key={metric.value} value={metric.value}>
+                {metric.label}
+              </option>
+            ))}
           </select>
         </div>
       )}
@@ -581,7 +730,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
           <tr>
             <th style={styles.th}>Name (Level {level})</th>
             <th style={styles.th}>Territory</th>
-            <th style={styles.th}>{activeMetric}</th>
+            <th style={styles.th}>{activeMetric.replace(/_/g, " ")}</th>
           </tr>
         </thead>
 
@@ -593,8 +742,8 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             const metricValue =
               child[activeMetric] !== undefined ? child[activeMetric] : "-";
 
-            const isEditing = editingCell === child.territory;
-            const canEdit = isLeaf && activeMetric === "Deksel_Midmonth_Qty";
+            const isEditing = editingCell === `${child.territory}_${activeMetric}`;
+            const canEdit = isLeaf && isProductQtyMetric(activeMetric);
 
             return (
               <React.Fragment key={key}>
@@ -639,7 +788,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                         />
                         <button
                           style={styles.saveButton}
-                          onClick={() => saveDekselMidmonthQty(child.territory)}
+                          onClick={() => saveProductQty(child.territory, activeMetric)}
                           disabled={saving}
                         >
                           {saving ? "..." : "Save"}
@@ -660,7 +809,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                             style={styles.editButton}
                             onClick={(e) => {
                               e.stopPropagation();
-                              startEditing(child.territory, metricValue);
+                              startEditing(child.territory, activeMetric, metricValue);
                             }}
                           >
                             Edit
