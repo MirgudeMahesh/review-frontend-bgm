@@ -425,10 +425,14 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const rootMetric = queryParams.get("metric");
 
   const [expandedRows, setExpandedRows] = useState({});
+  const [editingCell, setEditingCell] = useState(null); // Track which cell is being edited
+  const [editValue, setEditValue] = useState(""); // Store temporary edit value
+  const [saving, setSaving] = useState(false); // Track save status
+
   const { setName } = useRole();
   const navigate = useNavigate();
 
-  // Root metric management
+  // Root metric management - ADD MMR to default options
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
 
   const toggleRow = (code) =>
@@ -438,6 +442,55 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const openProfile = (empName, role, territory) => {
     setName(empName);
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
+  };
+
+  // Start editing MMR value
+  const startEditing = (territory, currentValue) => {
+    setEditingCell(territory);
+    setEditValue(currentValue || "");
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingCell(null);
+    setEditValue("");
+  };
+
+  // Save MMR value to database
+  const saveMMR = async (territory) => {
+    try {
+      setSaving(true);
+
+      const response = await fetch("https://review-backend-bgm.onrender.com/updateMMR", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          territory: territory,
+          mmr: parseFloat(editValue) || 0
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update MMR");
+      }
+
+      const result = await response.json();
+      console.log("MMR updated successfully:", result);
+
+      // Reset edit state
+      setEditingCell(null);
+      setEditValue("");
+
+      // Optionally refresh the page or update local state
+      alert("MMR updated successfully!");
+      window.location.reload(); // Reload to fetch updated hierarchy
+
+    } catch (error) {
+      console.error("Error saving MMR:", error);
+      alert("Failed to save MMR. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const styles = {
@@ -454,9 +507,46 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       fontSize: "13px",
     },
     empClickable: { cursor: "pointer" },
+    editInput: {
+      width: "80px",
+      padding: "4px",
+      border: "1px solid #4CAF50",
+      borderRadius: "4px",
+      fontSize: "13px",
+    },
+    saveButton: {
+      marginLeft: "5px",
+      padding: "4px 8px",
+      backgroundColor: "#4CAF50",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "12px",
+    },
+    cancelButton: {
+      marginLeft: "5px",
+      padding: "4px 8px",
+      backgroundColor: "#f44336",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "12px",
+    },
+    editButton: {
+      marginLeft: "5px",
+      padding: "2px 6px",
+      backgroundColor: "#2196F3",
+      color: "white",
+      border: "none",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "11px",
+    }
   };
 
-  // ✔ Metric logic (Sales removed)
+  // ✔ Metric logic (includes MMR now)
   const activeMetric = level === 1 ? selectedMetric : appliedMetric;
 
   return (
@@ -472,6 +562,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             <option value="Compliance">Compliance</option>
             <option value="Calls">Calls</option>
             <option value="Chemist_Calls">Chemists_Met</option>
+            <option value="MMR">MMR</option>
           </select>
         </div>
       )}
@@ -491,9 +582,15 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             const isLeaf =
               !child.children || Object.keys(child.children).length === 0;
 
-            // Direct metric
+            // Direct metric value extraction - handles MMR
             const metricValue =
               child[activeMetric] !== undefined ? child[activeMetric] : "-";
+
+            // Check if this cell is in edit mode
+            const isEditing = editingCell === child.territory;
+
+            // Show edit option only for leaf nodes when MMR is selected
+            const canEdit = isLeaf && activeMetric === "MMR";
 
             return (
               <React.Fragment key={key}>
@@ -527,7 +624,53 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                   </td>
 
                   <td style={styles.td}>{child.territory}</td>
-                  <td style={styles.td}>{metricValue}</td>
+
+                  {/* MMR Column with Edit Functionality */}
+                  <td style={styles.td} onClick={(e) => e.stopPropagation()}>
+                    {isEditing ? (
+                      // Edit Mode
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <input
+                          type="number"
+                          style={styles.editInput}
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          autoFocus
+                          disabled={saving}
+                        />
+                        <button
+                          style={styles.saveButton}
+                          onClick={() => saveMMR(child.territory)}
+                          disabled={saving}
+                        >
+                          {saving ? "..." : "Save"}
+                        </button>
+                        <button
+                          style={styles.cancelButton}
+                          onClick={cancelEditing}
+                          disabled={saving}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      // View Mode
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <span>{metricValue}</span>
+                        {canEdit && (
+                          <button
+                            style={styles.editButton}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEditing(child.territory, metricValue);
+                            }}
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </td>
                 </tr>
 
                 {/* ----------- nested children ----------- */}
