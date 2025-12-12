@@ -425,69 +425,80 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const rootMetric = queryParams.get("metric");
 
   const [expandedRows, setExpandedRows] = useState({});
-  const [editingCell, setEditingCell] = useState(null); // Track which cell is being edited
-  const [editValue, setEditValue] = useState(""); // Store temporary edit value
-  const [saving, setSaving] = useState(false); // Track save status
+  const [editingCell, setEditingCell] = useState(null);
+  const [editValue, setEditValue] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const { setName } = useRole();
   const navigate = useNavigate();
 
-  // Root metric management
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
 
   const toggleRow = (code) =>
     setExpandedRows((p) => ({ ...p, [code]: !p[code] }));
 
-  // ✔ OPEN only leaf-level employees
   const openProfile = (empName, role, territory) => {
     setName(empName);
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
   };
 
-  // Start editing Deksel_Midmonth_Qty value
   const startEditing = (territory, currentValue) => {
     setEditingCell(territory);
-    setEditValue(currentValue || "");
+    setEditValue(currentValue || "0");
   };
 
-  // Cancel editing
   const cancelEditing = () => {
     setEditingCell(null);
     setEditValue("");
   };
 
-  // Save Deksel_Midmonth_Qty value to database
   const saveDekselMidmonthQty = async (territory) => {
     try {
+      // Validate input before sending
+      const value = parseFloat(editValue);
+      
+      if (isNaN(value)) {
+        alert("Please enter a valid number");
+        return;
+      }
+
       setSaving(true);
+      console.log("Saving for territory:", territory);
+      console.log("Value:", value);
 
       const response = await fetch("https://review-backend-bgm.onrender.com/updateDekselMidmonthQty", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          territory: territory,
-          deksel_midmonth_qty: parseFloat(editValue) || 0
+          territory: territory.trim(), // Trim whitespace
+          deksel_midmonth_qty: value
         })
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to update Deksel Midmonth Qty");
-      }
-
       const result = await response.json();
-      console.log("Deksel Midmonth Qty updated successfully:", result);
+      console.log("Server response:", result);
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update Deksel Midmonth Qty");
+      }
 
       // Reset edit state
       setEditingCell(null);
       setEditValue("");
 
-      // Optionally refresh the page or update local state
-      alert("Deksel Midmonth Qty updated successfully!");
-      window.location.reload(); // Reload to fetch updated hierarchy
+      // Show appropriate message
+      if (result.alreadyUpToDate) {
+        alert("Value is already up to date!");
+      } else {
+        alert(`Deksel Midmonth Qty updated successfully! (${result.affectedRows} row(s) affected)`);
+      }
+      
+      // Reload to fetch updated hierarchy
+      window.location.reload();
 
     } catch (error) {
       console.error("Error saving Deksel Midmonth Qty:", error);
-      alert("Failed to save Deksel Midmonth Qty. Please try again.");
+      alert(`Failed to save: ${error.message}`);
     } finally {
       setSaving(false);
     }
@@ -546,12 +557,10 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     }
   };
 
-  // ✔ Metric logic
   const activeMetric = level === 1 ? selectedMetric : appliedMetric;
 
   return (
     <>
-      {/* --- Metric Selector ONLY at Level 1 --- */}
       {level === 1 && (
         <div style={{ marginBottom: "10px" }}>
           <select
@@ -567,7 +576,6 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         </div>
       )}
 
-      {/* ---------------- TABLE ---------------- */}
       <table style={styles.table}>
         <thead>
           <tr>
@@ -582,14 +590,10 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             const isLeaf =
               !child.children || Object.keys(child.children).length === 0;
 
-            // Direct metric value extraction
             const metricValue =
               child[activeMetric] !== undefined ? child[activeMetric] : "-";
 
-            // Check if this cell is in edit mode
             const isEditing = editingCell === child.territory;
-
-            // Show edit option only for leaf nodes when Deksel_Midmonth_Qty is selected
             const canEdit = isLeaf && activeMetric === "Deksel_Midmonth_Qty";
 
             return (
@@ -603,11 +607,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                         style={styles.empClickable}
                         onClick={(e) => {
                           e.stopPropagation();
-                          openProfile(
-                            child.empName,
-                            child.role,
-                            child.territory
-                          );
+                          openProfile(child.empName, child.role, child.territory);
                         }}
                         onMouseEnter={(e) =>
                           (e.target.style.textDecoration = "underline")
@@ -625,13 +625,12 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
 
                   <td style={styles.td}>{child.territory}</td>
 
-                  {/* Deksel_Midmonth_Qty Column with Edit Functionality */}
                   <td style={styles.td} onClick={(e) => e.stopPropagation()}>
                     {isEditing ? (
-                      // Edit Mode
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <input
                           type="number"
+                          step="0.01"
                           style={styles.editInput}
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
@@ -654,7 +653,6 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                         </button>
                       </div>
                     ) : (
-                      // View Mode
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <span>{metricValue}</span>
                         {canEdit && (
@@ -673,7 +671,6 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                   </td>
                 </tr>
 
-                {/* ----------- nested children ----------- */}
                 {expandedRows[key] &&
                   child.children &&
                   Object.keys(child.children).length > 0 && (
