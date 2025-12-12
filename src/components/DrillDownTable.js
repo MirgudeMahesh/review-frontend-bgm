@@ -432,7 +432,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const { setName } = useRole();
   const navigate = useNavigate();
 
-  // Root metric management - ADD MMR to default options
+  // Root metric management
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
 
   const toggleRow = (code) =>
@@ -444,7 +444,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
   };
 
-  // Start editing MMR value
+  // Start editing Deksel_Midmonth_Qty value
   const startEditing = (territory, currentValue) => {
     setEditingCell(territory);
     setEditValue(currentValue || "");
@@ -456,38 +456,38 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     setEditValue("");
   };
 
-  // Save MMR value to database
-  const saveMMR = async (territory) => {
+  // Save Deksel_Midmonth_Qty value to database
+  const saveDekselMidmonthQty = async (territory) => {
     try {
       setSaving(true);
 
-      const response = await fetch("https://review-backend-bgm.onrender.com/updateMMR", {
+      const response = await fetch("https://review-backend-bgm.onrender.com/updateDekselMidmonthQty", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           territory: territory,
-          mmr: parseFloat(editValue) || 0
+          deksel_midmonth_qty: parseFloat(editValue) || 0
         })
       });
 
       if (!response.ok) {
-        throw new Error("Failed to update MMR");
+        throw new Error("Failed to update Deksel Midmonth Qty");
       }
 
       const result = await response.json();
-      console.log("MMR updated successfully:", result);
+      console.log("Deksel Midmonth Qty updated successfully:", result);
 
       // Reset edit state
       setEditingCell(null);
       setEditValue("");
 
       // Optionally refresh the page or update local state
-      alert("MMR updated successfully!");
+      alert("Deksel Midmonth Qty updated successfully!");
       window.location.reload(); // Reload to fetch updated hierarchy
 
     } catch (error) {
-      console.error("Error saving MMR:", error);
-      alert("Failed to save MMR. Please try again.");
+      console.error("Error saving Deksel Midmonth Qty:", error);
+      alert("Failed to save Deksel Midmonth Qty. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -546,7 +546,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     }
   };
 
-  // ✔ Metric logic (includes MMR now)
+  // ✔ Metric logic
   const activeMetric = level === 1 ? selectedMetric : appliedMetric;
 
   return (
@@ -562,7 +562,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             <option value="Compliance">Compliance</option>
             <option value="Calls">Calls</option>
             <option value="Chemist_Calls">Chemists_Met</option>
-            <option value="MMR">MMR</option>
+            <option value="Deksel_Midmonth_Qty">Deksel Midmonth Qty</option>
           </select>
         </div>
       )}
@@ -582,15 +582,15 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             const isLeaf =
               !child.children || Object.keys(child.children).length === 0;
 
-            // Direct metric value extraction - handles MMR
+            // Direct metric value extraction
             const metricValue =
               child[activeMetric] !== undefined ? child[activeMetric] : "-";
 
             // Check if this cell is in edit mode
             const isEditing = editingCell === child.territory;
 
-            // Show edit option only for leaf nodes when MMR is selected
-            const canEdit = isLeaf && activeMetric === "MMR";
+            // Show edit option only for leaf nodes when Deksel_Midmonth_Qty is selected
+            const canEdit = isLeaf && activeMetric === "Deksel_Midmonth_Qty";
 
             return (
               <React.Fragment key={key}>
@@ -625,7 +625,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
 
                   <td style={styles.td}>{child.territory}</td>
 
-                  {/* MMR Column with Edit Functionality */}
+                  {/* Deksel_Midmonth_Qty Column with Edit Functionality */}
                   <td style={styles.td} onClick={(e) => e.stopPropagation()}>
                     {isEditing ? (
                       // Edit Mode
@@ -640,7 +640,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                         />
                         <button
                           style={styles.saveButton}
-                          onClick={() => saveMMR(child.territory)}
+                          onClick={() => saveDekselMidmonthQty(child.territory)}
                           disabled={saving}
                         >
                           {saving ? "..." : "Save"}
@@ -697,3 +697,4 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
 };
 
 export default DrillDownTable;
+
