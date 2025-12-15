@@ -755,7 +755,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     <>
       {level === 1 && (
         <div style={styles.divisionContainer}>
-          {loadingDivision && (
+          {/* {loadingDivision && (
             <span style={{ fontSize: "13px", color: "#666" }}>
               Loading division...
             </span>
@@ -780,7 +780,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             <span style={styles.errorText}>
               Error loading division: {divisionError}
             </span>
-          )}
+          )} */}
 
 
           <select
