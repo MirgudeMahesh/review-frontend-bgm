@@ -41,7 +41,7 @@ export default function Filtering() {
 
     try {
       NProgress.start();
-      const response = await fetch("http://localhost:8000/filterData", {
+      const response = await fetch("https://review-backend-bgm.onrender.com/filterData", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,7 +130,7 @@ export default function Filtering() {
         metric:metric
       }));
 
-      const res = await fetch("http://localhost:8000/putInfo", {
+      const res = await fetch("https://review-backend-bgm.onrender.com/putInfo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)

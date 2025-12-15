@@ -47,7 +47,7 @@ export default function Escalating() {
       };
       // try {
       
-        const response = await fetch('http://localhost:8000/putEscalations', {
+        const response = await fetch('https://review-backend-bgm.onrender.com/putEscalations', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

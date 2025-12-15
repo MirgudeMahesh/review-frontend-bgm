@@ -32,7 +32,7 @@ const sendInformation = async () => {
 
   try {
 
-    await fetch('http://localhost:8000/putInfo', {
+    await fetch('https://review-backend-bgm.onrender.com/putInfo', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -55,7 +55,7 @@ const sendInformation = async () => {
     try {
       NProgress.start();
       const response = await fetch(
-        "http://localhost:8000/getMessagesByTerritory",
+        "https://review-backend-bgm.onrender.com/getMessagesByTerritory",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -417,12 +417,15 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "../styles.css";
 import useEncodedTerritory from "./hooks/useEncodedTerritory";
 
+
 const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
+
   const { decoded, encoded } = useEncodedTerritory();
   const rootMetric = queryParams.get("metric");
+
 
   const [expandedRows, setExpandedRows] = useState({});
   const [editingCell, setEditingCell] = useState(null);
@@ -432,10 +435,13 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   const [loadingDivision, setLoadingDivision] = useState(false);
   const [divisionError, setDivisionError] = useState(null);
 
+
   const { setName } = useRole();
   const navigate = useNavigate();
 
+
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
+
 
   // Fetch division based on decoded territory
   useEffect(() => {
@@ -445,28 +451,36 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         return;
       }
 
+
       try {
         setLoadingDivision(true);
         setDivisionError(null);
 
+
         console.log("Fetching division for territory:", decoded);
+
 
         const response = await fetch(
           `https://review-backend-bgm.onrender.com/getdivision?territory=${encodeURIComponent(decoded)}`
         );
 
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
+
         const data = await response.json();
+
 
         if (data.error) {
           throw new Error(data.error);
         }
 
+
         setDivision(data.division);
         console.log("Division fetched successfully:", data.division);
+
 
       } catch (error) {
         console.error("Error fetching division:", error);
@@ -477,8 +491,10 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       }
     };
 
+
     fetchDivision();
   }, [decoded]);
+
 
   // Get allowed metrics based on division
   const getAllowedMetrics = () => {
@@ -489,9 +505,12 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       { value: "Chemist_Calls", label: "Chemists Met" }
     ];
 
+
     if (!division) return baseMetrics;
 
+
     const divisionUpper = division.toUpperCase();
+
 
     // Nucleus, Maximus, Impetus, Stimulus: Only Deksel
     if (["NUCLEUS", "MAXIMUS", "IMPETUS", "STIMULUS"].includes(divisionUpper)) {
@@ -501,6 +520,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       ];
     }
 
+
     // Gladius: Only Voltaneuron and Proaxen
     if (divisionUpper === "GLADIUS") {
       return [
@@ -509,6 +529,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         { value: "Proaxen_Midmonth_Qty", label: "Proaxen Midmonth Qty" }
       ];
     }
+
 
     // Glamus: All three
     if (divisionUpper === "GLAMUS") {
@@ -520,41 +541,51 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       ];
     }
 
+
     // Default: return base metrics only
     return baseMetrics;
   };
 
+
   const toggleRow = (code) =>
     setExpandedRows((p) => ({ ...p, [code]: !p[code] }));
+
 
   const openProfile = (empName, role, territory) => {
     setName(empName);
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
   };
 
+
   const startEditing = (territory, metricType, currentValue) => {
     setEditingCell(`${territory}_${metricType}`);
     setEditValue(currentValue || "0");
   };
+
 
   const cancelEditing = () => {
     setEditingCell(null);
     setEditValue("");
   };
 
+
   const saveProductQty = async (territory, metricType) => {
     try {
       const value = parseFloat(editValue);
+
 
       if (isNaN(value)) {
         alert("Please enter a valid number");
         return;
       }
 
+
       setSaving(true);
       console.log("Saving for territory:", territory);
       console.log("Metric type:", metricType);
       console.log("Value:", value);
+      console.log("Sender territory (decoded):", decoded);
+
 
       // Map metric type to column name
       const columnMap = {
@@ -563,6 +594,8 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         "Proaxen_Midmonth_Qty": "proaxen_midmonth_qty"
       };
 
+
+      // Step 1: Update the product quantity
       const response = await fetch("https://review-backend-bgm.onrender.com/updateProductQty", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -573,15 +606,49 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         })
       });
 
+
       const result = await response.json();
       console.log("Server response:", result);
+
 
       if (!response.ok) {
         throw new Error(result.error || "Failed to update product quantity");
       }
 
+
+      // Step 2: Log the update to Midmonth_review_logs table
+      try {
+        const logResponse = await fetch("https://review-backend-bgm.onrender.com/midmonth-review", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sender_territory: decoded,
+            receiver_territory: territory.trim(),
+            Metric: metricType,
+            Value: value
+          })
+        });
+
+
+        const logResult = await logResponse.json();
+        console.log("Log response:", logResult);
+
+
+        if (!logResponse.ok) {
+          console.error("Failed to log update:", logResult.error);
+          // Don't throw error - we still want to show success for the main update
+        } else {
+          console.log("Update logged successfully in Midmonth_review_logs");
+        }
+      } catch (logError) {
+        console.error("Error logging update:", logError);
+        // Continue with the success flow even if logging fails
+      }
+
+
       setEditingCell(null);
       setEditValue("");
+
 
       if (result.alreadyUpToDate) {
         alert("Value is already up to date!");
@@ -589,7 +656,9 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         alert(`${metricType.replace(/_/g, " ")} updated successfully! (${result.affectedRows} row(s) affected)`);
       }
 
+
       window.location.reload();
+
 
     } catch (error) {
       console.error("Error saving product quantity:", error);
@@ -598,6 +667,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
       setSaving(false);
     }
   };
+
 
   const styles = {
     th: { backgroundColor: "#eeeeee", padding: "8px 12px", textAlign: "left" },
@@ -670,13 +740,16 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
     }
   };
 
+
   const activeMetric = level === 1 ? selectedMetric : appliedMetric;
   const allowedMetrics = getAllowedMetrics();
+
 
   // Check if metric is a product quantity metric
   const isProductQtyMetric = (metric) => {
     return ["Deksel_Midmonth_Qty", "Voltaneuron_Midmonth_Qty", "Proaxen_Midmonth_Qty"].includes(metric);
   };
+
 
   return (
     <>
@@ -688,11 +761,13 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             </span>
           )}
 
+
           {!loadingDivision && division && (
             <div style={styles.divisionBadge}>
               Division: {division}
             </div>
           )}
+
 
           {!loadingDivision && !division && !divisionError && (
             <span style={{ fontSize: "13px", color: "#999" }}>
@@ -700,11 +775,13 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
             </span>
           )}
 
+
           {divisionError && (
             <span style={styles.errorText}>
               Error loading division: {divisionError}
             </span>
           )}
+
 
           <select
             value={selectedMetric}
@@ -725,6 +802,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
         </div>
       )}
 
+
       <table style={styles.table}>
         <thead>
           <tr>
@@ -734,16 +812,20 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
           </tr>
         </thead>
 
+
         <tbody>
           {Object.entries(childrenData).map(([key, child]) => {
             const isLeaf =
               !child.children || Object.keys(child.children).length === 0;
 
+
             const metricValue =
               child[activeMetric] !== undefined ? child[activeMetric] : "-";
 
+
             const isEditing = editingCell === `${child.territory}_${activeMetric}`;
             const canEdit = isLeaf && isProductQtyMetric(activeMetric);
+
 
             return (
               <React.Fragment key={key}>
@@ -772,7 +854,9 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                     )}
                   </td>
 
+
                   <td style={styles.td}>{child.territory}</td>
+
 
                   <td style={styles.td} onClick={(e) => e.stopPropagation()}>
                     {isEditing ? (
@@ -820,6 +904,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
                   </td>
                 </tr>
 
+
                 {expandedRows[key] &&
                   child.children &&
                   Object.keys(child.children).length > 0 && (
@@ -842,5 +927,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric }) => {
   );
 };
 
+
 export default DrillDownTable;
+
 

@@ -92,7 +92,7 @@ export default function Commitment() {
         
         try {
           NProgress.start();
-          const response = await fetch("http://localhost:8000/hierarchy-kpi", {
+          const response = await fetch("https://review-backend-bgm.onrender.com/hierarchy-kpi", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ empterr:decoded })

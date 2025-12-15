@@ -23,7 +23,7 @@ export default function Ai() {
       setLoading(true);
       setAnswer("");
 
-      const response = await fetch("http://localhost:8000/api/ask-ai", {
+      const response = await fetch("https://review-backend-bgm.onrender.com/api/ask-ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

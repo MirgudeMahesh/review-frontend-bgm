@@ -46,7 +46,7 @@ const sendInformation = async () => {
   };
 
   try {
-    await fetch("http://localhost:8000/putInfo", {
+    await fetch("https://review-backend-bgm.onrender.com/putInfo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -69,7 +69,7 @@ const sendInformation = async () => {
 //     nProgress.start();
 
     
-//     const response = await fetch("http://localhost:8000/getMessagesByTerritory", {
+//     const response = await fetch("https://review-backend-bgm.onrender.com/getMessagesByTerritory", {
 //       method: "POST",
 //       headers: { "Content-Type": "application/json" },
 //       body: JSON.stringify({ receiver_territory: decoded }),
