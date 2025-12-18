@@ -47,7 +47,8 @@ const {encoded,decoded}= useEncodedTerritory();
           Oops! Page not found
         </p>
          <Link
-          to={`/FinalReport?ec=${encodeURIComponent(encoded || "")}`}
+          to={encoded ? `/FinalReport?ec=${encodeURIComponent(encoded)}` : '/'}
+
           style={{
             color: "#2563eb",
             textDecoration: "underline",
