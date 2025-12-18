@@ -24,7 +24,7 @@ function App() {
      <Router>
   <Routes>
     {/* Login route (no layout) */}
-    <Route path="/" element={<Loginpage />} />
+    <Route path="/want-to-log-in" element={<Loginpage />} />
 
     {/* All other routes use the Layout */}
     <Route element={<Layout />}>
@@ -49,6 +49,7 @@ function App() {
 
     {/* 404 route (no layout) */}
     <Route path="*" element={<NotFound />} />
+    <Route path="/" element={<NotFound />} />
   </Routes>
 </Router>
 
