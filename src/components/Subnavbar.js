@@ -7,6 +7,7 @@ import useEncodedTerritory from './hooks/useEncodedTerritory';
 import useProfileTerritory from "./hooks/useProfileTerritory";
 
 export default function SubNavbar() {
+  const roll = localStorage.getItem('choserole');
   const navigate = useNavigate();
   const { userRole, name } = useRole();
   const [showModal1, setShowModal1] = useState(false);
@@ -57,6 +58,7 @@ export default function SubNavbar() {
         <li><Link to={`/profile/${name}/Review?ec=${encoded}&pec=${profileEncodedTerritory}`}>Report</Link></li>
         <li><Link to={`/profile/${name}/Performance?ec=${encoded}&pec=${profileEncodedTerritory}`}>Performance</Link></li>
         <li><Link to={`/profile/${name}/TeamBuild?ec=${encoded}&pec=${profileEncodedTerritory}`}>Efforts</Link></li>
+       {roll === 'BM' && <li><Link to={`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`}>Hygiene</Link></li>}
 
         {/* Help button */}
         <button

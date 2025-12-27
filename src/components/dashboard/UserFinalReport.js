@@ -11,13 +11,17 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
 export default function UserFinalReport() {
-  const { userRole, role, setRole, name, setName } = useRole();
+  const userRole=localStorage.getItem('choserole');
+  const {  role, setRole, name, setName } = useRole();
   const { profileTerritory } = useProfileTerritory();
 
-  const [score1, setScore1] = useState(null);
-  const [score2, setScore2] = useState(null);
-  const [score3, setScore3] = useState(null);
-  const [score4, setScore4] = useState(null);
+  const [score1, setScore1] = useState(null); // Efforts YTD (BE) / Efforts YTD (BM)
+  const [score2, setScore2] = useState(null); // Business YTD
+  const [score3, setScore3] = useState(null); // Efforts Month
+  const [score4, setScore4] = useState(null); // Business Month
+
+  const [hygieneMonth, setHygieneMonth] = useState(null); // BM only
+  const [hygieneYTD, setHygieneYTD] = useState(null);     // BM only
 
   const handleSubmit = ({ text, selectedDate, warning, warntext, setWarning, setWarntext }) => {
     if (text === '') {
@@ -31,61 +35,92 @@ export default function UserFinalReport() {
     console.log("Selected Date:", selectedDate);
   };
 
-  // Fetch YTD + FTD
+  // Fetch YTD + FTD for BE / BM
   useEffect(() => {
     if (!profileTerritory) return;
 
-    const fetchYTD = async () => {
+    const loadBE = async () => {
       try {
         NProgress.start();
-        const response = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
+
+        const ytdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ Territory: profileTerritory })
         });
+        const ytdData = await ytdRes.json();
+        if (ytdRes.ok) {
+          setScore1(Number(ytdData.totalScore1) || 0);
+          setScore2(Number(ytdData.totalScore2) || 0);
+        }
 
-        const data = await response.json();
-
-        if (response.ok) {
-          setScore1(data.totalScore1 || 0);
-          setScore2(data.totalScore2 || 0);
+        const ftdRes = await fetch("https://review-backend-bgm.onrender.com/dashboardFTD", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ Territory: profileTerritory })
+        });
+        const ftdData = await ftdRes.json();
+        if (ftdRes.ok) {
+          setScore3(Number(ftdData.totalScore3) || 0);
+          setScore4(Number(ftdData.totalScore4) || 0);
         }
       } catch (err) {
-        console.error("YTD API error:", err);
+        console.error("BE efficiency API error:", err);
       } finally {
         NProgress.done();
       }
     };
 
-    const fetchFTD = async () => {
+    const loadBM = async () => {
       try {
         NProgress.start();
-        const response = await fetch("https://review-backend-bgm.onrender.com/dashboardFTD", {
+
+        const res = await fetch("https://review-backend-bgm.onrender.com/bmEfficiency", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ Territory: profileTerritory })
         });
+        const data = await res.json();
 
-        const data = await response.json();
+        if (res.ok) {
+          // Reuse score1–4 for Business/Effort like BE
+          setScore2(Number(data.businessYTD) || 0);   // Business YTD
+          setScore4(Number(data.businessMonth) || 0); // Business Month
 
-        if (response.ok) {
-          setScore3(data.totalScore3 || 0);
-          setScore4(data.totalScore4 || 0);
+          setScore1(Number(data.effortYTD) || 0);     // Effort YTD
+          setScore3(Number(data.effortMonth) || 0);   // Effort Month
+
+          setHygieneMonth(Number(data.hygieneMonth) || 0);
+          setHygieneYTD(Number(data.hygieneYTD) || 0);
         }
       } catch (err) {
-        console.error("FTD API error:", err);
+        console.error("BM efficiency API error:", err);
       } finally {
         NProgress.done();
       }
     };
 
-    fetchYTD();
-    fetchFTD();
-  }, [profileTerritory]);
+    if (userRole === 'BM') {
+      loadBM();
+    } else {
+      loadBE();
+    }
+  }, [profileTerritory, userRole]);
 
-  if (score1 === null || score3 === null) {
+  const isLoadingBE =
+    userRole !== 'BM' &&
+    (score1 === null || score2 === null || score3 === null || score4 === null);
+
+  const isLoadingBM =
+    userRole === 'BM' &&
+    (score1 === null || score2 === null || score3 === null || score4 === null ||
+      hygieneMonth === null || hygieneYTD === null);
+
+  if (isLoadingBE || isLoadingBM) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   }
+
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
   return (
     <div>
@@ -96,38 +131,55 @@ export default function UserFinalReport() {
 
           <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
 
-          {/* SCROLL WRAPPER FIX */}
           <div className="table-scroll">
             <table className="custom-table">
               <thead>
                 <tr>
                   <th>Parameter</th>
-                  <th>Objective</th>
-                  <th>Month</th>
-                  <th>YTD</th>
+                  <th>Objective(%)</th>
+                  <th>Month(%)</th>
+                  <th>YTD(%)</th>
                 </tr>
               </thead>
 
               <tbody>
+                {/* Common rows for both BE and BM */}
                 <tr>
                   <td>Efforts and Effectiveness</td>
-                  <td>50</td>
-                  <td>{score3}</td>
-                  <td>{score1}</td>
+                  <td>{userRole === 'BM' ? 40 : 50}</td>
+                  <td>{fmt(score3)}</td>
+                  <td>{fmt(score1)}</td>
                 </tr>
 
                 <tr>
                   <td>Business Performance</td>
-                  <td>50</td>
-                  <td>{score4}</td>
-                  <td>{score2}</td>
+                  <td>{userRole === 'BM' ? 50 : 50}</td>
+                  <td>{fmt(score4)}</td>
+                  <td>{fmt(score2)}</td>
                 </tr>
+
+                {userRole === 'BM' && (
+                  <tr>
+                    <td>Hygiene</td>
+                    <td>10</td>
+                    <td>{fmt(hygieneMonth)}</td>
+                    <td>{fmt(hygieneYTD)}</td>
+                  </tr>
+                )}
 
                 <tr className="shade">
                   <td>Efficiency Index</td>
                   <td>100</td>
-                  <td>{Number(parseFloat(score3 + score4)).toFixed(2)}</td>
-                  <td>{Number(parseFloat(score1 + score2)).toFixed(2)}</td>
+                  <td>
+                    {userRole === 'BM'
+                      ? fmt(Number(score3) + Number(score4) + Number(hygieneMonth))
+                      : fmt(Number(score3) + Number(score4))}
+                  </td>
+                  <td>
+                    {userRole === 'BM'
+                      ? fmt(Number(score1) + Number(score2) + Number(hygieneYTD))
+                      : fmt(Number(score1) + Number(score2))}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -138,149 +190,3 @@ export default function UserFinalReport() {
     </div>
   );
 }
-
-
-
-
-  //  <div className="table-box">
-  //       {(userRole === 'BE' ) && (
-  //         <div className="table-container">
-  //           {name && <Subnavbar />}
-  //           <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-  //           <table className="custom-table">
-  //             <thead>
-  //               <tr>
-  //                 <th>Parameter</th>
-  //                 <th>Objective(%)</th>
-  //                 <th>Month(%)</th>
-  //                 <th>YTD(%)</th>
-  //               </tr>
-  //             </thead>
-  //             <tbody>
-  //               <tr>
-  //                 <td>Efforts and Effectiveness</td>
-  //                 <td>100%</td>
-  //                 <td>#REF!</td>
-  //                 <td>88</td>
-  //               </tr>
-  //               <tr>
-  //                 <td>Business Performance</td>
-  //                 <td>22</td>
-  //                 <td>57%</td>
-  //                 <td>75</td>
-  //               </tr>
-               
-  //               <tr className="shade">
-  //                 <td>Efficiency Index</td>
-  //                 <td>24</td>
-  //                 <td>#REF!</td>
-  //                 <td>68</td>
-  //               </tr>
-  //             </tbody>
-  //           </table>
-
-         
-  //         </div>
-  //       )}
-
-  //       {userRole === 'BM' && (
-  //         <div className="table-container">
-  //           {name && <Subnavbar />}
-  //           <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-  //           <table className="custom-table">
-  //             <thead>
-  //               <tr>
-  //                 <th>Parameter</th>
-  //                 <th>Objective(%)</th>
-  //                 <th>Month(%)</th>
-  //                 <th>YTD(%)</th>
-  //               </tr>
-  //             </thead>
-  //             <tbody>
-  //               <tr>
-  //                 <td>Efforts and Effectiveness</td>
-  //                 <td>100%</td>
-  //                 <td>#REF!</td>
-  //                 <td>88</td>
-  //               </tr>
-  //               <tr>
-  //                 <td>Business Performance</td>
-  //                 <td>22</td>
-  //                 <td>57%</td>
-  //                 <td>75</td>
-  //               </tr>
-              
-  //               <tr>
-  //                 <td>Business Hygiene and Demand Quality</td>
-  //                 <td>20</td>
-  //                 <td>#REF!</td>
-  //                 <td>81</td>
-  //               </tr>
-  //               <tr className="shade">
-  //                 <td>Efficiency Index</td>
-  //                 <td>24</td>
-  //                 <td>#REF!</td>
-  //                 <td>68</td>
-  //               </tr>
-  //             </tbody>
-  //           </table>
-
-       
-  //         </div>
-  //       )}
-
-  //       {userRole === 'BL' && (
-  //         <div className="table-container">
-  //           {name && <Subnavbar />}
-  //           <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-  //           <table className="custom-table">
-  //             <thead>
-  //               <tr>
-  //                 <th>Parameter</th>
-  //                 <th>Objective(%)</th>
-  //                 <th>Month(%)</th>
-  //                 <th>YTD(%)</th>
-  //               </tr>
-  //             </thead>
-  //             <tbody>
-  //               <tr>
-  //                 <td>Efforts and Effectiveness</td>
-  //                 <td>100%</td>
-  //                 <td>#REF!</td>
-  //                 <td>88</td>
-  //               </tr>
-  //               <tr>
-  //                 <td>Business Performance</td>
-  //                 <td>22</td>
-  //                 <td>57%</td>
-  //                 <td>75</td>
-  //               </tr>
-  //               <tr>
-  //                 <td>Compliance and Reporting</td>
-  //                 <td>23</td>
-  //                 <td>#REF!</td>
-  //                 <td>92</td>
-  //               </tr>
-  //               <tr>
-  //                 <td>Business Hygiene and Demand Quality</td>
-  //                 <td>20</td>
-  //                 <td>#REF!</td>
-  //                 <td>81</td>
-  //               </tr>
-  //               <tr className="shade">
-  //                 <td>Efficiency Index</td>
-  //                 <td>24</td>
-  //                 <td>#REF!</td>
-  //                 <td>68</td>
-  //               </tr>
-  //             </tbody>
-  //           </table>
-
-
-          
-  //         </div>
-  //       )}
-  //     </div>
