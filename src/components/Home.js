@@ -1,8 +1,5 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
 import '../styles.css';
-
-import { useState, useEffect } from 'react';
 
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -15,16 +12,15 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 const Home = () => {
-
   const navigate = useNavigate();
-  // const { role, setRole } = useRole();
   const { decoded, encoded } = useEncodedTerritory();
   const location = useLocation();
+  const { role } = useRole();
 
   const [beData, setBeData] = useState(null);
   const [ytdData, setYtdData] = useState(null);
@@ -33,7 +29,7 @@ const Home = () => {
   const [bmBeData, setBmBeData] = useState(null);
   const [bmYtdData, setBmYtdData] = useState(null);
 
-  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);   // <--- 1 DECIMAL FORMATTER
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
   const HomePage = () => {
     navigate(`/FinalReport?ec=${encoded}`);
@@ -62,19 +58,19 @@ const Home = () => {
           }}
           onClick={HomePage}
         >
-          <FontAwesomeIcon icon={faHome} size="2x" />
+          <FontAwesomeIcon icon={faRotateLeft} size="1x" />
         </button>
       </div>
     );
   };
 
   // ------------------------------------------------
-  //         Fetch BE & YTD Data (role-based)
+  //          Fetch BE & YTD Data (role-based)
   // ------------------------------------------------
   useEffect(() => {
     if (!decoded) return;
 
-    const role = localStorage.getItem('role');
+   
 
     const loadAll = async () => {
       try {
@@ -137,10 +133,10 @@ const Home = () => {
     loadAll();
   }, [decoded]);
 
-  const role = localStorage.getItem('role');
+ 
 
   // ------------------------------------------------
-  //         FINAL YTD TOTAL SCORE (1 DECIMAL) - BE
+  //          FINAL YTD TOTAL SCORE - BE
   // ------------------------------------------------
   const totalYTDScore =
     (Number(ytdData?.Secondary_Sales_growth_Score) || 0) +
@@ -155,7 +151,7 @@ const Home = () => {
     (Number(beData?.Brand_Performance_Index_Score) || 0);
 
   // ------------------------------------------------
-  //         BM TOTAL FTM & YTD SCORE (1 DECIMAL)
+  //          BM TOTAL FTM & YTD SCORE
   // ------------------------------------------------
   const bmTotalFTMScore =
     (Number(bmBeData?.Target_Achieved_FTM_Score) || 0) +
@@ -174,178 +170,177 @@ const Home = () => {
   return (
     <div>
       <div className="table-box">
-
         {role === 'BE' && (
-
           <div className="table-container">
-            <HeadingWithHome>Business Performance</HeadingWithHome>
+            <div className="efficiency-container">
+              <HeadingWithHome>Business Performance</HeadingWithHome>
 
-            <div className="table-scroll">
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Weightage</th>
-                    <th>Parameter</th>
-                    <th>Objective</th>
-                    <th>Month</th>
-                    <th>Month_Score</th>
-                    <th>YTD</th>
-                    <th>YTD_Score</th>
-                  </tr>
-                </thead>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table">
+                    <thead>
+                      <tr>
+                        <th>Weightage</th>
+                        <th>Parameter</th>
+                        <th>Objective</th>
+                        <th>Month</th>
+                        <th>Month Score</th>
+                        <th>YTD</th>
+                        <th>YTD Score</th>
+                      </tr>
+                    </thead>
 
-                <tbody>
-                  <tr>
-                    <td>20%</td>
-                    <td>Secondary Gr%</td>
-                    <td>40</td>
-                    <td>{beData?.Secondary_Sales_growth_Percent}</td>
-                    <td>{beData?.Secondary_Sales_growth_Score}</td>
-                    <td>{ytdData?.Secondary_Sales_growth}</td>
-                    <td>{ytdData?.Secondary_Sales_growth_Score}</td>
-                  </tr>
+                    <tbody>
+                      <tr>
+                        <td>20%</td>
+                        <td>Secondary Gr%</td>
+                        <td>40</td>
+                        <td>{beData?.Secondary_Sales_growth_Percent}</td>
+                        <td>{beData?.Secondary_Sales_growth_Score}</td>
+                        <td>{ytdData?.Secondary_Sales_growth}</td>
+                        <td>{ytdData?.Secondary_Sales_growth_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>MSR Achievement%</td>
-                    <td>100</td>
-                    <td>{beData?.MSR_Achievement}</td>
-                    <td>{beData?.MSR_Achievement_Score}</td>
-                    <td>{ytdData?.MSR_Achievement}</td>
-                    <td>{ytdData?.MSR_Achievement_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>MSR Achievement%</td>
+                        <td>100</td>
+                        <td>{beData?.MSR_Achievement}</td>
+                        <td>{beData?.MSR_Achievement_Score}</td>
+                        <td>{ytdData?.MSR_Achievement}</td>
+                        <td>{ytdData?.MSR_Achievement_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>RX Growth %</td>
-                    <td>5</td>
-                    <td>{beData?.RX_Growth}</td>
-                    <td>{beData?.RX_Growth_Score}</td>
-                    <td>{ytdData?.RX_Growth}</td>
-                    <td>{ytdData?.RX_Growth_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>% Rxer Growth</td>
+                        <td>5</td>
+                        <td>{beData?.RX_Growth}</td>
+                        <td>{beData?.RX_Growth_Score}</td>
+                        <td>{ytdData?.RX_Growth}</td>
+                        <td>{ytdData?.RX_Growth_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>Brand Performance Index</td>
-                    <td>100</td>
-                    <td>{beData?.Brand_Performance_Index}</td>
-                    <td>{beData?.Brand_Performance_Index_Score}</td>
-                    <td>{ytdData?.Brand_Performance_Index}</td>
-                    <td>{ytdData?.Brand_Performance_Index_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>Brand Performance Index</td>
+                        <td>100</td>
+                        <td>{beData?.Brand_Performance_Index}</td>
+                        <td>{beData?.Brand_Performance_Index_Score}</td>
+                        <td>{ytdData?.Brand_Performance_Index}</td>
+                        <td>{ytdData?.Brand_Performance_Index_Score}</td>
+                      </tr>
 
-                  <tr className="shade">
-                    <td>50%</td>
-                    <td>Performance Score</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td><b>{fmt(totalFTDScore)}</b></td>
-                    <td>-</td>
-                    <td><b>{fmt(totalYTDScore)}</b></td>
-                  </tr>
-                </tbody>
-              </table>
+                      <tr className="shade">
+                        <td>50%</td>
+                        <td>Performance Score</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><b>{fmt(totalFTDScore)}</b></td>
+                        <td>-</td>
+                        <td><b>{fmt(totalYTDScore)}</b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-
           </div>
         )}
 
         {role === 'BM' && (
-
           <div className="table-container">
-            <HeadingWithHome>Business Performance</HeadingWithHome>
+            <div className="efficiency-container">
+              <HeadingWithHome>Business Performance</HeadingWithHome>
 
-            <div className="table-scroll">
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Weightage</th>
-                    <th>Parameter</th>
-                    <th>Objective in %</th>
-                    <th>Month</th>
-                    <th>Month_Score</th>
-                    <th>YTD</th>
-                    <th>YTD_Score</th>
-                  </tr>
-                </thead>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table">
+                    <thead>
+                      <tr>
+                        <th>Weightage</th>
+                        <th>Parameter</th>
+                        <th>Objective in %</th>
+                        <th>Month</th>
+                        <th>Month Score</th>
+                        <th>YTD</th>
+                        <th>YTD Score</th>
+                      </tr>
+                    </thead>
 
-                <tbody>
-                  <tr>
-                    <td>20%</td>
-                    <td>Target Ach.</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.Target_Achieved_FTM}</td>
-                    <td>{bmBeData?.Target_Achieved_FTM_Score}</td>
-                    <td>{bmYtdData?.Target_Achieved_YTD}</td>
-                    <td>{bmYtdData?.Target_Achieved_YTD_Score}</td>
-                  </tr>
+                    <tbody>
+                      <tr>
+                        <td>20%</td>
+                        <td>Target Ach.</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.Target_Achieved_FTM}</td>
+                        <td>{bmBeData?.Target_Achieved_FTM_Score}</td>
+                        <td>{bmYtdData?.Target_Achieved_YTD}</td>
+                        <td>{bmYtdData?.Target_Achieved_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>Brand Mix (SP+P+E)</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.BPI_FTM}</td>
-                    <td>{bmBeData?.BPI_FTM_Score}</td>
-                    <td>{bmYtdData?.Brand_Performance_Index_YTD}</td>
-                    <td>{bmYtdData?.Brand_Performance_Index_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>Brand Mix (SP+P+E)</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.BPI_FTM}</td>
+                        <td>{bmBeData?.BPI_FTM_Score}</td>
+                        <td>{bmYtdData?.Brand_Performance_Index_YTD}</td>
+                        <td>{bmYtdData?.Brand_Performance_Index_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>Span of Performance</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.Span_Performance_FTM}</td>
-                    <td>{bmBeData?.Span_Performance_FTM_Score}</td>
-                    <td>{bmYtdData?.Span_of_Performance_YTD}</td>
-                    <td>{bmYtdData?.Span_of_Performance_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>Span of Performance</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.Span_Performance_FTM}</td>
+                        <td>{bmBeData?.Span_Performance_FTM_Score}</td>
+                        <td>{bmYtdData?.Span_of_Performance_YTD}</td>
+                        <td>{bmYtdData?.Span_of_Performance_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>% Gr in Rxer</td>
-                    <td>20%</td>
-                    <td>{bmBeData?.RX_Growth_FTM}</td>
-                    <td>{bmBeData?.RX_Growth_FTM_Score}</td>
-                    <td>{bmYtdData?.RX_Growth_YTD}</td>
-                    <td>{bmYtdData?.RX_Growth_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>% Rxer Growth</td>
+                        <td>20%</td>
+                        <td>{bmBeData?.RX_Growth_FTM}</td>
+                        <td>{bmBeData?.RX_Growth_FTM_Score}</td>
+                        <td>{bmYtdData?.RX_Growth_YTD}</td>
+                        <td>{bmYtdData?.RX_Growth_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>% of Viable Tty</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.Viable_Territories_FTM}</td>
-                    <td>{bmBeData?.Viable_Territories_FTM_Score}</td>
-                    <td>{bmYtdData?.Viable_Territories_YTD}</td>
-                    <td>{bmYtdData?.Viable_Territories_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>% of Viable Territories</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.Viable_Territories_FTM}</td>
+                        <td>{bmBeData?.Viable_Territories_FTM_Score}</td>
+                        <td>{bmYtdData?.Viable_Territories_YTD}</td>
+                        <td>{bmYtdData?.Viable_Territories_YTD_Score}</td>
+                      </tr>
 
-                  <tr className="shade">
-                    <td>50%</td>
-                    <td>Performance Score</td>
-                    <td>50%</td>
-                    <td>-</td>
-                    <td><b>{fmt(bmTotalFTMScore)}</b></td>
-                    <td>-</td>
-                    <td><b>{fmt(bmTotalYTDScore)}</b></td>
-                  </tr>
-                </tbody>
-              </table>
+                      <tr className="shade">
+                        <td>50%</td>
+                        <td>Performance Score</td>
+                        <td>50%</td>
+                        <td>-</td>
+                        <td><b>{fmt(bmTotalFTMScore)}</b></td>
+                        <td>-</td>
+                        <td><b>{fmt(bmTotalYTDScore)}</b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-
           </div>
         )}
-
       </div>
     </div>
   );
 };
 
 export default Home;
-
-
-
 
 
 

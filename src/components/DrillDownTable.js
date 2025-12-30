@@ -432,7 +432,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   const [loadingDivision, setLoadingDivision] = useState(false);
   const [divisionError, setDivisionError] = useState(null);
 
-  const { setName } = useRole();
+  const { setName,setUserRole } = useRole();
   const navigate = useNavigate();
 
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
@@ -543,8 +543,9 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
 
   const openProfile = (empName, role, territory) => {
     setName(empName);
+    setUserRole(role)
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
-    localStorage.setItem("choserole", role);
+    
   };
 
   const startEditing = (territory, metricType, currentValue) => {
@@ -630,65 +631,6 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
     }
   };
 
-  const styles = {
-    th: { backgroundColor: "#eeeeee", padding: "8px 12px", textAlign: "left" },
-    td: {
-      padding: "8px 12px",
-      border: "1px solid black",
-      verticalAlign: "top",
-    },
-    table: {
-      width: "100%",
-      borderCollapse: "collapse",
-      marginTop: "10px",
-      fontSize: "13px",
-    },
-    empClickable: { cursor: "pointer" },
-    editInput: {
-      width: "80px",
-      padding: "4px",
-      border: "1px solid #4CAF50",
-      borderRadius: "4px",
-      fontSize: "13px",
-    },
-    saveButton: {
-      marginLeft: "5px",
-      padding: "4px 8px",
-      backgroundColor: "#4CAF50",
-      color: "white",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      fontSize: "12px",
-    },
-    cancelButton: {
-      marginLeft: "5px",
-      padding: "4px 8px",
-      backgroundColor: "#f44336",
-      color: "white",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      fontSize: "12px",
-    },
-    editButton: {
-      marginLeft: "5px",
-      padding: "2px 6px",
-      backgroundColor: "#2196F3",
-      color: "white",
-      border: "none",
-      borderRadius: "4px",
-      cursor: "pointer",
-      fontSize: "11px",
-    },
-    divisionContainer: {
-      marginBottom: "10px",
-      display: "flex",
-      alignItems: "center",
-      gap: "15px",
-    },
-  };
-
   const activeMetric = level === 1 ? selectedMetric : appliedMetric;
   const allowedMetrics = getAllowedMetrics();
 
@@ -699,18 +641,12 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   const allowSecondLastClick = maxDepth !== null && maxDepth >= 3;
 
   return (
-    <>
+    <div className="drilldown-table-container">
       {level === 1 && (
-        <div style={styles.divisionContainer}>
+        <div className="drilldown-metric-selector">
           <select
             value={selectedMetric}
             onChange={(e) => setSelectedMetric(e.target.value)}
-            style={{
-              padding: "6px 10px",
-              fontSize: "13px",
-              borderRadius: "4px",
-              border: "1px solid #ddd3d3ff",
-            }}
           >
             {allowedMetrics.map((metric) => (
               <option key={metric.value} value={metric.value}>
@@ -721,12 +657,12 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
         </div>
       )}
 
-      <table style={styles.table}>
+      <table className="drilldown-table">
         <thead>
           <tr>
-            <th style={styles.th}>Name (Level {level})</th>
-            <th style={styles.th}>Territory</th>
-            <th style={styles.th}>{activeMetric.replace(/_/g, " ")}</th>
+            <th>Name (Level {level})</th>
+            <th>Territory</th>
+            <th>{activeMetric.replace(/_/g, " ")}</th>
           </tr>
         </thead>
 
@@ -747,13 +683,22 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
               (isLeaf || (allowSecondLastClick && level === maxDepth - 1)) &&
               level !== 1;
 
+            const rowClass = hasChildren
+              ? expandedRows[key]
+                ? "expandable-row expanded-row"
+                : "expandable-row"
+              : "leaf-row";
+
             return (
               <React.Fragment key={key}>
-                <tr onClick={() => toggleRow(key)}>
-                  <td style={styles.td}>
+                <tr
+                  className={rowClass}
+                  onClick={() => toggleRow(key)}
+                >
+                  <td className="name-cell">
                     {shouldOpenProfile ? (
                       <span
-                        style={styles.empClickable}
+                        className="name-cell clickable"
                         onClick={(e) => {
                           e.stopPropagation();
                           openProfile(
@@ -762,12 +707,6 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
                             child.territory
                           );
                         }}
-                        onMouseEnter={(e) =>
-                          (e.target.style.textDecoration = "underline")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.target.style.textDecoration = "none")
-                        }
                       >
                         {child.empName}
                       </span>
@@ -776,22 +715,25 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
                     )}
                   </td>
 
-                  <td style={styles.td}>{child.territory}</td>
+                  <td className="territory-cell">{child.territory}</td>
 
-                  <td style={styles.td} onClick={(e) => e.stopPropagation()}>
+                  <td
+                    className={`metric-cell ${saving ? "saving" : ""}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {isEditing ? (
-                      <div style={{ display: "flex", alignItems: "center" }}>
+                      <div className="editable-cell">
                         <input
                           type="number"
                           step="0.01"
-                          style={styles.editInput}
+                          className="edit-input"
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
                           autoFocus
                           disabled={saving}
                         />
                         <button
-                          style={styles.saveButton}
+                          className="save-button"
                           onClick={() =>
                             saveProductQty(child.territory, activeMetric)
                           }
@@ -800,7 +742,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
                           {saving ? "..." : "Save"}
                         </button>
                         <button
-                          style={styles.cancelButton}
+                          className="cancel-button"
                           onClick={cancelEditing}
                           disabled={saving}
                         >
@@ -808,11 +750,11 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
                         </button>
                       </div>
                     ) : (
-                      <div style={{ display: "flex", alignItems: "center" }}>
+                      <div className="editable-cell">
                         <span>{metricValue}</span>
                         {canEdit && (
                           <button
-                            style={styles.editButton}
+                            className="edit-button"
                             onClick={(e) => {
                               e.stopPropagation();
                               startEditing(
@@ -832,7 +774,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
 
                 {expandedRows[key] && hasChildren && (
                   <tr>
-                    <td colSpan="3" style={{ paddingLeft: 30 }}>
+                    <td colSpan="3" className="nested-table-wrapper">
                       <DrillDownTable
                         childrenData={child.children}
                         level={level + 1}
@@ -847,7 +789,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
           })}
         </tbody>
       </table>
-    </>
+    </div>
   );
 };
 

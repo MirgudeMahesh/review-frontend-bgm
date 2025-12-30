@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles.css';
 import { useLocation } from 'react-router-dom';
 import NProgress from 'nprogress';
+import { useRole } from './RoleContext';
 import 'nprogress/nprogress.css'; 
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 import useProfileTerritory from "./hooks/useProfileTerritory";
@@ -16,7 +17,7 @@ export default function Textarea() {
      const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
 
   
-
+  const { role, userRole, name, setName } = useRole();
   // decode base64 -> original territory
   const {decoded} = useEncodedTerritory();
 // Fetch Emp_Name from backend using territory (decoded)
@@ -131,6 +132,31 @@ const metricOptions = [
 ];
 
 
+const bmMetricOptions=[
+  "Target Ach.",
+  "Brand Mix (SP+P+E)",
+  "Span of Performance",
+  "% Rxer Growth",
+  "% of Viable Territories",
+  "Self Priority Customer Covg",
+  "No of Calls - Self",
+  "Team's Coverage",
+  "Team's Compliance",
+  "Marketing Implementation (inputs for >30 Days)",
+  "% Tty MSP Compliance (vs Target)",
+  "Dr. Conversion (Self Prio)",
+  "% Tty MSR Compliance (vs Sec)",
+  "Outstanding Days",
+  "Sales Returns",
+  "% spent of RBO & CA",
+  "Closing Days"
+]
+const options =
+  userRole === "BE"
+    ? metricOptions
+    : userRole === "BM"
+    ? bmMetricOptions
+    : [];
 
   return (
     <div className="escalating-container">
@@ -148,11 +174,11 @@ const metricOptions = [
   onChange={(e) => setMetric(e.target.value)}
 >
   <option value="">Select a metric</option>
-  {metricOptions.map((item, index) => (
-    <option key={index} value={item}>
-      {item}
-    </option>
-  ))}
+  {options.map((item, index) => (
+  <option key={index} value={item}>
+    {item}
+  </option>
+))}
 </select>
 
       </div>

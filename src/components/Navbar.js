@@ -73,7 +73,8 @@ export default function Navbar({ handleOpenModal }) {
           <option value="report">Report</option>
           <option value="performance">Performance</option>
           <option value="team">TeamBuild</option>
-          {role !== 'be' && <option value="hygine">Hygine</option>}
+          {role === 'BM' && (<option value="hygine">Hygiene</option>)}
+
           {role !== 'be' && role !== 'bm' && (
             <option value="compliance">Compliance</option>
           )}

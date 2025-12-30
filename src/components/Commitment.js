@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function Commitment() {
@@ -79,7 +79,7 @@ export default function Commitment() {
             }}
             onClick={HomePage}
           >
-            <FontAwesomeIcon icon={faHome} size='2x' />
+            <FontAwesomeIcon icon={faRotateLeft} size="1x" />
           </button>
         </div>
       );

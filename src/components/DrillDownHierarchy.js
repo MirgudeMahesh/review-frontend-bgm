@@ -43,7 +43,7 @@ const DrillDownHierarchy = () => {
         border: '1px solid black',
         overflowY: 'scroll',
         height: '60vh',
-        marginLeft: '0px',
+        marginLeft: '50px',
         marginRight: '50px',
         marginTop: '-20px'
       }}

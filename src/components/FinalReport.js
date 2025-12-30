@@ -5,12 +5,13 @@ import Textarea from './Textarea';
 import { useRole } from './RoleContext';
 import Subnavbar from './Subnavbar';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { faHome } from '@fortawesome/free-solid-svg-icons';
+import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function FinalReport() {
+
   const { role, setRole, name, setName } = useRole();
   const [score1, setScore1] = useState(null);
   const [score2, setScore2] = useState(null);
@@ -22,8 +23,9 @@ export default function FinalReport() {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const [showTerritory,setShowTerritory]=useState('');
   const { decoded, encoded } = useEncodedTerritory();
-
+const[myName,setMyName]=useState('');
   const gotoselection = () => {
     navigate(`/Selection?ec=${encoded}`);
   };
@@ -35,10 +37,12 @@ export default function FinalReport() {
       try {
         const res = await fetch(`https://review-backend-bgm.onrender.com/checkrole?territory=${decoded}`);
         const data = await res.json();
-
+       setShowTerritory(decoded)
         setRole(data.role);
         setRoleAllowed(data.role);
-
+        setName(data.name);
+        setMyName(data.name);
+       
         if (data.role !== 'BE' && data.role !== 'BM') {
           return;
         }
@@ -171,16 +175,28 @@ export default function FinalReport() {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   }
 
-  return (
-    <div>
-      <div className="table-box">
+return (
+  <div className="dashboard-shell">
+<div
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  }}
+>
+  <p>{myName}</p>
+  <p>{showTerritory}</p>
+</div>
+    <div className="table-box">
+      {(roleAllowed === 'BE') && (
+        <div className="efficiency-container">
 
-        {(roleAllowed === 'BE') && (
-          <div className="table-container">
-            <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
+          <h3>Efficiency Index</h3>
 
-            <div className="table-scroll">
-              <table className="custom-table">
+          <div className="efficiency-table-container">
+            <div className="efficiency-table-scroll">
+              <table className="efficiency-table">
                 <thead>
                   <tr>
                     <th>Parameter</th>
@@ -189,22 +205,24 @@ export default function FinalReport() {
                     <th>YTD(%)</th>
                   </tr>
                 </thead>
-
                 <tbody>
+                  
                   <tr>
-                    <td onClick={perform}>Efforts and Effectiveness</td>
-                    <td>50</td>
-                    <td>{score3}</td>
-                    <td>{score1}</td>
-                  </tr>
-
-                  <tr>
-                    <td onClick={Home}>Business Performance</td>
+                    <td className="clickable-param" onClick={Home}>
+                      Business Performance
+                    </td>
                     <td>50</td>
                     <td>{score4}</td>
                     <td>{score2}</td>
                   </tr>
-
+                  <tr>
+                    <td className="clickable-param" onClick={perform}>
+                      Efforts and Effectiveness
+                    </td>
+                    <td>50</td>
+                    <td>{score3}</td>
+                    <td>{score1}</td>
+                  </tr>
                   <tr className="shade">
                     <td>Efficiency Index</td>
                     <td>100</td>
@@ -214,20 +232,22 @@ export default function FinalReport() {
                 </tbody>
               </table>
             </div>
-
-            <div className="notes-box">
-              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
-              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
-            </div>
           </div>
-        )}
 
-        {(roleAllowed === 'BM') && (
-          <div className="table-container">
-            <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
+          <div className="efficiency-notes-box">
+            <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+            <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+          </div>
+        </div>
+      )}
 
-            <div className="table-scroll">
-              <table className="custom-table">
+      {(roleAllowed === 'BM') && (
+        <div className="efficiency-container">
+          <h3>Efficiency Index</h3>
+
+          <div className="efficiency-table-container">
+            <div className="efficiency-table-scroll">
+              <table className="efficiency-table">
                 <thead>
                   <tr>
                     <th>Parameter</th>
@@ -238,19 +258,25 @@ export default function FinalReport() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td onClick={Home}>Business Performance</td>
+                    <td className="clickable-param" onClick={Home}>
+                      Business Performance
+                    </td>
                     <td>50</td>
                     <td>{score4.toFixed(2)}</td>
                     <td>{score2.toFixed(2)}</td>
                   </tr>
                   <tr>
-                    <td onClick={perform}>Efforts and Effectiveness</td>
+                    <td className="clickable-param" onClick={perform}>
+                      Efforts and Effectiveness
+                    </td>
                     <td>40</td>
                     <td>{score3.toFixed(2)}</td>
                     <td>{score1.toFixed(2)}</td>
                   </tr>
                   <tr>
-                    <td onClick={misc}>Hygiene</td>
+                    <td className="clickable-param" onClick={misc}>
+                      Hygiene
+                    </td>
                     <td>10</td>
                     <td>{hygieneMonth.toFixed(2)}</td>
                     <td>{hygieneYTD.toFixed(2)}</td>
@@ -272,218 +298,16 @@ export default function FinalReport() {
                 </tbody>
               </table>
             </div>
-
-            <div className="notes-box">
-              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
-              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
-            </div>
           </div>
-        )}
 
-      </div>
+          <div className="efficiency-notes-box">
+            <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+            <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  </div>
+);
+
 }
-
-
-
-
-//temporaray
-//  <div className="table-box">
-//         {(role === 'be' ) && (
-//           <div className="table-container">
-//             {/* {name && <Subnavbar />} */}
-//             <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-//             <table className="custom-table">
-//               <thead>
-//                 <tr>
-//                   <th>Parameter</th>
-//                   <th>Objective(%)</th>
-//                   <th>Month(%)</th>
-//                   <th>YTD(%)</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 <tr>
-//                   <td onClick={() => perform()}>Efforts and Effectiveness</td>
-//                   <td>100%</td>
-//                   <td>#REF!</td>
-//                   <td>88</td>
-//                 </tr>
-//                 <tr>
-//                   <td onClick={() => Home()}>Business Performance</td>
-//                   <td>22</td>
-//                   <td>57%</td>
-//                   <td>75</td>
-//                 </tr>
-               
-          
-//                 <tr className="shade">
-//                   <td>Efficiency Index</td>
-//                   <td>24</td>
-//                   <td>#REF!</td>
-//                   <td>68</td>
-//                 </tr>
-//               </tbody>
-//             </table>
-
-//             {/* {name && <Textarea onsubmit={handleSubmit} />} */}
-//           </div>
-//         )}
-//       {  (role ==='bh' || role==='sbuh') &&(
-//           <div className="table-container">
-//   <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-//   <table className="custom-table">
-//     <thead>
-//       <tr>
-//         <th>Parameter</th>
-//         <th>Objective</th>
-//         <th>Month</th>
-//         <th>YTD</th>
-//       </tr>
-//     </thead>
-
-//     <tbody>
-//       <tr>
-//         <td onClick={() => perform()}>Team &amp; Culture Building </td>
-//         <td>25%</td>
-//         <td >18%</td>
-//         <td >12%</td>
-//       </tr>
-
-//       <tr>
-//         <td onClick={() => Home()}>Business &amp; Brand Performance </td>
-//         <td>35%</td>
-//         <td >19%</td>
-//         <td >12%</td>
-//       </tr>
-
-//       <tr>
-//         <td onClick={() => commitment()}>Activity &amp; Productivity</td>
-//         <td>20%</td>
-//         <td >13%</td>
-//         <td >12%</td>
-//       </tr>
-
-//       <tr>
-//         <td onClick={() => misc()}>Business Hygiene &amp; Demand Quality</td>
-//         <td>20%</td>
-//         <td >16%</td>
-//         <td >-132%</td>
-//       </tr>
-
-//       <tr className="shade">
-//         <td><b>Efficiency Index</b></td>
-//         <td><b>100%</b></td>
-//         <td><b>66.30%</b></td>
-//         <td><b>-96.64%</b></td>
-//       </tr>
-//     </tbody>
-//   </table>
-// </div>
-
-//         )}
-
-        // {role === 'bm' && (
-        //   <div className="table-container">
-        //     {/* {name && <Subnavbar />} */}
-        //     <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-            // <table className="custom-table">
-            //   <thead>
-            //     <tr>
-            //       <th>Parameter</th>
-            //       <th>Objective(%)</th>
-            //       <th>Month(%)</th>
-            //       <th>YTD(%)</th>
-            //     </tr>
-            //   </thead>
-            //   <tbody>
-            //     <tr>
-            //       <td onClick={() => perform()}>Efforts and Effectiveness</td>
-            //       <td>100%</td>
-            //       <td>#REF!</td>
-            //       <td>88</td>
-            //     </tr>
-            //     <tr>
-            //       <td onClick={() => Home()}>Business Performance</td>
-            //       <td>22</td>
-            //       <td>57%</td>
-            //       <td>75</td>
-            //     </tr>
-              
-            //     <tr>
-            //       <td onClick={() => misc()}>Business Hygiene and Demand Quality</td>
-            //       <td>20</td>
-            //       <td>#REF!</td>
-            //       <td>81</td>
-            //     </tr>
-            //     <tr className="shade">
-            //       <td>Efficiency Index</td>
-            //       <td>24</td>
-            //       <td>#REF!</td>
-            //       <td>68</td>
-            //     </tr>
-            //   </tbody>
-            // </table>
-
-        //     {/* {name && <Textarea onsubmit={handleSubmit} />} */}
-        //   </div>
-        // )}
-
-//         {role === 'bl' && (
-//           <div className="table-container">
-//             {/* {name && <Subnavbar />} */}
-//             <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
-
-//             <table className="custom-table">
-//               <thead>
-//                 <tr>
-//                   <th>Parameter</th>
-//                   <th>Objective(%)</th>
-//                   <th>Month(%)</th>
-//                   <th>YTD(%)</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 <tr>
-//                   <td onClick={() => perform()}>Efforts and Effectiveness</td>
-//                   <td>100%</td>
-//                   <td>#REF!</td>
-//                   <td>88</td>
-//                 </tr>
-//                 <tr>
-//                   <td onClick={() => Home()}>Business Performance</td>
-//                   <td>22</td>
-//                   <td>57%</td>
-//                   <td>75</td>
-//                 </tr>
-//                 <tr>
-//                   <td onClick={() => commitment()}>Compliance and Reporting</td>
-//                   <td>23</td>
-//                   <td>#REF!</td>
-//                   <td>92</td>
-//                 </tr>
-//                 <tr>
-//                   <td onClick={() => misc()}>Business Hygiene and Demand Quality</td>
-//                   <td>20</td>
-//                   <td>#REF!</td>
-//                   <td>81</td>
-//                 </tr>
-//                 <tr className="shade">
-//                   <td>Efficiency Index</td>
-//                   <td>24</td>
-//                   <td>#REF!</td>
-//                   <td>68</td>
-//                 </tr>
-//               </tbody>
-//             </table>
-
-//             {/* {name && <Textarea onsubmit={handleSubmit} />} */}
-
-          
-//           </div>
-//         )}
-//       </div>

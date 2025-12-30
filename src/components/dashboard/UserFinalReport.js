@@ -11,11 +11,12 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
 export default function UserFinalReport() {
-  const userRole=localStorage.getItem('choserole');
-  const {  role, setRole, name, setName } = useRole();
+ 
+  
+  const { role, setRole,userRole, name, setName } = useRole();
   const { profileTerritory } = useProfileTerritory();
 
-  const [score1, setScore1] = useState(null); // Efforts YTD (BE) / Efforts YTD (BM)
+  const [score1, setScore1] = useState(null); // Efforts YTD
   const [score2, setScore2] = useState(null); // Business YTD
   const [score3, setScore3] = useState(null); // Efforts Month
   const [score4, setScore4] = useState(null); // Business Month
@@ -35,7 +36,7 @@ export default function UserFinalReport() {
     console.log("Selected Date:", selectedDate);
   };
 
-  // Fetch YTD + FTD for BE / BM
+  // Fetch YTD + FTD for BE / BM (for viewed profile territory)
   useEffect(() => {
     if (!profileTerritory) return;
 
@@ -83,13 +84,15 @@ export default function UserFinalReport() {
         const data = await res.json();
 
         if (res.ok) {
-          // Reuse score1–4 for Business/Effort like BE
+          // Business
           setScore2(Number(data.businessYTD) || 0);   // Business YTD
           setScore4(Number(data.businessMonth) || 0); // Business Month
 
+          // Effort
           setScore1(Number(data.effortYTD) || 0);     // Effort YTD
           setScore3(Number(data.effortMonth) || 0);   // Effort Month
 
+          // Hygiene
           setHygieneMonth(Number(data.hygieneMonth) || 0);
           setHygieneYTD(Number(data.hygieneYTD) || 0);
         }
@@ -126,65 +129,75 @@ export default function UserFinalReport() {
     <div>
       <div className="table-box">
         <div className="table-container">
+          <div className="efficiency-container">
+            {name && <Subnavbar />}
 
-          {name && <Subnavbar />}
+            <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
 
-          <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
+            <div className="efficiency-table-container">
+              <div className="efficiency-table-scroll">
+                <table className="efficiency-table">
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Objective(%)</th>
+                      <th>Month(%)</th>
+                      <th>YTD(%)</th>
+                    </tr>
+                  </thead>
 
-          <div className="table-scroll">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Parameter</th>
-                  <th>Objective(%)</th>
-                  <th>Month(%)</th>
-                  <th>YTD(%)</th>
-                </tr>
-              </thead>
+                  <tbody>
+                    <tr>
+                      <td>Efforts and Effectiveness</td>
+                      <td>{userRole === 'BM' ? 40 : 50}</td>
+                      <td>{fmt(score3)}</td>
+                      <td>{fmt(score1)}</td>
+                    </tr>
 
-              <tbody>
-                {/* Common rows for both BE and BM */}
-                <tr>
-                  <td>Efforts and Effectiveness</td>
-                  <td>{userRole === 'BM' ? 40 : 50}</td>
-                  <td>{fmt(score3)}</td>
-                  <td>{fmt(score1)}</td>
-                </tr>
+                    <tr>
+                      <td>Business Performance</td>
+                      <td>50</td>
+                      <td>{fmt(score4)}</td>
+                      <td>{fmt(score2)}</td>
+                    </tr>
 
-                <tr>
-                  <td>Business Performance</td>
-                  <td>{userRole === 'BM' ? 50 : 50}</td>
-                  <td>{fmt(score4)}</td>
-                  <td>{fmt(score2)}</td>
-                </tr>
+                    {userRole === 'BM' && (
+                      <tr>
+                        <td>Hygiene</td>
+                        <td>10</td>
+                        <td>{fmt(hygieneMonth)}</td>
+                        <td>{fmt(hygieneYTD)}</td>
+                      </tr>
+                    )}
 
-                {userRole === 'BM' && (
-                  <tr>
-                    <td>Hygiene</td>
-                    <td>10</td>
-                    <td>{fmt(hygieneMonth)}</td>
-                    <td>{fmt(hygieneYTD)}</td>
-                  </tr>
-                )}
+                    <tr className="shade">
+                      <td>Efficiency Index</td>
+                      <td>100</td>
+                      <td>
+                        {userRole === 'BM'
+                          ? fmt(
+                              Number(score3) +
+                              Number(score4) +
+                              Number(hygieneMonth)
+                            )
+                          : fmt(Number(score3) + Number(score4))}
+                      </td>
+                      <td>
+                        {userRole === 'BM'
+                          ? fmt(
+                              Number(score1) +
+                              Number(score2) +
+                              Number(hygieneYTD)
+                            )
+                          : fmt(Number(score1) + Number(score2))}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-                <tr className="shade">
-                  <td>Efficiency Index</td>
-                  <td>100</td>
-                  <td>
-                    {userRole === 'BM'
-                      ? fmt(Number(score3) + Number(score4) + Number(hygieneMonth))
-                      : fmt(Number(score3) + Number(score4))}
-                  </td>
-                  <td>
-                    {userRole === 'BM'
-                      ? fmt(Number(score1) + Number(score2) + Number(hygieneYTD))
-                      : fmt(Number(score1) + Number(score2))}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
           </div>
-
         </div>
       </div>
     </div>

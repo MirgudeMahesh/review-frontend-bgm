@@ -7,7 +7,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome } from "@fortawesome/free-solid-svg-icons";
+import { faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import useEncodedTerritory from "./hooks/useEncodedTerritory";
 import FinalReport from "./FinalReport";
 
@@ -126,7 +126,7 @@ export default function Performance() {
           }}
           onClick={HomePage}
         >
-          <FontAwesomeIcon icon={faHome} size="2x" />
+          <FontAwesomeIcon icon={faRotateLeft} size="1x" />
         </button>
       </div>
     );
@@ -174,209 +174,210 @@ export default function Performance() {
       <div className="table-box">
         {role === "BE" && (
           <div className="table-container">
-            {/* {name && <Subnavbar />} */}
+            <div className="efficiency-container">
+              <HeadingWithHome level="h1">
+                Efforts and Effectiveness
+              </HeadingWithHome>
 
-            <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
-            <div className="table-scroll">
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Weightage</th>
-                    <th>Parameter</th>
-                    <th>Objective</th>
-                    <th>Month</th>
-                    <th>Month_Score</th>
-                    <th>YTD</th>
-                    <th>YTD_Score</th>
-                  </tr>
-                </thead>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table">
+                    <thead>
+                      <tr>
+                        <th>Weightage</th>
+                        <th>Parameter</th>
+                        <th>Objective</th>
+                        <th>Month</th>
+                        <th>Month Score</th>
+                        <th>YTD</th>
+                        <th>YTD Score</th>
+                      </tr>
+                    </thead>
 
-                <tbody>
-                  <tr>
-                    <td>10%</td>
-                    <td>Calls</td>
-                    <td>240</td>
-                    <td>{beData?.Doctor_Calls}</td>
-                    <td>{beData?.Calls_Score}</td>
-                    <td>{ytdData?.Doctor_Calls}</td>
-                    <td>{ytdData?.Calls_Score}</td>
-                  </tr>
+                    <tbody>
+                      <tr>
+                        <td>10%</td>
+                        <td>Calls</td>
+                        <td>240</td>
+                        <td>{beData?.Doctor_Calls}</td>
+                        <td>{beData?.Calls_Score}</td>
+                        <td>{ytdData?.Doctor_Calls}</td>
+                        <td>{ytdData?.Calls_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>Coverage %</td>
-                    <td>95</td>
-                    <td>{beData?.Coverage}</td>
-                    <td>{beData?.Coverage_Score}</td>
-                    <td>{ytdData?.Coverage}</td>
-                    <td>{ytdData?.Coverage_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>Coverage %</td>
+                        <td>95</td>
+                        <td>{beData?.Coverage}</td>
+                        <td>{beData?.Coverage_Score}</td>
+                        <td>{ytdData?.Coverage}</td>
+                        <td>{ytdData?.Coverage_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>Compliance %</td>
-                    <td>90</td>
-                    <td>{beData?.Compliance}</td>
-                    <td>{beData?.Compliance_Score}</td>
-                    <td>{ytdData?.Compliance}</td>
-                    <td>{ytdData?.Compliance_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>Compliance %</td>
+                        <td>90</td>
+                        <td>{beData?.Compliance}</td>
+                        <td>{beData?.Compliance_Score}</td>
+                        <td>{ytdData?.Compliance}</td>
+                        <td>{ytdData?.Compliance_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>RCPA %</td>
-                    <td>100</td>
-                    <td>{beData?.Chemist_Met}</td>
-                    <td>{beData?.RCPA_Score}</td>
-                    <td>{ytdData?.Chemist_Met}</td>
-                    <td>{ytdData?.RCPA_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>RCPA %</td>
+                        <td>100</td>
+                        <td>{beData?.Chemist_Met}</td>
+                        <td>{beData?.RCPA_Score}</td>
+                        <td>{ytdData?.Chemist_Met}</td>
+                        <td>{ytdData?.RCPA_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>10%</td>
-                    <td>Activity Implementation %</td>
-                    <td>100</td>
-                    <td>{beData?.Activity_Implementation}</td>
-                    <td>{beData?.Activity_Implementation_Score}</td>
-                    <td>{ytdData?.Activity_Implementation}</td>
-                    <td>{ytdData?.Activity_Implementation_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>10%</td>
+                        <td>Activity Implementation %</td>
+                        <td>100</td>
+                        <td>{beData?.Activity_Implementation}</td>
+                        <td>{beData?.Activity_Implementation_Score}</td>
+                        <td>{ytdData?.Activity_Implementation}</td>
+                        <td>{ytdData?.Activity_Implementation_Score}</td>
+                      </tr>
 
-                  {/* -------------------------------------------- */}
-                  {/* ⭐ LAST ROW WITH TOTAL YTD SCORE             */}
-                  {/* -------------------------------------------- */}
-                  <tr className="shade">
-                    <td>50%</td>
-                    <td>Effort Score</td>
-                    <td>-</td>
-                    <td>-</td>
-                    <td>
-                      <b>{fmt(totalFTDScore)}</b>
-                    </td>
-                    <td>-</td>
-
-                    {/* ⭐ Replace last value with total */}
-                    <td>
-                      <b>{fmt(totalYTDScore)}</b>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                      <tr className="shade">
+                        <td>50%</td>
+                        <td>Effort Score</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><b>{fmt(totalFTDScore)}</b></td>
+                        <td>-</td>
+                        <td><b>{fmt(totalYTDScore)}</b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {role === "BM" && (
           <div className="table-container">
-            {/* {name && <Subnavbar />} */}
+            <div className="efficiency-container">
+              <HeadingWithHome level="h1">
+                Efforts and Effectiveness
+              </HeadingWithHome>
 
-            <HeadingWithHome level="h1">Efforts and Effectiveness</HeadingWithHome>
-            <div className="table-scroll">
-              <table className="custom-table">
-                <thead>
-                  <tr>
-                    <th>Weightage</th>
-                    <th>Parameter</th>
-                    <th>Objective</th>
-                    <th>Month</th>
-                    <th>Month_Score</th>
-                    <th>YTD</th>
-                    <th>YTD_Score</th>
-                  </tr>
-                </thead>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table">
+                    <thead>
+                      <tr>
+                        <th>Weightage</th>
+                        <th>Parameter</th>
+                        <th>Objective</th>
+                        <th>Month</th>
+                        <th>Month Score</th>
+                        <th>YTD</th>
+                        <th>YTD Score</th>
+                      </tr>
+                    </thead>
 
-                <tbody>
-                  <tr>
-                    <td>5%</td>
-                    <td>Self Priority Customer Covg</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.Priority_Drs_Met_FTM}</td>
-                    <td>{bmBeData?.Priority_Drs_Met_FTM_Score}</td>
-                    <td>{bmYtdData?.Priority_Drs_Met_YTD}</td>
-                    <td>{bmYtdData?.Priority_Drs_Met_YTD_Score}</td>
-                  </tr>
+                    <tbody>
+                      <tr>
+                        <td>5%</td>
+                        <td>Self Priority Customer Covg</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.Priority_Drs_Met_FTM}</td>
+                        <td>{bmBeData?.Priority_Drs_Met_FTM_Score}</td>
+                        <td>{bmYtdData?.Priority_Drs_Met_YTD}</td>
+                        <td>{bmYtdData?.Priority_Drs_Met_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>No of Calls Self</td>
-                    <td>220</td>
-                    <td>{bmBeData?.Calls_FTM}</td>
-                    <td>{bmBeData?.Calls_FTM_Score}</td>
-                    <td>{bmYtdData?.Calls_YTD}</td>
-                    <td>{bmYtdData?.Calls_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>No of Calls - Self</td>
+                        <td>220</td>
+                        <td>{bmBeData?.Calls_FTM}</td>
+                        <td>{bmBeData?.Calls_FTM_Score}</td>
+                        <td>{bmYtdData?.Calls_YTD}</td>
+                        <td>{bmYtdData?.Calls_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>Team's Coverage</td>
-                    <td>95%</td>
-                    <td>{bmBeData?.Coverage2}</td>
-                    <td>{bmBeData?.Coverage_Score2}</td>
-                    <td>{bmYtdData?.Coverage_YTD}</td>
-                    <td>{bmYtdData?.Coverage_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>Team's Coverage</td>
+                        <td>95%</td>
+                        <td>{bmBeData?.Coverage2}</td>
+                        <td>{bmBeData?.Coverage_Score2}</td>
+                        <td>{bmYtdData?.Coverage_YTD}</td>
+                        <td>{bmYtdData?.Coverage_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>Team's Compliance</td>
-                    <td>90%</td>
-                    <td>{bmBeData?.Compliance2}</td>
-                    <td>{bmBeData?.Compliance_Score2}</td>
-                    <td>{bmYtdData?.Compliance_YTD}</td>
-                    <td>{bmYtdData?.Compliance_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>Team's Compliance</td>
+                        <td>90%</td>
+                        <td>{bmBeData?.Compliance2}</td>
+                        <td>{bmBeData?.Compliance_Score2}</td>
+                        <td>{bmYtdData?.Compliance_YTD}</td>
+                        <td>{bmYtdData?.Compliance_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>Mkting Impl (No inv &gt;30 Days)</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.Marketing_Implementation_FTM}</td>
-                    <td>{bmBeData?.Marketing_Implementation_FTM_Score}</td>
-                    <td>{bmYtdData?.Marketing_Implementation_YTD}</td>
-                    <td>{bmYtdData?.Marketing_Implementation_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>Marketing Implementation (inputs for >30 Days)</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.Marketing_Implementation_FTM}</td>
+                        <td>{bmBeData?.Marketing_Implementation_FTM_Score}</td>
+                        <td>{bmYtdData?.Marketing_Implementation_YTD}</td>
+                        <td>{bmYtdData?.Marketing_Implementation_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>% Tty MSP Compliance (vs Target)</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.MSP_Compliance_FTM}</td>
-                    <td>{bmBeData?.MSP_Compliance_FTM_Score}</td>
-                    <td>{bmYtdData?.MSP_Compliance_YTD}</td>
-                    <td>{bmYtdData?.MSP_Compliance_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>% Tty MSP Compliance (vs Target)</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.MSP_Compliance_FTM}</td>
+                        <td>{bmBeData?.MSP_Compliance_FTM_Score}</td>
+                        <td>{bmYtdData?.MSP_Compliance_YTD}</td>
+                        <td>{bmYtdData?.MSP_Compliance_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>Dr. Conversion (Self Prio)</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.Priority_RX_Drs_FTM}</td>
-                    <td>{bmBeData?.Priority_RX_Drs_FTM_Score}</td>
-                    <td>{bmYtdData?.Priority_RX_Drs_YTD}</td>
-                    <td>{bmYtdData?.Priority_RX_Drs_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>Dr. Conversion (Self Prio)</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.Priority_RX_Drs_FTM}</td>
+                        <td>{bmBeData?.Priority_RX_Drs_FTM_Score}</td>
+                        <td>{bmYtdData?.Priority_RX_Drs_YTD}</td>
+                        <td>{bmYtdData?.Priority_RX_Drs_YTD_Score}</td>
+                      </tr>
 
-                  <tr>
-                    <td>5%</td>
-                    <td>% Tty MSR Compliance (vs Sec)</td>
-                    <td>100%</td>
-                    <td>{bmBeData?.MSR_Comp_FTM}</td>
-                    <td>{bmBeData?.MSR_Comp_FTM_Score}</td>
-                    <td>{bmYtdData?.MSR_Compliance_YTD}</td>
-                    <td>{bmYtdData?.MSR_Compliance_YTD_Score}</td>
-                  </tr>
+                      <tr>
+                        <td>5%</td>
+                        <td>% Tty MSR Compliance (vs Sec)</td>
+                        <td>100%</td>
+                        <td>{bmBeData?.MSR_Comp_FTM}</td>
+                        <td>{bmBeData?.MSR_Comp_FTM_Score}</td>
+                        <td>{bmYtdData?.MSR_Compliance_YTD}</td>
+                        <td>{bmYtdData?.MSR_Compliance_YTD_Score}</td>
+                      </tr>
 
-                  <tr className="shade">
-                    <td>40%</td>
-                    <td>Effort Score</td>
-                    <td>40%</td>
-                    <td>-</td>
-                    <td><b>{fmt(bmTotalFTMScore)}</b></td>
-                    <td>-</td>
-                    <td><b>{fmt(bmTotalYTDScore)}</b></td>
-                  </tr>
-                </tbody>
-              </table>
+                      <tr className="shade">
+                        <td>40%</td>
+                        <td>Effort Score</td>
+                        <td>40%</td>
+                        <td>-</td>
+                        <td><b>{fmt(bmTotalFTMScore)}</b></td>
+                        <td>-</td>
+                        <td><b>{fmt(bmTotalYTDScore)}</b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         )}
@@ -384,6 +385,7 @@ export default function Performance() {
     </div>
   );
 }
+
 
 
 

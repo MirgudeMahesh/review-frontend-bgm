@@ -8,14 +8,13 @@ import useProfileTerritory from './hooks/useProfileTerritory';
 
 export default function ActualCommit() {
   const [commitments, setCommitments] = useState([]);
-  const location = useLocation();
+  const [loading, setLoading] = useState(true);
 
+  const location = useLocation();
   const { profileTerritory } = useProfileTerritory();
   const { decoded } = useEncodedTerritory();
 
   // ================= FETCH DATA =================
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const territory = location.pathname.startsWith("/profile")
       ? profileTerritory
@@ -34,15 +33,14 @@ export default function ActualCommit() {
         return res.json();
       })
       .then((data) => {
-        // Ensure each row has the helper flags used in UI
-        const normalized = (data || []).map(r => ({
+        const normalized = (data || []).map((r) => ({
           ...r,
           _editingGoal: false,
           _tempGoal: r.goal ?? "",
-          _goalLocked: !!r._goalLocked || false, // if you already persist lock flag, keep; else false
+          _goalLocked: !!r._goalLocked || false,
           _editingReceiverDate: false,
-          _tempReceiverDate: r.receiver_commit_date ? r.receiver_commit_date.slice(0,7) : "",
-          _locked: !!r._locked || false // existing lock flag for receiver date if you use it
+          _tempReceiverDate: r.receiver_commit_date ? r.receiver_commit_date.slice(0, 7) : "",
+          _locked: !!r._locked || false,
         }));
         setCommitments(normalized);
       })
@@ -52,7 +50,7 @@ export default function ActualCommit() {
       })
       .finally(() => {
         nProgress.done();
-        setLoading(false);   // ⭐ correct place
+        setLoading(false);
       });
   }, [location, profileTerritory, decoded]);
 
@@ -77,8 +75,7 @@ export default function ActualCommit() {
 
   const formatDate = (dateString) => {
     if (!dateString) return "";
-    // Expecting "YYYY-MM-DD" or already "YYYY-MM"
-    return dateString.slice(0, 7);   // returns YYYY-MM
+    return dateString.slice(0, 7); // YYYY-MM
   };
 
   const getToday = () => {
@@ -91,7 +88,6 @@ export default function ActualCommit() {
 
   const enableGoalEdit = (index) => {
     const updated = [...commitments];
-    // prevent editing multiple rows
     updated.forEach((r) => (r._editingGoal = false));
     updated[index]._editingGoal = true;
     updated[index]._tempGoal = updated[index].goal ?? "";
@@ -107,20 +103,10 @@ export default function ActualCommit() {
   const saveGoal = (index) => {
     const updated = [...commitments];
     const row = updated[index];
-
     const goalValue = row._tempGoal;
 
-    // if (isNaN(goalValue) || goalValue < 1) {
-    //   alert("Goal must be at least 1");
-    //   return;
-    // }
-    // if (goalValue > 100) {
-    //   alert("Goal cannot exceed 100");
-    //   return;
-    // }
-
     row.goal = goalValue;
-    row._goalLocked = true;     // lock after saving (same pattern you already have)
+    row._goalLocked = true;
     row._editingGoal = false;
 
     setCommitments(updated);
@@ -131,11 +117,8 @@ export default function ActualCommit() {
 
   const enableReceiverDateEdit = (index) => {
     const updated = [...commitments];
-    // prevent editing multiple rows
     updated.forEach((r) => (r._editingReceiverDate = false));
-    // set editing for the row
     updated[index]._editingReceiverDate = true;
-    // set temp value to the current YYYY-MM if exists, else empty
     updated[index]._tempReceiverDate = updated[index].receiver_commit_date
       ? updated[index].receiver_commit_date.slice(0, 7)
       : "";
@@ -145,7 +128,6 @@ export default function ActualCommit() {
   const cancelReceiverDateEdit = (index) => {
     const updated = [...commitments];
     updated[index]._editingReceiverDate = false;
-    // revert temp
     updated[index]._tempReceiverDate = updated[index].receiver_commit_date
       ? updated[index].receiver_commit_date.slice(0, 7)
       : "";
@@ -154,7 +136,7 @@ export default function ActualCommit() {
 
   const handleReceiverDateTempChange = (index, ymValue) => {
     const updated = [...commitments];
-    updated[index]._tempReceiverDate = ymValue; // "YYYY-MM"
+    updated[index]._tempReceiverDate = ymValue;
     setCommitments(updated);
   };
 
@@ -168,179 +150,177 @@ export default function ActualCommit() {
       return;
     }
 
-    const finalDate = ym + "-01"; // convert to YYYY-MM-01 (as requested)
+    const finalDate = ym + "-01";
     row.receiver_commit_date = finalDate;
-    row._locked = true;                // lock after saving (parity with goal)
+    row._locked = true;
     row._editingReceiverDate = false;
 
     setCommitments(updated);
     saveToDB(row, "receiver_commit_date", finalDate);
   };
 
+  function handleDateChange(index, newDate) {
+    const updated = [...commitments];
+    updated[index].receiver_commit_date = newDate;
+    updated[index]._locked = true;
+    setCommitments(updated);
+    saveToDB(updated[index], "receiver_commit_date", newDate);
+  }
+
   // ================= RENDER UI =================
-  if (loading) return (<div></div>);
+
+  if (loading) return <div />;
 
   return (
-    <div className="commitmenta">
-      <div className="commit-padding">
-        <h3 style={{ textAlign: "center" }}>Commitment</h3>
+    
+    <div className="commitment-card">
+      <div className="commitment-inner">
+        <h3 className="commitment-heading">Commitment</h3>
 
-        <table className="custom-table-commit">
-          <thead>
-            <tr>
-              <th>Metric</th>
-              <th>Assigned by</th>
-              <th>Commitment</th>
-              <th>Goal</th>
-              <th>Received Date</th>
-              <th>Goal Date</th>
-              <th>Receiver Commit Date</th>
-            </tr>
-          </thead>
+        <div className="commitment-table-scroll">
+          <table className="commitment-table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Assigned by</th>
+                <th>Commitment</th>
+                <th>Goal</th>
+                <th>Received Date</th>
+                <th>Goal Date</th>
+                <th>Receiver Commit Date</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {commitments.length > 0 ? (
-              commitments.map((row, index) => {
-                const dateSet = !!row.receiver_commit_date;
+            <tbody>
+              {commitments.length > 0 ? (
+                commitments.map((row, index) => {
+                  const dateSet = !!row.receiver_commit_date;
 
-                return (
-                  <tr key={row.id}>
-                    <td>{row.metric}</td>
-                    <td>{row.sender}</td>
-                    <td>{row.commitment}</td>
+                  return (
+                    <tr key={row.id}>
+                      <td>{row.metric}</td>
+                      <td>{row.sender}</td>
+                      <td>{row.commitment}</td>
 
-                    {/* ============== GOAL COLUMN ============== */}
-                    <td>
-                      {location.pathname.startsWith("/profile") || row._goalLocked ? (
-                        row.goal
-                      ) : row._editingGoal ? (
-                        <>
-                          <input
-                            type="text"
-                            value={row._tempGoal}
-                            onChange={(e) => handleGoalInputChange(index, e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && saveGoal(index)}
-                            style={{ borderRadius: "5px", padding: "4px", width: "35px" }}
-                            autoFocus
-                          />
-                          <button
-                            onClick={() => saveGoal(index)}
-                            className="commit-link-button"
-                            title="Save goal"
-                          >
-                            <FontAwesomeIcon icon={faFloppyDisk} style={{ color: "black" }}/>
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          {row.goal}
-                          {!location.pathname.startsWith("/profile") && !row._goalLocked && (
+                      {/* GOAL COLUMN */}
+                      <td>
+                        {location.pathname.startsWith("/profile") || row._goalLocked ? (
+                          row.goal
+                        ) : row._editingGoal ? (
+                          <div className="commit-edit-cell">
+                            <input
+                              type="text"
+                              value={row._tempGoal}
+                              onChange={(e) => handleGoalInputChange(index, e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && saveGoal(index)}
+                              className="commit-input"
+                              autoFocus
+                            />
                             <button
-                              onClick={() => enableGoalEdit(index)}
-                              className="commit-link-button"
-                              title="Edit goal"
+                              onClick={() => saveGoal(index)}
+                              className="commit-icon-btn"
+                              title="Save goal"
                             >
-                              <FontAwesomeIcon icon={faEdit}  style={{ color: "black" }} />
+                              <FontAwesomeIcon icon={faFloppyDisk} />
                             </button>
-                          )}
-                        </>
-                      )}
-                    </td>
+                          </div>
+                        ) : (
+                          <div className="commit-edit-cell">
+                            <span>{row.goal}</span>
+                            {!location.pathname.startsWith("/profile") && !row._goalLocked && (
+                              <button
+                                onClick={() => enableGoalEdit(index)}
+                                className="commit-icon-btn"
+                                title="Edit goal"
+                              >
+                                <FontAwesomeIcon icon={faEdit} />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </td>
 
-                    {/* DATES */}
-                    <td>{row.received_date}</td>
-                    <td>{formatDate(row.goal_date)}</td>
+                      {/* DATES */}
+                      <td>{row.received_date}</td>
+                      <td>{formatDate(row.goal_date)}</td>
 
-                    {/* ============== RECEIVER COMMIT DATE COLUMN ============== */}
-                    <td>
-                      {location.pathname.startsWith("/profile") || (dateSet && row._locked) ? (
-                        // view-only when in profile or when date is locked
-                        formatDate(row.receiver_commit_date)
-                      ) : row._editingReceiverDate ? (
-                        // editing mode: month picker + save + cancel
-                        <>
-                          <input
-                            type="month"
-                            value={row._tempReceiverDate || ""}
-                            min={getToday().slice(0, 7)}
-                            onChange={(e) => handleReceiverDateTempChange(index, e.target.value)}
-                            style={{ borderRadius: "5px", padding: "4px" }}
-                          />
-                          <button
-                            onClick={() => saveReceiverDate(index)}
-                            className="commit-link-button"
-                            title="Save receiver date"
-                            style={{ marginLeft: 6 }}
-                          >
-                            <FontAwesomeIcon icon={faFloppyDisk} style={{ color: "black" }}/>
-                          </button>
-                          <button
-                            onClick={() => cancelReceiverDateEdit(index)}
-                            className="commit-link-button"
-                            title="Cancel"
-                            style={{ marginLeft: 6 }}
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </button>
-                        </>
-                      ) : (
-                        // normal view: show YYYY-MM; if editable (not profile and not locked) show edit button
-                        <>
-                          {formatDate(row.receiver_commit_date)}
-                          {!location.pathname.startsWith("/profile") && !row._locked && (
-                            <button
-                              onClick={() => enableReceiverDateEdit(index)}
-                              className="commit-link-button"
-                              title="Edit receiver commit date"
-                              style={{ marginLeft: 8 }}
-                            >
-                              <FontAwesomeIcon icon={faEdit} style={{ color: "black" }} />
-                            </button>
-                          )}
-                          {/* If no date set and not profile, show the picker immediately (original UX) */}
-                          {!dateSet && !location.pathname.startsWith("/profile") && !row._locked && (
+                      {/* RECEIVER COMMIT DATE COLUMN */}
+                      <td>
+                        {location.pathname.startsWith("/profile") || (dateSet && row._locked) ? (
+                          formatDate(row.receiver_commit_date)
+                        ) : row._editingReceiverDate ? (
+                          <div className="commit-edit-cell">
                             <input
                               type="month"
                               value={row._tempReceiverDate || ""}
                               min={getToday().slice(0, 7)}
-                              onChange={(e) => {
-                                // for immediate save when selecting a month (behaviour you had before)
-                                const ym = e.target.value; // "YYYY-MM"
-                                if (!ym) return;
-                                const finalDate = ym + "-01";
-                                handleDateChange(index, finalDate);
-                              }}
-                              style={{ borderRadius: "5px", padding: "4px", marginLeft: 8 }}
+                              onChange={(e) =>
+                                handleReceiverDateTempChange(index, e.target.value)
+                              }
+                              className="commit-input"
                             />
-                          )}
-                        </>
-                      )}
-                    </td>
+                            <button
+                              onClick={() => saveReceiverDate(index)}
+                              className="commit-icon-btn"
+                              title="Save receiver date"
+                            >
+                              <FontAwesomeIcon icon={faFloppyDisk} />
+                            </button>
+                            <button
+                              onClick={() => cancelReceiverDateEdit(index)}
+                              className="commit-icon-btn commit-icon-btn--secondary"
+                              title="Cancel"
+                            >
+                              <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="commit-edit-cell">
+                            <span>{formatDate(row.receiver_commit_date)}</span>
 
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="7" style={{ textAlign: "center" }}>
-                  No commitments added
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                            {!location.pathname.startsWith("/profile") && !row._locked && (
+                              <>
+                                <button
+                                  onClick={() => enableReceiverDateEdit(index)}
+                                  className="commit-icon-btn"
+                                  title="Edit receiver commit date"
+                                >
+                                  <FontAwesomeIcon icon={faEdit} />
+                                </button>
+
+                                {!dateSet && (
+                                  <input
+                                    type="month"
+                                    value={row._tempReceiverDate || ""}
+                                    min={getToday().slice(0, 7)}
+                                    onChange={(e) => {
+                                      const ym = e.target.value;
+                                      if (!ym) return;
+                                      const finalDate = ym + "-01";
+                                      handleDateChange(index, finalDate);
+                                    }}
+                                    className="commit-input commit-input-inline"
+                                  />
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="7" style={{ textAlign: "center" }}>
+                    No commitments added
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-
-  // ================= RECEIVER COMMIT DATE LOGIC (kept below renderer for reuse) =================
-  function handleDateChange(index, newDate) {
-    // This function was in your original code and is used when picking & immediately saving (keeps as-is)
-    const updated = [...commitments];
-    updated[index].receiver_commit_date = newDate;
-    updated[index]._locked = true;
-    console.log("New Date Selected:", newDate);
-    setCommitments(updated);
-    saveToDB(updated[index], "receiver_commit_date", newDate);
-  }
 }

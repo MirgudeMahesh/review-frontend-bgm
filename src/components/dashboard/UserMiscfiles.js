@@ -12,8 +12,7 @@ import 'nprogress/nprogress.css';
 import useProfileTerritory from '../hooks/useProfileTerritory';
 
 export default function UserMiscfiles() {
-  const userRole = localStorage.getItem("choserole");
-  const { role,  name, setName } = useRole();
+  const { role, name, setName,userRole } = useRole();
   const { profileTerritory } = useProfileTerritory();
 
   const [bmBeData, setBmBeData] = useState(null);
@@ -25,7 +24,7 @@ export default function UserMiscfiles() {
 
   useEffect(() => {
     if (!profileTerritory) return;
-    console.log(userRole)
+    console.log(userRole);
     if (userRole !== 'BM') return;
 
     const loadBMHygiene = async () => {
@@ -75,6 +74,11 @@ export default function UserMiscfiles() {
     (Number(bmYtdData?.Returns_Percent_YTD_Score) || 0) +
     (Number(bmYtdData?.CA_Percent_YTD_Score) || 0);
 
+  // Optional: simple loading guard for BM
+  if (userRole === 'BM' && (!bmBeData || !bmYtdData)) {
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
+  }
+
   return (
     <div>
       {/* <Navbar />
@@ -83,155 +87,179 @@ export default function UserMiscfiles() {
 
         {userRole === 'BM' && (
           <div className="table-container">
-            {name && <Subnavbar />}
-            <h3 style={{ textAlign: 'center' }}>Hygiene</h3>
+            <div className="efficiency-container">
+              {name && <Subnavbar />}
+              <h3 style={{ textAlign: 'center' }}>Hygiene</h3>
 
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Parameter</th>
-                  <th>Objective(%)</th>
-                  <th>Month</th>
-                  <th>Month_Score</th>
-                  <th>YTD</th>
-                  <th>YTD_Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Outstanding Days</td>
-                  <td>≤ 21</td>
-                  <td>{bmBeData?.Outstanding_FTM}</td>
-                  <td>{bmBeData?.Outstanding_FTM_Score}</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
-                <tr>
-                  <td>Returns</td>
-                  <td>≤ 2%</td>
-                  <td>{bmBeData?.Returns_Percent_FTM}</td>
-                  <td>{bmBeData?.Returns_Percent_FTM_Score}</td>
-                  <td>{bmYtdData?.Returns_Percent_YTD}</td>
-                  <td>{bmYtdData?.Returns_Percent_YTD_Score}</td>
-                </tr>
-                <tr>
-                  <td>RBO/CA</td>
-                  <td>&lt;= 8%</td>
-                  <td>{bmBeData?.CA_FTM}</td>
-                  <td>{bmBeData?.CA_FTM_Score}</td>
-                  <td>{bmYtdData?.CA_Percent_YTD}</td>
-                  <td>{bmYtdData?.CA_Percent_YTD_Score}</td>
-                </tr>
-                <tr>
-                  <td>Closing Stock</td>
-                  <td>≤ 45</td>
-                  <td>{bmBeData?.Closing_FTM}</td>
-                  <td>{bmBeData?.Closing_FTM_Score}</td>
-                  <td>-</td>
-                  <td>-</td>
-                </tr>
-                <tr className='shade'>
-                  <td>Hygiene Score</td>
-                  <td>10%</td>
-                  <td>-</td>
-                  <td><b>{fmt(bmHygieneMonthScoreTotal)}</b></td>
-                  <td>-</td>
-                  <td><b>{fmt(bmHygieneYTDScoreTotal)}</b></td>
-                </tr>
-              </tbody>
-            </table>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table">
+                    <thead>
+                      <tr>
+                        <th>Parameter</th>
+                        <th>Objective(%)</th>
+                        <th>Month</th>
+                        <th>Month Score</th>
+                        <th>YTD</th>
+                        <th>YTD Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Outstanding Days</td>
+                        <td>≤ 30</td>
+                        <td>{bmBeData?.Outstanding_FTM}</td>
+                        <td>{bmBeData?.Outstanding_FTM_Score}</td>
+                        <td>-</td>
+                        <td>-</td>
+                      </tr>
+                      <tr>
+                        <td>Sales Returns</td>
+                        <td>≤ 2%</td>
+                        <td>{bmBeData?.Returns_Percent_FTM}</td>
+                        <td>{bmBeData?.Returns_Percent_FTM_Score}</td>
+                        <td>{bmYtdData?.Returns_Percent_YTD}</td>
+                        <td>{bmYtdData?.Returns_Percent_YTD_Score}</td>
+                      </tr>
+                      <tr>
+                        <td>% spent of RBO & CA</td>
+                        <td>&lt;= 8%</td>
+                        <td>{bmBeData?.CA_FTM}</td>
+                        <td>{bmBeData?.CA_FTM_Score}</td>
+                        <td>{bmYtdData?.CA_Percent_YTD}</td>
+                        <td>{bmYtdData?.CA_Percent_YTD_Score}</td>
+                      </tr>
+                      <tr>
+                        <td>Closing Days</td>
+                        <td>≤ 45</td>
+                        <td>{bmBeData?.Closing_FTM}</td>
+                        <td>{bmBeData?.Closing_FTM_Score}</td>
+                        <td>-</td>
+                        <td>-</td>
+                      </tr>
+                      <tr className='shade'>
+                        <td>Hygiene Score</td>
+                        <td>10%</td>
+                        <td>-</td>
+                        <td><b>{fmt(bmHygieneMonthScoreTotal)}</b></td>
+                        <td>-</td>
+                        <td><b>{fmt(bmHygieneYTDScoreTotal)}</b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
           </div>
         )}
 
         {userRole === 'BL' && (
           <div className="table-container">
-            {name && <Subnavbar />}
-            <h3 style={{ textAlign: 'center' }}>Business Hygiene & Demand Quality</h3>
+            <div className="efficiency-container">
+              {name && <Subnavbar />}
+              <h3 style={{ textAlign: 'center' }}>Business Hygiene &amp; Demand Quality</h3>
 
-            <table className="custom-table" style={{ fontSize: '12px' }}>
-              <thead>
-                <tr>
-                  <th>weightage</th>
-                  <th>Parameter</th>
-                  <th>Description</th>
-                  <th>Objective(%)</th>
-                  <th>Month Actual</th>
-                  <th>YTD(%)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>88</td>
-                  <td>Return Ratio</td>
-                  <td>% of Returns as % of secondary sales (Objective 2%) </td>
-                  <td>73%</td>
-                  <td>88</td><td>88</td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td>Outstanding Days</td>
-                  <td>DSO (days Sales Outstanding) per zone 30</td>
-                  <td>73%</td>
-                  <td>88</td><td></td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td>Push-to-Pull Ratio</td>
-                  <td>% business driven by schemes vs organic sales 30%</td>
-                  <td>73%</td>
-                  <td>88</td><td>88</td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td>Closing Stock Index</td>
-                  <td>*Avg. closing stock in days (should be ≤30days)</td>
-                  <td>73%</td>
-                  <td>88</td><td></td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td><td></td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td><td></td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td><td></td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td><td></td>
-                </tr>
-                <tr>
-                  <td>88</td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td><td></td>
-                </tr>
-                <tr className='shade'>
-                  <td></td>
-                  <td>Performance Score</td>
-                  <td></td>
-                  <td>20</td>
-                  <td></td><td>88</td>
-                </tr>
-              </tbody>
-            </table>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table" style={{ fontSize: '12px' }}>
+                    <thead>
+                      <tr>
+                        <th>Weightage</th>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Objective(%)</th>
+                        <th>Month Actual</th>
+                        <th>YTD(%)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>88</td>
+                        <td>Return Ratio</td>
+                        <td>% of Returns as % of secondary sales (Objective 2%)</td>
+                        <td>73%</td>
+                        <td>88</td>
+                        <td>88</td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td>Outstanding Days</td>
+                        <td>DSO (days Sales Outstanding) per zone 30</td>
+                        <td>73%</td>
+                        <td>88</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td>Push-to-Pull Ratio</td>
+                        <td>% business driven by schemes vs organic sales 30%</td>
+                        <td>73%</td>
+                        <td>88</td>
+                        <td>88</td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td>Closing Stock Index</td>
+                        <td>*Avg. closing stock in days (should be ≤30days)</td>
+                        <td>73%</td>
+                        <td>88</td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr>
+                        <td>88</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                      </tr>
+                      <tr className='shade'>
+                        <td></td>
+                        <td>Performance Score</td>
+                        <td></td>
+                        <td>20</td>
+                        <td></td>
+                        <td>88</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
           </div>
         )}
 

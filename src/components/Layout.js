@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useRole } from "./RoleContext";
-import MainNavbar from "./MainNavbar";
 import ActualCommit from "./ActualCommit";
-import Chats from "./dashboard/Chats";
-import Ai from "./Ai";
+import MyChats from "./MyChats";
+// import MainNavbar from "./MainNavbar";
 import "../styles.css";
-import useEncodedTerritory from './hooks/useEncodedTerritory';
-
+import useEncodedTerritory from "./hooks/useEncodedTerritory";
+import Chats from "./dashboard/Chats";
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,12 +15,10 @@ const Layout = () => {
 
   const [showModal, setShowModal] = useState(false);
 
-  // Navigate to selection page
   const gotoselection = () => {
     navigate(`/Selection?ec=${encoded}`);
   };
 
-  // Clear all session data when visiting root path
   useEffect(() => {
     if (location.pathname === "/") {
       localStorage.removeItem("role");
@@ -37,7 +34,6 @@ const Layout = () => {
     }
   }, [location.pathname, setRole, setName, setUser, setUserRole]);
 
-  // Determine UI visibility
   const hiddenPaths = ["/"];
   const shouldHideMainUI = hiddenPaths.includes(location.pathname);
   const isProfilePage = location.pathname.startsWith("/profile");
@@ -46,49 +42,49 @@ const Layout = () => {
   return (
     <>
       <div className={`layout-container ${showModal ? "blurred" : ""}`}>
-        {/* Navbar spacing */}
-       
+        {/* fixed navbar already at top; give content some top space */}
         <div style={{ marginTop: "80px" }} />
- {/* <MainNavbar /> */}
-        {/* Main content area */}
-        <main>
+        {/* <MainNavbar /> */}
+
+        {/* main routed content, centered with consistent padding */}
+        <main >
           <Outlet />
         </main>
 
-        {/* Review Others button - hidden for BE role and on login page */}
-        {showUI && !['BE', 'BL', 'BH', 'SBUH'].includes(role) && (
-          <button
-            style={{
-              padding: "12px 26px",
-              backgroundColor: "#2c2d2e",
-              color: "white",
-              border: "none",
-              borderRadius: "10px",
-              fontSize: "18px",
-              cursor: "pointer",
-              boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
-              transition: "background-color 0.2s ease",
-              position: "fixed",
-              bottom: "20px",
-              right: "20px",
-              zIndex: 1000
-            }}
-            onMouseOver={(e) => (e.target.style.backgroundColor = "#1d1e1f")}
-            onMouseOut={(e) => (e.target.style.backgroundColor = "#2c2d2e")}
-            onClick={gotoselection}
-          >
-            Review Others
-          </button>
-        )}
+       
+  <div style={{justifyContent:"center",alignItems:"center",display:"flex"}}>    {showUI && role === "BM" && (
+  <button
+    style={{
+      padding: "12px 26px",
+      backgroundColor: "#2c2d2e",
+      color: "white",
+      border: "none",
+      borderRadius: "10px",
+      fontSize: "18px",
+      cursor: "pointer",
+      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+      transition: "background-color 0.2s ease",
+     
+    }}
+    onMouseOver={(e) => (e.target.style.backgroundColor = "#1d1e1f")}
+    onMouseOut={(e) => (e.target.style.backgroundColor = "#2c2d2e")}
+    onClick={gotoselection}
+  >
+    Review Others
+  </button>
+)}</div>
 
-        {/* Actual Commit component */}
+
+        {/* Commitments drawer at bottom of all pages that use Layout */}
         {showUI && <ActualCommit />}
 
-        {/* Chats component - uncomment if needed for profile pages */}
-        {/* {showUI && isProfilePage && <Chats />} */}
+                {showUI && (
+  isProfilePage ? <Chats /> : <MyChats />
+)}
+
       </div>
 
-      {/* AI Assistant - uncomment if needed for SBUH role */}
+      {/* AI assistant for specific roles can be mounted here if needed */}
       {/* {showUI && role === "sbuh" && <Ai />} */}
     </>
   );
