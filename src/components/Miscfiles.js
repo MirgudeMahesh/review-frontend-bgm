@@ -9,7 +9,7 @@ import 'nprogress/nprogress.css';
 import NProgress from 'nprogress';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function Miscfiles() {
@@ -57,7 +57,7 @@ export default function Miscfiles() {
           }}
           onClick={HomePage}
         >
-          <FontAwesomeIcon icon={faRotateLeft} size="1x" />
+          <FontAwesomeIcon icon={faAnglesLeft} size="1x" />
         </button>
       </div>
     );

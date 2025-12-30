@@ -12,7 +12,7 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesLeft} from '@fortawesome/free-solid-svg-icons';
 
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
@@ -58,7 +58,7 @@ const Home = () => {
           }}
           onClick={HomePage}
         >
-          <FontAwesomeIcon icon={faRotateLeft} size="1x" />
+          <FontAwesomeIcon icon={faAnglesLeft} size="1x" />
         </button>
       </div>
     );

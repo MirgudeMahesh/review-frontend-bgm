@@ -5,7 +5,7 @@ import Textarea from './Textarea';
 import { useRole } from './RoleContext';
 import Subnavbar from './Subnavbar';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
