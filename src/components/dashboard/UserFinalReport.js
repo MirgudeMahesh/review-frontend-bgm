@@ -11,9 +11,9 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
 export default function UserFinalReport() {
- 
-  
-  const { role, setRole,userRole, name, setName } = useRole();
+
+
+  const { role, setRole,userRole, name, user } = useRole();
   const { profileTerritory } = useProfileTerritory();
 
   const [score1, setScore1] = useState(null); // Efforts YTD
@@ -38,6 +38,7 @@ export default function UserFinalReport() {
 
   // Fetch YTD + FTD for BE / BM (for viewed profile territory)
   useEffect(() => {
+    console.log(user)
     if (!profileTerritory) return;
 
     const loadBE = async () => {
@@ -130,7 +131,7 @@ export default function UserFinalReport() {
       <div className="table-box">
         <div className="table-container">
           <div className="efficiency-container">
-            {name && <Subnavbar />}
+            {user && <Subnavbar />}
 
             <h3 style={{ textAlign: 'center' }}>Efficiency Index</h3>
 

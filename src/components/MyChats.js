@@ -24,7 +24,7 @@ export default function MyChats() {
     const isTextBoxEmpty = !textBox || textBox.trim() === "";
 
     const payload = {
-      sender: localStorage.getItem("user"),
+      sender: localStorage.getItem("name"),
       sender_code: localStorage.getItem("empcode"),
       sender_territory: decoded,
 

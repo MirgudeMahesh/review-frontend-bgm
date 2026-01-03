@@ -9,7 +9,7 @@ import useProfileTerritory from "./hooks/useProfileTerritory";
 export default function SubNavbar() {
   
   const navigate = useNavigate();
-  const { userRole, name } = useRole();
+  const { userRole, name, user } = useRole();
 
   const [showModal1, setShowModal1] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState("");
@@ -106,7 +106,7 @@ export default function SubNavbar() {
         </li>
       </ul>
 
-      <p className="subnav-name">{name}</p>
+      <p className="subnav-name">{user}</p>
 
       {/* Modal */}
       {showModal1 && (

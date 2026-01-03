@@ -20,16 +20,16 @@ const sendInformation = async () => {
     return
   }
   const payload = {
-    sender: localStorage.getItem('user'),
+    sender: localStorage.getItem('name'),
     sender_code: localStorage.getItem('empcode'),
     sender_territory: decoded,
-    receiver: localStorage.getItem('name'),
+    receiver: localStorage.getItem('user'),
     receiver_code: 'abc', // placeholder
     receiver_territory: profileTerritory,
     received_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
     message: text
   };
-
+console.log('Payload to send:', payload);
   try {
 
     await fetch('https://review-backend-bgm.onrender.com/putInfo', {

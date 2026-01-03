@@ -432,7 +432,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   const [loadingDivision, setLoadingDivision] = useState(false);
   const [divisionError, setDivisionError] = useState(null);
 
-  const { setName,setUserRole } = useRole();
+  const { setUser,setUserRole } = useRole();
   const navigate = useNavigate();
 
   const [selectedMetric, setSelectedMetric] = useState(rootMetric || "Coverage");
@@ -542,7 +542,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
     setExpandedRows((p) => ({ ...p, [code]: !p[code] }));
 
   const openProfile = (empName, role, territory) => {
-    setName(empName);
+    setUser(empName);
     setUserRole(role)
     navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
     
