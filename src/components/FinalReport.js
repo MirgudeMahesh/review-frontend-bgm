@@ -3,9 +3,11 @@ import Navbar from './Navbar';
 import ActualCommit from './ActualCommit';
 import Textarea from './Textarea';
 import { useRole } from './RoleContext';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import Subnavbar from './Subnavbar';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { faAnglesLeft,faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import {faPaperPlane} from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
