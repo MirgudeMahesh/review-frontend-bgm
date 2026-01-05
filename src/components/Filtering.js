@@ -161,153 +161,154 @@ export default function Filtering() {
   };
 
   return (
-    <div>
-      <div className="textarea-container">
-        <h3 style={{ textAlign: 'center' }}>Disclosure</h3>
+//     <div>
+//       <div className="textarea-container">
+//         <h3 style={{ textAlign: 'center' }}>Disclosure</h3>
 
-        {/* Metric dropdown */}
-        <div>
-          <label htmlFor="metric">Metric: </label>
-          <select
-            id="metric"
-            value={metric}
-            onChange={(e) => setMetric(e.target.value)}
-            style={{ borderRadius: '5px', marginLeft: '30px' }}
-          >
-            <option value="">Select a metric</option>
+//         {/* Metric dropdown */}
+//         <div>
+//           <label htmlFor="metric">Metric: </label>
+//           <select
+//             id="metric"
+//             value={metric}
+//             onChange={(e) => setMetric(e.target.value)}
+//             style={{ borderRadius: '5px', marginLeft: '30px' }}
+//           >
+//             <option value="">Select a metric</option>
             
-            <option value="Calls">Calls</option>
-            <option value="Compliance">Compliance</option>
-            <option value="Coverage">Coverage</option>
-            <option value="Drs_Met">Doctors meet</option>
-          </select>
-        </div>
+//             <option value="Calls">Calls</option>
+//             <option value="Compliance">Compliance</option>
+//             <option value="Coverage">Coverage</option>
+//             <option value="Drs_Met">Doctors meet</option>
+//           </select>
+//         </div>
 
-        {/* Range inputs */}
-        <div style={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
-          <p>From:</p>
-          <input
-            type="text"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            style={{
-              width: '50px',
-              borderRadius: '5px',
-              marginLeft: '20px',
-              height: '25px'
-            }}
-          />
-          <p style={{ marginLeft: '30px' }}>To:</p>
-          <input
-            type="text"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            style={{
-              width: '50px',
-              borderRadius: '5px',
-              marginLeft: '20px',
-              height: '25px'
-            }}
-          />
-          <button
-            style={{
-              marginLeft: "15px",
-              background: "none",
-              border: "none",
-              color: 'black',
-              fontSize: "16px",
-              cursor: "pointer",
-              padding: 0
-            }}
-            onClick={showList}
-          >
-            <FontAwesomeIcon icon={faMagnifyingGlass} />
-          </button>
-        </div>
+//         {/* Range inputs */}
+//         <div style={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
+//           <p>From:</p>
+//           <input
+//             type="text"
+//             value={from}
+//             onChange={(e) => setFrom(e.target.value)}
+//             style={{
+//               width: '50px',
+//               borderRadius: '5px',
+//               marginLeft: '20px',
+//               height: '25px'
+//             }}
+//           />
+//           <p style={{ marginLeft: '30px' }}>To:</p>
+//           <input
+//             type="text"
+//             value={to}
+//             onChange={(e) => setTo(e.target.value)}
+//             style={{
+//               width: '50px',
+//               borderRadius: '5px',
+//               marginLeft: '20px',
+//               height: '25px'
+//             }}
+//           />
+//           <button
+//             style={{
+//               marginLeft: "15px",
+//               background: "none",
+//               border: "none",
+//               color: 'black',
+//               fontSize: "16px",
+//               cursor: "pointer",
+//               padding: 0
+//             }}
+//             onClick={showList}
+//           >
+//             <FontAwesomeIcon icon={faMagnifyingGlass} />
+//           </button>
+//         </div>
 
-        {/* Message input */}
-        <textarea
-          placeholder="send message"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="custom-textarea"
-          style={{ marginTop: '10px' }}
-        />
+//         {/* Message input */}
+//         <textarea
+//           placeholder="send message"
+//           value={text}
+//           onChange={(e) => setText(e.target.value)}
+//           className="custom-textarea"
+//           style={{ marginTop: '10px' }}
+//         />
 
-        <button onClick={handleSubmit} className="submit-button">
-          Submit
-        </button>
+//         <button onClick={handleSubmit} className="submit-button">
+//           Submit
+//         </button>
 
-        {/* Warnings */}
-        <div className="warning-container">
-         <p
-  className="warning-message"
-  style={{
-    visibility: warning ? 'visible' : 'hidden',
-    color: (
-      warntext === 'Messages delivered successfully' || 
-      warntext === 'Data fetched successfully below'
-    ) ? 'blue' : 'red'
-  }}
->
-  {warntext || ''}
-</p>
+//         {/* Warnings */}
+//         <div className="warning-container">
+//          <p
+//   className="warning-message"
+//   style={{
+//     visibility: warning ? 'visible' : 'hidden',
+//     color: (
+//       warntext === 'Messages delivered successfully' || 
+//       warntext === 'Data fetched successfully below'
+//     ) ? 'blue' : 'red'
+//   }}
+// >
+//   {warntext || ''}
+// </p>
 
-        </div>
-      </div>
+//         </div>
+//       </div>
 
-      {/* Preview results */}
-      {results.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "20px",
-          }}
-        >
-          <div
-            style={{
-              width: "70%",
-              maxWidth: "800px",
-              maxHeight: "400px",
-              overflowY: "auto",
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "10px",
-              boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
-              backgroundColor: "white",
-            }}
-          >
-            <h4 style={{ textAlign: "center", marginBottom: "10px" }}>
-              {count} records found
-            </h4>
-            <table
-              border="1"
-              cellPadding="8"
-              style={{ width: "100%", borderCollapse: "collapse" }}
-            >
-              <thead style={{ backgroundColor: "#f2f2f2", position: "sticky", top: 0 }}>
-                <tr>
-                  <th>Territory</th>
-                  <th>Emp Code</th>
-                  <th>Employee Name</th>
-                  <th>{metric}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((row, idx) => (
-                  <tr key={idx}>
-                    <td>{row.Territory}</td>
-                    <td>{row.Emp_Code}</td>
-                    <td>{row.Emp_Name}</td>
-                    <td>{row[metric]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </div>
+//       {/* Preview results */}
+//       {results.length > 0 && (
+//         <div
+//           style={{
+//             display: "flex",
+//             justifyContent: "center",
+//             marginTop: "20px",
+//           }}
+//         >
+//           <div
+//             style={{
+//               width: "70%",
+//               maxWidth: "800px",
+//               maxHeight: "400px",
+//               overflowY: "auto",
+//               border: "1px solid #ccc",
+//               borderRadius: "8px",
+//               padding: "10px",
+//               boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
+//               backgroundColor: "white",
+//             }}
+//           >
+//             <h4 style={{ textAlign: "center", marginBottom: "10px" }}>
+//               {count} records found
+//             </h4>
+//             <table
+//               border="1"
+//               cellPadding="8"
+//               style={{ width: "100%", borderCollapse: "collapse" }}
+//             >
+//               <thead style={{ backgroundColor: "#f2f2f2", position: "sticky", top: 0 }}>
+//                 <tr>
+//                   <th>Territory</th>
+//                   <th>Emp Code</th>
+//                   <th>Employee Name</th>
+//                   <th>{metric}</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {results.map((row, idx) => (
+//                   <tr key={idx}>
+//                     <td>{row.Territory}</td>
+//                     <td>{row.Emp_Code}</td>
+//                     <td>{row.Emp_Name}</td>
+//                     <td>{row[metric]}</td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+//         </div>
+//       )}
+//     </div>
+<div style={{textAlign:'center',justifyContent:"center"}}><h1>Filtering Component</h1>will get updated soon</div>
   );
 }

@@ -541,12 +541,19 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   const toggleRow = (code) =>
     setExpandedRows((p) => ({ ...p, [code]: !p[code] }));
 
-  const openProfile = (empName, role, territory) => {
-    setUser(empName);
-    setUserRole(role)
-    navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
-    
-  };
+ const openProfile = (empName, role, territory) => {
+  setUser(empName);
+  
+  // Set role to 'BE' if it matches any of the specified roles
+  if (['BE', 'TE', 'KAE', 'NE'].includes(role)) {
+    setUserRole('BE');
+  } else {
+    setUserRole(role);
+  }
+  
+  navigate(`/profile/${empName}/Review?ec=${encoded}&pec=${btoa(territory)}`);
+};
+
 
   const startEditing = (territory, metricType, currentValue) => {
     setEditingCell(`${territory}_${metricType}`);

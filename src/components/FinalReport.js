@@ -110,6 +110,7 @@ const[myName,setMyName]=useState('');
   const Home = () => navigate(`/Performance?ec=${encoded}`);
   const misc = () => navigate(`/Hygine?ec=${encoded}`);
   const commitment = () => navigate(`/Compliance?ec=${encoded}`);
+const bulkUpload=()=>navigate(`/Disclosure?ec=${encoded}`);
 
   if (roleAllowed !== null && roleAllowed !== 'BE' && roleAllowed !== 'BM') {
     return (
@@ -162,6 +163,27 @@ const[myName,setMyName]=useState('');
         >
           Review Others
         </button>
+{roleAllowed === 'SBUH' && (
+  <button 
+    onClick={bulkUpload}
+    style={{
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      padding: '10px 20px',
+      borderRadius: '4px',
+      fontSize: '16px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      marginTop: '15px'
+    }}
+    onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
+    onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
+  >
+    Compose
+  </button>
+)}
       </div>
     );
   }
