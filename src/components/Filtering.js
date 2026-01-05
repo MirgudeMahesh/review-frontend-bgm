@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
 import { useLocation } from 'react-router-dom';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
+import '../styles.css';
+
 export default function Filtering() {
   const [text, setText] = useState('');
   const [metric, setMetric] = useState('');
@@ -12,29 +14,41 @@ export default function Filtering() {
   const [to, setTo] = useState('');
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
-  const [results, setResults] = useState([]); // backend response
-  const [count,setCount]=useState();
-    const location = useLocation();
+  const [results, setResults] = useState([]);
+  const [count, setCount] = useState();
+  const location = useLocation();
 
+  // Create ref for results section
+  const resultsRef = useRef(null);
 
+  const { decoded } = useEncodedTerritory();
 
-  // decode base64 -> original territory
-  const {decoded} = useEncodedTerritory();
-  // 🔍 Fetch filtered data
+  // Auto-scroll to results when they appear
+  useEffect(() => {
+    if (results.length > 0 && resultsRef.current) {
+      setTimeout(() => {
+        resultsRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+  }, [results]);
+
   const showList = async () => {
-    if (metric=== '') {
+    if (metric === '') {
       setWarning(true);
-      setWarntext('select metric with data');
+      setWarntext('Please select a metric');
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (isNaN(parseInt(from)) || isNaN(parseInt(to))) {
       setWarning(true);
-      setWarntext('Range should be integer');
+      setWarntext('Range values must be numbers');
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (parseInt(from) > parseInt(to)) {
       setWarning(true);
-      setWarntext('give proper range');
+      setWarntext('From value should be less than To value');
       setTimeout(() => setWarning(false), 3000);
       return;
     }
@@ -43,9 +57,7 @@ export default function Filtering() {
       NProgress.start();
       const response = await fetch("https://review-backend-bgm.onrender.com/filterData", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           metric,
           from: parseInt(from),
@@ -57,61 +69,52 @@ export default function Filtering() {
 
       const data = await response.json();
       setResults(data);
-      
-
-   
       setWarning(true);
 
-      if(data.length===0){
-              setWarntext('No data in this range');
-
+      if (data.length === 0) {
+        setWarntext('No records found in this range');
+      } else {
+        setWarntext(`Successfully found ${data.length} records`);
+        setCount(data.length);
       }
-      else{
-      setWarntext('Data fetched successfully below');
-    setCount(data.length);}
       setTimeout(() => setWarning(false), 3000);
     } catch (error) {
       console.error("Error fetching data:", error);
-      NProgress.done(); 
-
+      NProgress.done();
       setWarning(true);
-      setWarntext('Error fetching data');
+      setWarntext('Failed to fetch data. Please try again.');
       setTimeout(() => setWarning(false), 3000);
-    }
-
-    finally {
+    } finally {
       NProgress.done();
     }
-
   };
 
-  // 📤 Send messages to all filtered receivers
   const handleSubmit = async () => {
     if (metric === '') {
       setWarning(true);
-      setWarntext('select metric');
+      setWarntext('Please select a metric');
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (isNaN(parseInt(from)) || isNaN(parseInt(to))) {
       setWarning(true);
-      setWarntext('Range should be integer');
+      setWarntext('Range values must be numbers');
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (parseInt(from) > parseInt(to)) {
       setWarning(true);
-      setWarntext('give proper range');
+      setWarntext('From value should be less than To value');
       setTimeout(() => setWarning(false), 3000);
       return;
-    } else if (text === '') {
+    } else if (text.trim() === '') {
       setWarning(true);
-      setWarntext('add text');
+      setWarntext('Please enter a message');
       setTimeout(() => setWarning(false), 3000);
       return;
     }
 
     if (results.length === 0) {
       setWarning(true);
-      setWarntext('No receivers found. Run filter first.');
+      setWarntext('No receivers found. Please search first.');
       setTimeout(() => setWarning(false), 3000);
       return;
     }
@@ -119,15 +122,15 @@ export default function Filtering() {
     try {
       NProgress.start();
       const payload = results.map(row => ({
-        sender: localStorage.getItem('user'),
-        sender_code: "", // vacant
+        sender: localStorage.getItem('name'),
+        sender_code: "",
         sender_territory: decoded,
         receiver: row.Emp_Name,
         receiver_code: row.Emp_Code,
         receiver_territory: row.Territory,
         received_date: new Date().toISOString().split("T")[0],
         message: text,
-        metric:metric
+        metric: metric
       }));
 
       const res = await fetch("https://review-backend-bgm.onrender.com/putInfo", {
@@ -139,176 +142,175 @@ export default function Filtering() {
       if (!res.ok) throw new Error("Failed to send messages");
 
       setWarning(true);
-       
-
-      setWarntext('Messages delivered successfully');
+      setWarntext(`Messages sent successfully to ${results.length} recipients!`);
       setTimeout(() => setWarning(false), 3000);
 
-      // Reset form
       setText('');
       setMetric('');
       setFrom('');
       setTo('');
       setResults([]);
+      setCount(0);
     } catch (err) {
       console.error("Error sending messages:", err);
       NProgress.done();
       setWarning(true);
-      setWarntext('Error delivering messages');
+      setWarntext('Failed to send messages. Please try again.');
       setTimeout(() => setWarning(false), 3000);
+    } finally {
+      NProgress.done();
     }
-    finally {NProgress.done(); }
   };
 
   return (
-//     <div>
-//       <div className="textarea-container">
-//         <h3 style={{ textAlign: 'center' }}>Disclosure</h3>
+    <div className="fltr__phoenix-wrapper-9x2z">
+      <div className="fltr__disclosure-card-7k3m">
+        <div className="fltr__header-section">
+          <h2 className="fltr__heading-central-5w8q">Message Disclosure</h2>
+          <p className="fltr__subtitle-text">Filter employees by metric range and send messages</p>
+        </div>
 
-//         {/* Metric dropdown */}
-//         <div>
-//           <label htmlFor="metric">Metric: </label>
-//           <select
-//             id="metric"
-//             value={metric}
-//             onChange={(e) => setMetric(e.target.value)}
-//             style={{ borderRadius: '5px', marginLeft: '30px' }}
-//           >
-//             <option value="">Select a metric</option>
-            
-//             <option value="Calls">Calls</option>
-//             <option value="Compliance">Compliance</option>
-//             <option value="Coverage">Coverage</option>
-//             <option value="Drs_Met">Doctors meet</option>
-//           </select>
-//         </div>
+        <form className="fltr__form-container" onSubmit={(e) => e.preventDefault()}>
+          {/* Metric Selection */}
+          <div className="fltr__form-group">
+            <label htmlFor="metric" className="fltr__label-text">
+              Select Metric <span className="fltr__required-mark">*</span>
+            </label>
+            <select
+              id="metric"
+              value={metric}
+              onChange={(e) => setMetric(e.target.value)}
+              className="fltr__dropdown-primary-8v2j"
+            >
+              <option value="">Choose a metric...</option>
+              <option value="Doctor_Calls">Doctor Calls</option>
+              <option value="Compliance">Compliance</option>
+              <option value="Coverage">Coverage</option>
+              <option value="Chemist_Met">Chemist Met</option>
+            </select>
+          </div>
 
-//         {/* Range inputs */}
-//         <div style={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
-//           <p>From:</p>
-//           <input
-//             type="text"
-//             value={from}
-//             onChange={(e) => setFrom(e.target.value)}
-//             style={{
-//               width: '50px',
-//               borderRadius: '5px',
-//               marginLeft: '20px',
-//               height: '25px'
-//             }}
-//           />
-//           <p style={{ marginLeft: '30px' }}>To:</p>
-//           <input
-//             type="text"
-//             value={to}
-//             onChange={(e) => setTo(e.target.value)}
-//             style={{
-//               width: '50px',
-//               borderRadius: '5px',
-//               marginLeft: '20px',
-//               height: '25px'
-//             }}
-//           />
-//           <button
-//             style={{
-//               marginLeft: "15px",
-//               background: "none",
-//               border: "none",
-//               color: 'black',
-//               fontSize: "16px",
-//               cursor: "pointer",
-//               padding: 0
-//             }}
-//             onClick={showList}
-//           >
-//             <FontAwesomeIcon icon={faMagnifyingGlass} />
-//           </button>
-//         </div>
+          {/* Range Inputs */}
+          <div className="fltr__range-group">
+            <div className="fltr__form-group fltr__half-width">
+              <label htmlFor="from" className="fltr__label-text">
+                From <span className="fltr__required-mark">*</span>
+              </label>
+              <input
+                id="from"
+                type="number"
+                value={from}
+                onChange={(e) => setFrom(e.target.value)}
+                placeholder="0"
+                className="fltr__numeric-field-2h5w"
+              />
+            </div>
+            <div className="fltr__form-group fltr__half-width">
+              <label htmlFor="to" className="fltr__label-text">
+                To <span className="fltr__required-mark">*</span>
+              </label>
+              <input
+                id="to"
+                type="number"
+                value={to}
+                onChange={(e) => setTo(e.target.value)}
+                placeholder="100"
+                className="fltr__numeric-field-2h5w"
+              />
+            </div>
+          </div>
 
-//         {/* Message input */}
-//         <textarea
-//           placeholder="send message"
-//           value={text}
-//           onChange={(e) => setText(e.target.value)}
-//           className="custom-textarea"
-//           style={{ marginTop: '10px' }}
-//         />
+          {/* Search Button */}
+          <button
+            type="button"
+            className="fltr__search-button"
+            onClick={showList}
+          >
+            <FontAwesomeIcon icon={faMagnifyingGlass} className="fltr__icon-space" />
+            Search Employees
+          </button>
 
-//         <button onClick={handleSubmit} className="submit-button">
-//           Submit
-//         </button>
+          {/* Message Input */}
+          <div className="fltr__form-group">
+            <label htmlFor="message" className="fltr__label-text">
+              Message <span className="fltr__required-mark">*</span>
+            </label>
+            <textarea
+              id="message"
+              placeholder="Type your message here..."
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              className="fltr__msgbox-elite-7q6n"
+              rows="4"
+            />
+            <span className="fltr__helper-text">
+              {text.length} characters
+            </span>
+          </div>
 
-//         {/* Warnings */}
-//         <div className="warning-container">
-//          <p
-//   className="warning-message"
-//   style={{
-//     visibility: warning ? 'visible' : 'hidden',
-//     color: (
-//       warntext === 'Messages delivered successfully' || 
-//       warntext === 'Data fetched successfully below'
-//     ) ? 'blue' : 'red'
-//   }}
-// >
-//   {warntext || ''}
-// </p>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            onClick={handleSubmit}
+            className="fltr__submit-prime-4t9r"
+            disabled={results.length === 0}
+          >
+            Send Messages
+          </button>
 
-//         </div>
-//       </div>
+          {/* Notification */}
+          {warning && (
+            <div className={`fltr__alert-box ${
+              warntext.includes('Successfully') || warntext.includes('sent successfully')
+                ? 'fltr__alert-success'
+                : warntext.includes('No records')
+                ? 'fltr__alert-info'
+                : 'fltr__alert-error'
+            }`}>
+              <span className="fltr__alert-icon">
+                {warntext.includes('Successfully') || warntext.includes('sent successfully') ? '✓' : 
+                 warntext.includes('No records') ? 'ℹ' : '⚠'}
+              </span>
+              <span>{warntext}</span>
+            </div>
+          )}
+        </form>
+      </div>
 
-//       {/* Preview results */}
-//       {results.length > 0 && (
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "center",
-//             marginTop: "20px",
-//           }}
-//         >
-//           <div
-//             style={{
-//               width: "70%",
-//               maxWidth: "800px",
-//               maxHeight: "400px",
-//               overflowY: "auto",
-//               border: "1px solid #ccc",
-//               borderRadius: "8px",
-//               padding: "10px",
-//               boxShadow: "0px 4px 8px rgba(0,0,0,0.1)",
-//               backgroundColor: "white",
-//             }}
-//           >
-//             <h4 style={{ textAlign: "center", marginBottom: "10px" }}>
-//               {count} records found
-//             </h4>
-//             <table
-//               border="1"
-//               cellPadding="8"
-//               style={{ width: "100%", borderCollapse: "collapse" }}
-//             >
-//               <thead style={{ backgroundColor: "#f2f2f2", position: "sticky", top: 0 }}>
-//                 <tr>
-//                   <th>Territory</th>
-//                   <th>Emp Code</th>
-//                   <th>Employee Name</th>
-//                   <th>{metric}</th>
-//                 </tr>
-//               </thead>
-//               <tbody>
-//                 {results.map((row, idx) => (
-//                   <tr key={idx}>
-//                     <td>{row.Territory}</td>
-//                     <td>{row.Emp_Code}</td>
-//                     <td>{row.Emp_Name}</td>
-//                     <td>{row[metric]}</td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         </div>
-//       )}
-//     </div>
-<div style={{textAlign:'center',justifyContent:"center"}}><h1>Filtering Component</h1>will get updated soon</div>
+      {/* Results Table with Ref */}
+      {results.length > 0 && (
+        <div className="fltr__results-arena-3k8m" ref={resultsRef}>
+          <div className="fltr__data-showcase-2v7q">
+            <div className="fltr__results-header">
+              <h3 className="fltr__count-banner-9h4t">
+                {count} {count === 1 ? 'Record' : 'Records'} Found
+              </h3>
+            </div>
+            <div className="fltr__table-scroll-zone-5n2x">
+              <table className="fltr__grid-display-8w3r">
+                <thead>
+                  <tr>
+                    <th>Territory</th>
+                    <th>Employee Code</th>
+                    <th>Employee Name</th>
+                    <th>{metric.replace('_', ' ')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((row, idx) => (
+                    <tr key={idx}>
+                      <td data-label="Territory">{row.Territory}</td>
+                      <td data-label="Employee Code">{row.Emp_Code}</td>
+                      <td data-label="Employee Name">{row.Emp_Name}</td>
+                      <td data-label={metric.replace('_', ' ')}>{row[metric]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
