@@ -5,7 +5,7 @@ import Textarea from './Textarea';
 import { useRole } from './RoleContext';
 import Subnavbar from './Subnavbar';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons';
+import { faAnglesLeft,faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
@@ -175,26 +175,32 @@ export default function FinalReport() {
         </button>
 
         {roleAllowed === 'SBUH' && (
-          <button 
-            onClick={bulkUpload}
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              marginTop: '15px'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
-          >
-            Compose
-          </button>
-        )}
+  <button 
+    onClick={bulkUpload}
+    style={{
+      backgroundColor: '#007bff',
+      color: 'white',
+      border: 'none',
+      padding: '10px 20px',
+      borderRadius: '8px',
+      fontSize: '16px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'all 0.3s ease',
+      marginTop: '15px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '8px'
+    }}
+    onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
+    onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
+  >
+    Compose
+    <FontAwesomeIcon icon={faPaperPlane} />
+  </button>
+)}
+
       </div>
     );
   }
