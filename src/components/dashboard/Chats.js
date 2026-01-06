@@ -97,7 +97,7 @@ useEffect(()=>{
       <div className='table-box'>
         <div className='table-container6'>
          <h2>Add Information</h2>
-<h3>({user})</h3>
+<p>({user})</p>
 
 
           {/* 👇 Scrollable chat box with ref */}
