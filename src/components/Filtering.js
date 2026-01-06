@@ -7,6 +7,7 @@ import { useLocation } from 'react-router-dom';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 import '../styles.css';
 
+
 export default function Filtering() {
   const [text, setText] = useState('');
   const [metric, setMetric] = useState('');
@@ -16,12 +17,17 @@ export default function Filtering() {
   const [warntext, setWarntext] = useState('');
   const [results, setResults] = useState([]);
   const [count, setCount] = useState();
+  const [shouldScrollToError, setShouldScrollToError] = useState(false);
   const location = useLocation();
 
-  // Create ref for results section
+
+  // Create refs for results section and warning notification
   const resultsRef = useRef(null);
+  const warningRef = useRef(null);
+
 
   const { decoded } = useEncodedTerritory();
+
 
   // Auto-scroll to results when they appear
   useEffect(() => {
@@ -35,23 +41,42 @@ export default function Filtering() {
     }
   }, [results]);
 
+
+  // Auto-scroll to error warnings from showList
+  useEffect(() => {
+    if (warning && shouldScrollToError && warningRef.current) {
+      setTimeout(() => {
+        warningRef.current.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center' 
+        });
+      }, 100);
+      setShouldScrollToError(false);
+    }
+  }, [warning, shouldScrollToError]);
+
+
   const showList = async () => {
     if (metric === '') {
       setWarning(true);
       setWarntext('Please select a metric');
+      setShouldScrollToError(true);
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (isNaN(parseInt(from)) || isNaN(parseInt(to))) {
       setWarning(true);
       setWarntext('Range values must be numbers');
+      setShouldScrollToError(true);
       setTimeout(() => setWarning(false), 3000);
       return;
     } else if (parseInt(from) > parseInt(to)) {
       setWarning(true);
       setWarntext('From value should be less than To value');
+      setShouldScrollToError(true);
       setTimeout(() => setWarning(false), 3000);
       return;
     }
+
 
     try {
       NProgress.start();
@@ -67,9 +92,11 @@ export default function Filtering() {
      
       if (!response.ok) throw new Error("Network response was not ok");
 
+
       const data = await response.json();
       setResults(data);
       setWarning(true);
+
 
       if (data.length === 0) {
         setWarntext('No records found in this range');
@@ -83,11 +110,13 @@ export default function Filtering() {
       NProgress.done();
       setWarning(true);
       setWarntext('Failed to fetch data. Please try again.');
+      setShouldScrollToError(true);
       setTimeout(() => setWarning(false), 3000);
     } finally {
       NProgress.done();
     }
   };
+
 
   const handleSubmit = async () => {
     if (metric === '') {
@@ -112,12 +141,14 @@ export default function Filtering() {
       return;
     }
 
+
     if (results.length === 0) {
       setWarning(true);
       setWarntext('No receivers found. Please search first.');
       setTimeout(() => setWarning(false), 3000);
       return;
     }
+
 
     try {
       NProgress.start();
@@ -133,17 +164,21 @@ export default function Filtering() {
         metric: metric
       }));
 
+
       const res = await fetch("https://review-backend-bgm.onrender.com/putInfo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
 
+
       if (!res.ok) throw new Error("Failed to send messages");
+
 
       setWarning(true);
       setWarntext(`Messages sent successfully to ${results.length} recipients!`);
       setTimeout(() => setWarning(false), 3000);
+
 
       setText('');
       setMetric('');
@@ -162,6 +197,7 @@ export default function Filtering() {
     }
   };
 
+
   return (
     <div className="fltr__phoenix-wrapper-9x2z">
       <div className="fltr__disclosure-card-7k3m">
@@ -169,6 +205,7 @@ export default function Filtering() {
           <h2 className="fltr__heading-central-5w8q">Message Disclosure</h2>
           <p className="fltr__subtitle-text">Filter employees by metric range and send messages</p>
         </div>
+
 
         <form className="fltr__form-container" onSubmit={(e) => e.preventDefault()}>
           {/* Metric Selection */}
@@ -189,6 +226,7 @@ export default function Filtering() {
               <option value="Chemist_Met">Chemist Met</option>
             </select>
           </div>
+
 
           {/* Range Inputs */}
           <div className="fltr__range-group">
@@ -220,6 +258,7 @@ export default function Filtering() {
             </div>
           </div>
 
+
           {/* Search Button */}
           <button
             type="button"
@@ -229,6 +268,7 @@ export default function Filtering() {
             <FontAwesomeIcon icon={faMagnifyingGlass} className="fltr__icon-space" />
             Search Employees
           </button>
+
 
           {/* Message Input */}
           <div className="fltr__form-group">
@@ -248,6 +288,7 @@ export default function Filtering() {
             </span>
           </div>
 
+
           {/* Submit Button */}
           <button
             type="submit"
@@ -258,15 +299,19 @@ export default function Filtering() {
             Send Messages
           </button>
 
-          {/* Notification */}
+
+          {/* Notification with ref */}
           {warning && (
-            <div className={`fltr__alert-box ${
-              warntext.includes('Successfully') || warntext.includes('sent successfully')
-                ? 'fltr__alert-success'
-                : warntext.includes('No records')
-                ? 'fltr__alert-info'
-                : 'fltr__alert-error'
-            }`}>
+            <div 
+              ref={warningRef}
+              className={`fltr__alert-box ${
+                warntext.includes('Successfully') || warntext.includes('sent successfully')
+                  ? 'fltr__alert-success'
+                  : warntext.includes('No records')
+                  ? 'fltr__alert-info'
+                  : 'fltr__alert-error'
+              }`}
+            >
               <span className="fltr__alert-icon">
                 {warntext.includes('Successfully') || warntext.includes('sent successfully') ? '✓' : 
                  warntext.includes('No records') ? 'ℹ' : '⚠'}
@@ -276,6 +321,7 @@ export default function Filtering() {
           )}
         </form>
       </div>
+
 
       {/* Results Table with Ref */}
       {results.length > 0 && (

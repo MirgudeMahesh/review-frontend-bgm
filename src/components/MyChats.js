@@ -29,7 +29,7 @@ export default function MyChats() {
       sender_territory: decoded,
 
       receiver: isTextBoxEmpty
-        ? localStorage.getItem("user")
+        ? localStorage.getItem("name")
         : localStorage.getItem("name"),
 
       receiver_code: "abc", // placeholder
@@ -105,7 +105,7 @@ export default function MyChats() {
               <div className="no-messages">No messages yet</div>
             ) : (
               results.map((msg, idx) => {
-                const isSent = msg.sender === localStorage.getItem("user");
+                const isSent = msg.sender === localStorage.getItem("name");
                 return (
                   <div
                     key={idx}
