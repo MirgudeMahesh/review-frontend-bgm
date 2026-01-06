@@ -9,7 +9,7 @@ import useProfileTerritory from '../hooks/useProfileTerritory';
 export default function Chats() {
        const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
   
-  const { role, setRole, name, setName } = useRole();
+  const { role, setRole, name, setName,user} = useRole();
   const [text, setText] = useState('');
   const [results, setResults] = useState([]);
    const [warning, setWarning] = useState("");
@@ -96,7 +96,9 @@ useEffect(()=>{
     <div>
       <div className='table-box'>
         <div className='table-container6'>
-          <h2>Add Information</h2>
+         <h2>Add Information</h2>
+<h3>({user})</h3>
+
 
           {/* 👇 Scrollable chat box with ref */}
 <div className="chat-box" ref={chatBoxRef}>
