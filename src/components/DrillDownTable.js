@@ -50,7 +50,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
     setMaxDepthState(depth);
   }, [childrenData, level]);
 
-  // Fetch divisio
+  // Fetch divisioD
   useEffect(() => {
     const fetchDivision = async () => {
       if (!decoded) return;
