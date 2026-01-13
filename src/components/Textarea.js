@@ -49,7 +49,14 @@ const handleSubmit = async () => {
     setWarntext('Please select a date');
     setTimeout(() => setWarning(false), 3000);
     return;
-  } else {
+  } 
+  else if (target === '') {
+    setWarning(true);
+    setWarntext('Please select a target');
+    setTimeout(() => setWarning(false), 3000);
+    return;
+  } 
+  else {
     const [year, month] = selectedDate.split('-').map(Number);
     const lastDayOfMonth = new Date(year, month, 0);
     const today = new Date();
@@ -151,11 +158,34 @@ const bmMetricOptions=[
   "% spent of RBO & CA",
   "Closing Days"
 ]
+const blMetricOptions = [
+ 
+  "Target Achievement",
+  "% of Territories achieving ≥100% of Target",
+  "No of Territories meeting MEP of Category A",
+  "Category B Target V/s Achievement",
+  "% of corporate doctors visited in last 2 months (Out of 100 Selected)",
+  "% of Corporate doctors moved to active prescriber category (BL+F)",
+  "% of proposed candidates Approved by BHR vs Submitted to BHR by BL",
+  "*% of New Joinees Clearing induction in Pravesh",
+  "*Infant attrition rate (within 180 days)",
+  "Overall attrition rate (Annual rate in current FY)",
+  "Team's Customer Coverage",
+  "Team's Customer Compliance",
+  "BMs Priority doctor coverage",
+  "% adherence to TP",
+  "Secondary variance",
+  "% of headquarters MSP (for HQ) vs Target taken cumulatively by BL",
+  "% of headquarters having MSR compliance with respect to Average Secondary Sales"
+];
+
 const options =
   userRole === "BE"
     ? metricOptions
     : userRole === "BM"
     ? bmMetricOptions
+    : userRole === "BL"
+    ? blMetricOptions
     : [];
 
   return (
