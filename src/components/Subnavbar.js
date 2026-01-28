@@ -39,6 +39,9 @@ export default function SubNavbar() {
         case 'Hygiene':
         navigate(`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`);
         break;
+        case 'Compliance':
+        navigate(`/profile/${name}/Compliance?ec=${encoded}&pec=${profileEncodedTerritory}`);
+        break;
       case 'Escalating':
         handleOpenModal1();
         break;
@@ -63,6 +66,7 @@ export default function SubNavbar() {
           <option value="performance">Performance</option>
           <option value="Miscelaneous">Efforts</option>
           {userRole === 'BM' && (<option value="Hygiene">Hygiene</option>)}
+            {userRole === 'BL' && (<option value="Compliance">Compliance</option>)}
           <option value="Escalating">Commit</option>
         </select>
       </div>
@@ -94,7 +98,13 @@ export default function SubNavbar() {
             </Link>
           </li>
         )}
-
+{userRole === 'BL' && (
+          <li>
+            <Link to={`/profile/${name}/Compliance?ec=${encoded}&pec=${profileEncodedTerritory}`}>
+             Compliance
+            </Link>
+          </li>
+        )}
         <li>
           <button
             type="button"

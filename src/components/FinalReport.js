@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import Navbar from './Navbar';
-import ActualCommit from './ActualCommit';
-import Textarea from './Textarea';
+
 import { useRole } from './RoleContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-import Subnavbar from './Subnavbar';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {faPaperPlane} from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
@@ -20,11 +16,14 @@ export default function FinalReport() {
   const [score4, setScore4] = useState(null);
   const [hygieneMonth, setHygieneMonth] = useState(null);
   const [hygieneYTD, setHygieneYTD] = useState(null);
+  const [commitmentMonth, setCommitmentMonth] = useState(null);
+  const [commitmentYTD, setCommitmentYTD] = useState(null);
+  const [effortMonth, setEffortMonth] = useState(null);
+  const [effortYTD, setEffortYTD] = useState(null);
   const [roleAllowed, setRoleAllowed] = useState(null);
   const [showTerritory, setShowTerritory] = useState('');
   const [myName, setMyName] = useState('');
 
-  const location = useLocation();
   const navigate = useNavigate();
   const { decoded, encoded } = useEncodedTerritory();
 
@@ -51,8 +50,8 @@ export default function FinalReport() {
         setRoleAllowed(normalizedRole);
         setRole(normalizedRole);
 
-        // Only fetch dashboard data for BE and BM roles
-        if (data.role !== 'BE' && data.role !== 'TE' && data.role !== 'KAE' && data.role !== 'NE' && data.role !== 'BM') {
+        // Only fetch dashboard data for BE, BM, and BL roles
+        if (['BE', 'BM', 'BL'].includes(normalizedRole) === false) {
           return;
         }
 
@@ -86,8 +85,8 @@ export default function FinalReport() {
 
           console.log('YTD Data:', ytdData);
           console.log('FTD Data:', ftdData);
-
-        } else if (normalizedRole === 'BM') {
+        } 
+        else if (normalizedRole === 'BM') {
           // BM LOGIC - Fetch efficiency data
           const bmRes = await fetch("https://review-backend-bgm.onrender.com/bmEfficiency", {
             method: "POST",
@@ -107,6 +106,34 @@ export default function FinalReport() {
 
           console.log('BM Data:', bmData);
         }
+        else if (normalizedRole === 'BL') {
+          // BL LOGIC - Fetch efficiency data
+          const blRes = await fetch("https://review-backend-bgm.onrender.com/blEfficiency", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Territory: decoded })
+          });
+          const blData = await blRes.json();
+
+          if (blRes.ok) {
+            // Map BL efficiency data to existing state structure
+            // score1 = effortYTD, score2 = businessYTD, score3 = effortMonth, score4 = businessMonth
+            setScore1(Number(blData.effortYTD) || 0);
+            setScore2(Number(blData.businessYTD) || 0);
+            setScore3(Number(blData.effortMonth) || 0);
+            setScore4(Number(blData.businessMonth) || 0);
+            
+            // Additional BL scores
+            setHygieneMonth(Number(blData.hygieneMonth) || 0);
+            setHygieneYTD(Number(blData.hygieneYTD) || 0);
+            setCommitmentMonth(Number(blData.commitmentMonth) || 0);
+            setCommitmentYTD(Number(blData.commitmentYTD) || 0);
+            setEffortMonth(Number(blData.effortMonth) || 0);
+            setEffortYTD(Number(blData.effortYTD) || 0);
+          }
+
+          console.log('BL Data:', blData);
+        }
       } catch (err) {
         console.error("API error:", err);
       } finally {
@@ -123,8 +150,8 @@ export default function FinalReport() {
   const commitment = () => navigate(`/Compliance?ec=${encoded}`);
   const bulkUpload = () => navigate(`/Disclosure?ec=${encoded}`);
 
-  // Show message for non-BE/BM roles
-  if (roleAllowed !== null && roleAllowed !== 'BE' && roleAllowed !== 'BM') {
+  // Show message for non-BE/BM/BL roles
+  if (roleAllowed !== null && !['BE', 'BM', 'BL'].includes(roleAllowed)) {
     return (
       <div
         style={{
@@ -145,7 +172,7 @@ export default function FinalReport() {
             color: "#333"
           }}
         >
-          Your dashboards are yet to be updated
+          Your dashboards are yet to be updated 
         </p>
         <p
           style={{
@@ -177,32 +204,31 @@ export default function FinalReport() {
         </button>
 
         {roleAllowed === 'SBUH' && (
-  <button 
-    onClick={bulkUpload}
-    style={{
-      backgroundColor: '#007bff',
-      color: 'white',
-      border: 'none',
-      padding: '10px 20px',
-      borderRadius: '8px',
-      fontSize: '16px',
-      fontWeight: '500',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      marginTop: '15px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '8px'
-    }}
-    onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
-    onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
-  >
-    Compose
-    <FontAwesomeIcon icon={faPaperPlane} />
-  </button>
-)}
-
+          <button 
+            onClick={bulkUpload}
+            style={{
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              marginTop: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
+          >
+            Compose
+            <FontAwesomeIcon icon={faPaperPlane} />
+          </button>
+        )}
       </div>
     );
   }
@@ -217,6 +243,14 @@ export default function FinalReport() {
   }
 
   if (roleAllowed === 'BM' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD].includes(null)) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (roleAllowed === 'BL' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].includes(null)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
         <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
@@ -345,6 +379,86 @@ export default function FinalReport() {
                       </td>
                       <td>
                         {(Number(score2) + Number(score1) + Number(hygieneYTD)).toFixed(2)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="efficiency-notes-box">
+              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+            </div>
+          </div>
+        )}
+
+        {roleAllowed === 'BL' && (
+          <div className="efficiency-container">
+            <h3>Efficiency Index</h3>
+
+            <div className="efficiency-table-container">
+              <div className="efficiency-table-scroll">
+                <table className="efficiency-table">
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Objective(%)</th>
+                      <th>Month(%)</th>
+                      <th>YTD(%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="clickable-param" onClick={Home}>
+                        Business Performance
+                      </td>
+                      <td>35</td>
+                      <td>{score4.toFixed(2)}</td>
+                      <td>{score2.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={misc}>
+                        Business Hygiene & Demand Quality
+                      </td>
+                      <td>20</td>
+                      <td>{hygieneMonth.toFixed(2)}</td>
+                      <td>{hygieneYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={perform}>
+                        Team Building (Efforts)
+                      </td>
+                      <td>20</td>
+                      <td>{effortMonth.toFixed(2)}</td>
+                      <td>{effortYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={commitment}>
+                        Compliance & Reporting (Commitment)
+                      </td>
+                      <td>25</td>
+                      <td>{commitmentMonth.toFixed(2)}</td>
+                      <td>{commitmentYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr className="shade">
+                      <td>Efficiency Index</td>
+                      <td>100</td>
+                      <td>
+                        {(
+                          Number(score4) + 
+                          Number(hygieneMonth) + 
+                          Number(effortMonth) + 
+                          Number(commitmentMonth)
+                        ).toFixed(2)}
+                      </td>
+                      <td>
+                        {(
+                          Number(score2) + 
+                          Number(hygieneYTD) + 
+                          Number(effortYTD) + 
+                          Number(commitmentYTD)
+                        ).toFixed(2)}
                       </td>
                     </tr>
                   </tbody>

@@ -52,7 +52,7 @@ const Layout = () => {
         </main>
 
        
-  <div style={{justifyContent:"center",alignItems:"center",display:"flex"}}>    {showUI && role === "BM" && (
+  <div style={{justifyContent:"center",alignItems:"center",display:"flex"}}>    {showUI && (role === "BM" || role==='BL') && (
   <button
     style={{
       padding: "12px 26px",

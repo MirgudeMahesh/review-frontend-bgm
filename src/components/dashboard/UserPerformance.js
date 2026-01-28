@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../../styles.css";
 import Textarea from "../Textarea";
 import ActualCommit from "../ActualCommit";
+import Navbar from "../Navbar";
 import { useRole } from "../RoleContext";
 import Subnavbar from "../Subnavbar";
 import Chats from "./Chats";
@@ -13,26 +14,35 @@ export default function UserPerformance() {
   const { profileTerritory } = useProfileTerritory();
   const { name, userRole } = useRole();
 
-
   const [beData, setBeData] = useState(null);
   const [ytdData, setYtdData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!profileTerritory) return;
+    if (!profileTerritory) {
+      setIsLoading(false);
+      return;
+    }
 
     const loadAll = async () => {
       try {
+        setIsLoading(true);
         NProgress.start();
 
+        // BM/BE/BL API calls
         let beUrl = "";
         let ytdUrl = "";
 
         if (userRole === "BM") {
           beUrl = "https://review-backend-bgm.onrender.com/bmDashboardData";
           ytdUrl = "https://review-backend-bgm.onrender.com/bmDashboardytdData";
-        } else {
+        } else if(userRole==='BE') {
           beUrl = "https://review-backend-bgm.onrender.com/dashboardData";
           ytdUrl = "https://review-backend-bgm.onrender.com/dashboardytdData";
+        }
+         else if(userRole==='BL') {
+          beUrl = "https://review-backend-bgm.onrender.com/blDashboardData";
+          ytdUrl = "https://review-backend-bgm.onrender.com/blDashboardytdData";
         }
 
         const [beRes, ytdRes] = await Promise.all([
@@ -51,11 +61,15 @@ export default function UserPerformance() {
         const beJson = await beRes.json();
         const ytdJson = await ytdRes.json();
 
+        console.log("UserPerformance BE/BM/BL Month Data:", beJson);
+        console.log("UserPerformance BE/BM/BL YTD Data:", ytdJson);
+
         if (beRes.ok) setBeData(beJson);
         if (ytdRes.ok) setYtdData(ytdJson);
       } catch (err) {
         console.error("API error:", err);
       } finally {
+        setIsLoading(false);
         NProgress.done();
       }
     };
@@ -63,18 +77,19 @@ export default function UserPerformance() {
     loadAll();
   }, [profileTerritory, userRole]);
 
-  if (!beData || !ytdData) {
+  // Show loader only when actually loading
+  if (isLoading) {
     return <p style={{ textAlign: "center" }}>Loading...</p>;
   }
 
   // ----------------------------
-  // TOTAL SCORES (Efforts)
+  // TOTAL SCORES (Efforts) - Now BL uses real API data
   // ----------------------------
   let totalYTDScore = 0;
   let totalFTDScore = 0;
 
   if (userRole === "BM") {
-    // BM Efforts & Effectiveness totals
+    // BM Efforts totals
     totalYTDScore = (
       (Number(ytdData?.Priority_Drs_Met_YTD_Score) || 0) +
       (Number(ytdData?.Calls_YTD_Score) || 0) +
@@ -84,8 +99,7 @@ export default function UserPerformance() {
       (Number(ytdData?.MSP_Compliance_YTD_Score) || 0) +
       (Number(ytdData?.Priority_RX_Drs_YTD_Score) || 0) +
       (Number(ytdData?.MSR_Compliance_YTD_Score) || 0)
-    ).toFixed(2);
-
+    );
     totalFTDScore = (
       (Number(beData?.Priority_Drs_Met_FTM_Score) || 0) +
       (Number(beData?.Calls_FTM_Score) || 0) +
@@ -95,8 +109,8 @@ export default function UserPerformance() {
       (Number(beData?.MSP_Compliance_FTM_Score) || 0) +
       (Number(beData?.Priority_RX_Drs_FTM_Score) || 0) +
       (Number(beData?.MSR_Comp_FTM_Score) || 0)
-    ).toFixed(2);
-  } else {
+    );
+  } else if (userRole === "BE") {
     // BE Efforts totals
     totalYTDScore = (
       Number(ytdData?.Calls_Score || 0) +
@@ -104,16 +118,31 @@ export default function UserPerformance() {
       Number(ytdData?.Compliance_Score || 0) +
       Number(ytdData?.RCPA_Score || 0) +
       Number(ytdData?.Activity_Implementation_Score || 0)
-    ).toFixed(2);
-
+    );
     totalFTDScore = (
-      (Number(beData?.Calls_Score) || 0) +
-      (Number(beData?.Coverage_Score) || 0) +
-      (Number(beData?.Compliance_Score) || 0) +
-      (Number(beData?.RCPA_Score) || 0) +
-      (Number(beData?.Activity_Implementation_Score) || 0)
-    ).toFixed(2);
+      Number(beData?.Calls_Score || 0) +
+      Number(beData?.Coverage_Score || 0) +
+      Number(beData?.Compliance_Score || 0) +
+      Number(beData?.RCPA_Score || 0) +
+      Number(beData?.Activity_Implementation_Score || 0)
+    );
+  } else if (userRole === "BL") {
+    // BL Team Building totals - NOW DYNAMIC from API
+    totalFTDScore = (
+      (Number(beData?.Hiring_Quality_Index_Score) || 0) +
+      (Number(beData?.Induction_Score) || 0) +
+      (Number(beData?.Infant_Attrition_Rate_Score) || 0) +
+      (Number(beData?.Overall_Attrition_Rate_Score) || 0)
+    );
+    totalYTDScore = (
+      (Number(ytdData?.Hiring_Quality_Index_Score) || 0) +
+      (Number(ytdData?.Induction_Score) || 0) +
+      (Number(ytdData?.Infant_Attrition_Rate_Score) || 0) +
+      (Number(ytdData?.Overall_Attrition_Rate_Score) || 0)
+    );
   }
+
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
   return (
     <div>
@@ -143,155 +172,129 @@ export default function UserPerformance() {
                     {userRole === "BM" ? (
                       <>
                         <tr>
-                          <td>5%</td>
-                          <td>Self Priority Customer Covg</td>
-                          <td>100%</td>
-                          <td>{beData?.Priority_Drs_Met_FTM}</td>
-                          <td>{beData?.Priority_Drs_Met_FTM_Score}</td>
-                          <td>{ytdData?.Priority_Drs_Met_YTD}</td>
-                          <td>{ytdData?.Priority_Drs_Met_YTD_Score}</td>
+                          <td>5%</td><td>Self Priority Customer Covg</td><td>100%</td>
+                          <td>{beData?.Priority_Drs_Met_FTM}</td><td>{beData?.Priority_Drs_Met_FTM_Score}</td>
+                          <td>{ytdData?.Priority_Drs_Met_YTD}</td><td>{ytdData?.Priority_Drs_Met_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>No of Calls - Self</td>
-                          <td>220</td>
-                          <td>{beData?.Calls_FTM}</td>
-                          <td>{beData?.Calls_FTM_Score}</td>
-                          <td>{ytdData?.Calls_YTD}</td>
-                          <td>{ytdData?.Calls_YTD_Score}</td>
+                          <td>5%</td><td>No of Calls - Self</td><td>220</td>
+                          <td>{beData?.Calls_FTM}</td><td>{beData?.Calls_FTM_Score}</td>
+                          <td>{ytdData?.Calls_YTD}</td><td>{ytdData?.Calls_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>Team's Coverage</td>
-                          <td>95%</td>
-                          <td>{beData?.Coverage2}</td>
-                          <td>{beData?.Coverage_Score2}</td>
-                          <td>{ytdData?.Coverage_YTD}</td>
-                          <td>{ytdData?.Coverage_YTD_Score}</td>
+                          <td>5%</td><td>Team's Coverage</td><td>95%</td>
+                          <td>{beData?.Coverage2}</td><td>{beData?.Coverage_Score2}</td>
+                          <td>{ytdData?.Coverage_YTD}</td><td>{ytdData?.Coverage_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>Team's Compliance</td>
-                          <td>90%</td>
-                          <td>{beData?.Compliance2}</td>
-                          <td>{beData?.Compliance_Score2}</td>
-                          <td>{ytdData?.Compliance_YTD}</td>
-                          <td>{ytdData?.Compliance_YTD_Score}</td>
+                          <td>5%</td><td>Team's Compliance</td><td>90%</td>
+                          <td>{beData?.Compliance2}</td><td>{beData?.Compliance_Score2}</td>
+                          <td>{ytdData?.Compliance_YTD}</td><td>{ytdData?.Compliance_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>Marketing Implementation (inputs for >30 Days)</td>
-                          <td>100%</td>
-                          <td>{beData?.Marketing_Implementation_FTM}</td>
-                          <td>{beData?.Marketing_Implementation_FTM_Score}</td>
-                          <td>{ytdData?.Marketing_Implementation_YTD}</td>
-                          <td>{ytdData?.Marketing_Implementation_YTD_Score}</td>
+                          <td>5%</td><td>Marketing Implementation (inputs for >30 Days)</td><td>100%</td>
+                          <td>{beData?.Marketing_Implementation_FTM}</td><td>{beData?.Marketing_Implementation_FTM_Score}</td>
+                          <td>{ytdData?.Marketing_Implementation_YTD}</td><td>{ytdData?.Marketing_Implementation_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>% Tty MSP Compliance (vs Target)</td>
-                          <td>100%</td>
-                          <td>{beData?.MSP_Compliance_FTM}</td>
-                          <td>{beData?.MSP_Compliance_FTM_Score}</td>
-                          <td>{ytdData?.MSP_Compliance_YTD}</td>
-                          <td>{ytdData?.MSP_Compliance_YTD_Score}</td>
+                          <td>5%</td><td>% Tty MSP Compliance (vs Target)</td><td>100%</td>
+                          <td>{beData?.MSP_Compliance_FTM}</td><td>{beData?.MSP_Compliance_FTM_Score}</td>
+                          <td>{ytdData?.MSP_Compliance_YTD}</td><td>{ytdData?.MSP_Compliance_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>Dr. Conversion (Self Prio)</td>
-                          <td>100%</td>
-                          <td>{beData?.Priority_RX_Drs_FTM}</td>
-                          <td>{beData?.Priority_RX_Drs_FTM_Score}</td>
-                          <td>{ytdData?.Priority_RX_Drs_YTD}</td>
-                          <td>{ytdData?.Priority_RX_Drs_YTD_Score}</td>
+                          <td>5%</td><td>Dr. Conversion (Self Prio)</td><td>100%</td>
+                          <td>{beData?.Priority_RX_Drs_FTM}</td><td>{beData?.Priority_RX_Drs_FTM_Score}</td>
+                          <td>{ytdData?.Priority_RX_Drs_YTD}</td><td>{ytdData?.Priority_RX_Drs_YTD_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>5%</td>
-                          <td>% Tty MSR Compliance (vs Sec)</td>
-                          <td>100%</td>
-                          <td>{beData?.MSR_Comp_FTM}</td>
-                          <td>{beData?.MSR_Comp_FTM_Score}</td>
-                          <td>{ytdData?.MSR_Compliance_YTD}</td>
-                          <td>{ytdData?.MSR_Compliance_YTD_Score}</td>
+                          <td>5%</td><td>% Tty MSR Compliance (vs Sec)</td><td>100%</td>
+                          <td>{beData?.MSR_Comp_FTM}</td><td>{beData?.MSR_Comp_FTM_Score}</td>
+                          <td>{ytdData?.MSR_Compliance_YTD}</td><td>{ytdData?.MSR_Compliance_YTD_Score}</td>
                         </tr>
-
                         <tr className="shade">
-                          <td>40%</td>
-                          <td>Effort Score</td>
+                          <td>40%</td><td>Effort Score</td><td>-</td>
+                          <td>-</td><td><b>{fmt(totalFTDScore)}</b></td><td>-</td><td><b>{fmt(totalYTDScore)}</b></td>
+                        </tr>
+                      </>
+                    ) : userRole === "BL" ? (
+                      <>
+                        <tr>
+                          <td>5%</td>
+                          <td>% of proposed candidates Approved by<br/>BHR vs Submitted to BHR by BL</td>
+                          <td>100%</td>
+                          <td>{beData?.Hiring_Quality_Index}</td>
+                          <td>{beData?.Hiring_Quality_Index_Score}</td>
+                          <td>{ytdData?.Hiring_Quality_Index}</td>
+                          <td>{ytdData?.Hiring_Quality_Index_Score}</td>
+                        </tr>
+                        <tr>
+                          <td>5%</td>
+                          <td>*% of New Joinees Clearing induction in Pravesh</td>
+                          <td>90%</td>
+                          <td>{beData?.Induction}</td>
+                          <td>{beData?.Induction_Score}</td>
+                          <td>{ytdData?.Induction}</td>
+                          <td>{ytdData?.Induction_Score}</td>
+                        </tr>
+                        <tr>
+                          <td>5%</td>
+                          <td>*Infant attrition rate (within 180 days)</td>
+                          <td>20%</td>
+                          <td>{beData?.Infant_Attrition_Rate}</td>
+                          <td>{beData?.Infant_Attrition_Rate_Score}</td>
+                          <td>{ytdData?.Infant_Attrition_Rate}</td>
+                          <td>{ytdData?.Infant_Attrition_Rate_Score}</td>
+                        </tr>
+                        <tr>
+                          <td>5%</td>
+                          <td>Overall attrition rate (Annual rate in current FY)</td>
+                          <td>20%</td>
+                          <td>{beData?.Overall_Attrition_Rate}</td>
+                          <td>{beData?.Overall_Attrition_Rate_Score}</td>
+                          <td>{ytdData?.Overall_Attrition_Rate}</td>
+                          <td>{ytdData?.Overall_Attrition_Rate_Score}</td>
+                        </tr>
+                        <tr className="shade">
+                          <td>20%</td>
+                          <td><b>Team Building Score</b></td>
+                          <td>20%</td>
                           <td>-</td>
+                          <td><b>{fmt(totalFTDScore)}</b></td>
                           <td>-</td>
-                          <td>{totalFTDScore}</td>
-                          <td>-</td>
-                          <td><b>{totalYTDScore}</b></td>
+                          <td><b>{fmt(totalYTDScore)}</b></td>
                         </tr>
                       </>
                     ) : (
+                      // BE
                       <>
                         <tr>
-                          <td>10%</td>
-                          <td>Calls</td>
-                          <td>240</td>
-                          <td>{beData?.Doctor_Calls}</td>
-                          <td>{beData?.Calls_Score}</td>
-                          <td>{ytdData?.Doctor_Calls}</td>
-                          <td>{ytdData?.Calls_Score}</td>
+                          <td>10%</td><td>Calls</td><td>240</td>
+                          <td>{beData?.Doctor_Calls}</td><td>{beData?.Calls_Score}</td>
+                          <td>{ytdData?.Doctor_Calls}</td><td>{ytdData?.Calls_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>10%</td>
-                          <td>Coverage %</td>
-                          <td>95</td>
-                          <td>{beData?.Coverage}</td>
-                          <td>{beData?.Coverage_Score}</td>
-                          <td>{ytdData?.Coverage}</td>
-                          <td>{ytdData?.Coverage_Score}</td>
+                          <td>10%</td><td>Coverage %</td><td>95</td>
+                          <td>{beData?.Coverage}</td><td>{beData?.Coverage_Score}</td>
+                          <td>{ytdData?.Coverage}</td><td>{ytdData?.Coverage_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>10%</td>
-                          <td>Compliance %</td>
-                          <td>90</td>
-                          <td>{beData?.Compliance}</td>
-                          <td>{beData?.Compliance_Score}</td>
-                          <td>{ytdData?.Compliance}</td>
-                          <td>{ytdData?.Compliance_Score}</td>
+                          <td>10%</td><td>Compliance %</td><td>90</td>
+                          <td>{beData?.Compliance}</td><td>{beData?.Compliance_Score}</td>
+                          <td>{ytdData?.Compliance}</td><td>{ytdData?.Compliance_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>10%</td>
-                          <td>RCPA %</td>
-                          <td>100</td>
-                          <td>{beData?.Chemist_Met}</td>
-                          <td>{beData?.RCPA_Score}</td>
-                          <td>{ytdData?.Chemist_Met}</td>
-                          <td>{ytdData?.RCPA_Score}</td>
+                          <td>10%</td><td>RCPA %</td><td>100</td>
+                          <td>{beData?.Chemist_Met}</td><td>{beData?.RCPA_Score}</td>
+                          <td>{ytdData?.Chemist_Met}</td><td>{ytdData?.RCPA_Score}</td>
                         </tr>
-
                         <tr>
-                          <td>10%</td>
-                          <td>Activity Implementation %</td>
-                          <td>100</td>
-                          <td>{beData?.Activity_Implementation}</td>
-                          <td>{beData?.Activity_Implementation_Score}</td>
-                          <td>{ytdData?.Activity_Implementation}</td>
-                          <td>{ytdData?.Activity_Implementation_Score}</td>
+                          <td>10%</td><td>Activity Implementation %</td><td>100</td>
+                          <td>{beData?.Activity_Implementation}</td><td>{beData?.Activity_Implementation_Score}</td>
+                          <td>{ytdData?.Activity_Implementation}</td><td>{ytdData?.Activity_Implementation_Score}</td>
                         </tr>
-
                         <tr className="shade">
-                          <td>50%</td>
-                          <td>Effort Score</td>
-                          <td>-</td>
-                          <td>-</td>
-                          <td>{totalFTDScore}</td>
-                          <td>-</td>
-                          <td><b>{totalYTDScore}</b></td>
+                          <td>50%</td><td>Effort Score</td><td>-</td>
+                          <td>-</td><td><b>{fmt(totalFTDScore)}</b></td><td>-</td><td><b>{fmt(totalYTDScore)}</b></td>
                         </tr>
                       </>
                     )}
@@ -299,283 +302,9 @@ export default function UserPerformance() {
                 </table>
               </div>
             </div>
-
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-//   <div
-//       className='table-box'
-//       >
-
-//         {userRole === 'BM' && (
-         
-
-// <div className="table-container">
-//   {name && <Subnavbar />}
-//   <h3 style={{ textAlign: 'center' }}>Efforts and Effectiveness </h3>
-//   <table className="custom-table">
-//     <thead>
-//       <tr>
-//         <th>Parameter</th>
-//         <th>Objective(%)</th>
-//         <th>Month(%)</th>
-//         <th>YTD(%)</th>
-//       </tr>
-//     </thead>
-//     <tbody>
-//       <tr>
-//         <td>Self priority customer Cov</td>
-//         <td>NA</td>
-//         <td>{beData.Calls}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Team's Coverage</td>
-//         <td>NA</td>
-//         <td>{beData.Coverage}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Team's compliance</td>
-//         <td>NA</td>
-//         <td>{beData.Compliance}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Mkting Impl(No inv &gt; 30 Days)</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Coaching days(No of BE X 5)</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Coaching days(No of BE X 5)</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>MSP Compliance(Vs OBJ)</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>TP Adherence Self & Team</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Coaching Score</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>% Tty MSR Compliant(Vs Sec)</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>No of Calls Self</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Self Learning Score</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Team Learning Score</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr className='shade'>
-//         <td>Effort Score</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//     </tbody>
-//   </table>
-// </div>
-
-
-      
-
-//         )}
-//         {userRole === 'BL' && (
-        
-
-//             <div className="table-container">
-//                {name && <Subnavbar/>}
-//               <h3 style={{ textAlign: 'center' }}>Team Building & Development</h3>
-
-//               <table className="custom-table">
-//                 <thead>
-//                   <tr>
-//                     <th>weightage</th>
-//                     <th>Parameter</th>
-//                     <th>Description</th>
-//                     <th>Objective</th>
-//                     <th>Month Actual</th>
-//                     <th>YTD</th>
-//                   </tr>
-//                 </thead>
-//                 <tbody>
-//                   <tr>
-//                     <td>15%</td> {/* ✅ Show role here */}
-//                     <td>Hiring Quality Index</td>
-//                     <td>% of proposed candidates Approved by BHR vs Submitted to BHR by BL</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Induction Score</td>
-//                     <td>*% of New Joinees Clearing induction in Pravesh</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>15%</td> {/* ✅ Show role here */}
-//                     <td>Team Stability IndexI</td>
-//                     <td>*Infant attrition rate (within 180 days)</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Team Stability IndexI</td>
-//                     <td>*Avg. vacancy filling time (in days)</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Team Stability IndexI</td>
-//                     <td>Overall retention rate (Annual rate in current FY)</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Team Development Index</td>
-//                     <td>*% BM certification level change of L1, L2, L3 (10, 20,30 Points)</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Team Development Index</td>
-//                     <td>*% BE certification level change of L1, L2, L3 (10, 20,30 Points)</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Talent Pool Strength</td>
-//                     <td>*No. of pre-assesed internal candidates for promotion</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr>
-//                     <td>0%</td> {/* ✅ Show role here */}
-//                     <td>Talent Pool Strength</td>
-//                     <td>No of Candedates Data availabale for Vaccancies</td>
-//                     <td>100%</td>
-//                     <td>33%</td>
-//                     <td>70%</td>
-//                   </tr>
-//                   <tr className='shade'>
-//                     <td></td>
-//                     <td>Team Building Score</td>
-//                     <td></td><td></td>
-//                     <td></td>
-
-
-//                     <td>68%</td>
-//                   </tr>
-//                 </tbody>
-//               </table>
-//              </div>
-
-        
-
-//         )}
-
-// {(userRole === "BE" || userRole==='TE')&& (
-//  <div className="table-container">
-//   {name && <Subnavbar />}
-//   <h3 style={{ textAlign: "center" }}>Efforts and Effectiveness </h3>
-//   <table className="custom-table">
-//     <thead>
-//       <tr>
-//         <th>Parameter</th>
-//         <th>Objective(%)</th>
-//         <th>Month(%)</th>
-//         <th>YTD(%)</th>
-//       </tr>
-//     </thead>
-//     <tbody>
-//       <tr>
-//         <td>Calls</td>
-//         <td>NA</td>
-//         <td>{beData.Calls}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Coverage</td>
-//         <td>NA</td>
-//         <td>{beData.Coverage}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Compliance</td>
-//         <td>NA</td>
-//         <td>{beData.Compliance}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr>
-//         <td>Chemist_Calls</td>
-//         <td>NA</td>
-//         <td>{beData.Chemist_Calls}</td>
-//         <td>NA</td>
-//       </tr>
-//       <tr className="shade">
-//         <td>Effort Score</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//         <td>NA</td>
-//       </tr>
-//     </tbody>
-//   </table>
-// </div>
-
-// )}
-
-
-//       </div>

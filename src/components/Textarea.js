@@ -25,7 +25,6 @@ const fetchEmpNameByTerritory = async () => {
   try {
     const res = await fetch(`https://review-backend-bgm.onrender.com/emp-name/${decoded}`);
     const data = await res.json();
-    console.log("Fetched Emp Name:", data.Emp_Name);
     return data.Emp_Name || null;
   } catch (error) {
     console.error("Error fetching Emp Name:", error);

@@ -1,11 +1,6 @@
-import React from 'react'
-import Navbar from './Navbar'
+import React, { useState, useEffect } from 'react';
+
 import { useRole } from './RoleContext';
-import { useState, useEffect } from 'react';
-import ActualCommit from './ActualCommit';
-import Subnavbar from './Subnavbar';
-import Textarea from './Textarea';
-import { useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; 
@@ -14,310 +9,226 @@ import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function Commitment() {
- const navigate = useNavigate();
+  const navigate = useNavigate();
   
- 
+  const [blData, setBlData] = useState(null);
+  const [blYtdData, setBlYtdData] = useState(null);
 
-  const { role, setRole, name, setName } = useRole();
-  const handleSubmit = (text) => {
-    console.log("ABC Submitted:", text);
+  const { role } = useRole();
+  
+  // decode base64 -> original territory
+  const { decoded, encoded } = useEncodedTerritory();
 
+  const HomePage = () => {
+    navigate(`/FinalReport?ec=${encoded}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-          //  const terr=localStorage.getItem("empterr");
-     
-        
-             // decode base64 -> original territory
-             const {decoded,encoded} = useEncodedTerritory();
-  const [beData, setBeData] = useState({
-      Chemist_Calls: "",
-      Compliance: "",
-      Coverage: "",
-      Calls: ""
-    });
 
-      const selection = (metric) => {
-      
-    window.scrollTo({ top: 0, behavior: "smooth" });
-
-   
-      navigate(`/Selection?ec=${encoded}&metric=${metric}`);
-       
-  };
-    const ClickableCell = ({ value, metric }) => (
-    <span
-      onClick={() => selection(metric)}
-      style={{ cursor: "pointer", display: "inline-block" }}
-    >
-      {value}
-    </span>
-  );
-    const HomePage = () => {
-      
-      navigate(`/FinalReport?ec=${encoded}`);
-    
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-    const HeadingWithHome = ({ level, children }) => {
-      const HeadingTag = "h3"
-      return (
-        <div
+  const HeadingWithHome = ({ level, children }) => {
+    const HeadingTag = "h3";
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: "10px"
+        }}
+      >
+        <HeadingTag style={{ margin: 0, textAlign: "center" }}>
+          {children}
+        </HeadingTag>
+        <button
           style={{
-           display: "flex", justifyContent: "center", alignItems: "center", gap: "10px"
+            background: "none",
+            border: "none",
+            color: "black",
+            fontSize: "16px",
+            cursor: "pointer",
+            padding: 0
           }}
+          onClick={HomePage}
         >
-          <HeadingTag style={{ margin: 0, textAlign: "center" }}>
-            {children}
-          </HeadingTag>
-          <button
-            style={{
-             background: "none",
-          border: "none",
-          color: "black",
-          fontSize: "16px",
-          cursor: "pointer",
-          padding: 0
-            }}
-            onClick={HomePage}
-          >
-            <FontAwesomeIcon icon={faAnglesLeft} size="1x" />
-          </button>
-        </div>
-      );
-    };
-  
+          <FontAwesomeIcon icon={faAnglesLeft} size="1x" />
+        </button>
+      </div>
+    );
+  };
+
   useEffect(() => {
-    if (role && decoded) {
-      
-      const fetchData = async () => {
+    if (!decoded) return;
+
+    const loadAll = async () => {
+      try {
+        NProgress.start();
         
-        try {
-          NProgress.start();
-          const response = await fetch("https://review-backend-bgm.onrender.com/hierarchy-kpi", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ empterr:decoded })
-          });
-  
-          const data = await response.json();
-          if (response.ok && data[decoded]) {
-            // 👇 Pick BE/BM/BL node based on current territory
-            const node = data[decoded];
-            setBeData({
-              Chemist_Calls: node.metrics.Chemist_Calls || 0,
-              Compliance: node.metrics.Compliance || 0,
-              Coverage: node.metrics.Coverage || 0,
-              Calls: node.metrics.Calls || 0
-            });
-          }
-        } catch (err) {
-          console.error("API error:", err);
+        if (role === 'BL') {
+          const [blRes, blYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/blDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/blDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const blJson = await blRes.json();
+          const blYtdJson = await blYtdRes.json();
+
+          console.log("BL Data fetched:", blJson);
+          console.log("BL YTD Data fetched:", blYtdJson);
+
+          if (blRes.ok) setBlData(blJson);
+          if (blYtdRes.ok) setBlYtdData(blYtdJson);
         }
-        finally{
-          NProgress.done();
-        }
-      };
-  
-      fetchData();
-    }
-  }, [role, decoded]);
-  
+      } catch (err) {
+        console.error("API error:", err);
+      } finally {
+        NProgress.done();
+      }
+    };
+
+    loadAll();
+  }, [decoded, role]);
+
+  // ------------------------------------------------
+  //          COMMITMENT TOTAL SCORES (NEW)
+  // ------------------------------------------------
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
+
+  const totalFTMScore =
+    (Number(blData?.Team_Coverage_Score) || 0) +
+    (Number(blData?.Team_Compliance_Score) || 0) +
+    (Number(blData?.BM_Priority_Drs_Coverage_Score) || 0) +
+    (Number(blData?.TP_Adherence_Score) || 0) +
+    (Number(blData?.Secondary_Variance_Score) || 0) +
+    (Number(blData?.MSP_Compliance_Territories_Score) || 0) +
+    (Number(blData?.MSR_Compliance_Territories_Score) || 0);
+
+  const totalYTDScore =
+    (Number(blYtdData?.Team_Coverage_Score) || 0) +
+    (Number(blYtdData?.Team_Compliance_Score) || 0) +
+    (Number(blYtdData?.BM_Priority_Drs_Coverage_Score) || 0) +
+    (Number(blYtdData?.TP_Adherence_Score) || 0) +
+    (Number(blYtdData?.Secondary_Variance_Score) || 0) +
+    (Number(blYtdData?.MSP_Compliance_Territories_Score) || 0) +
+    (Number(blYtdData?.MSR_Compliance_Territories_Score) || 0);
+
   return (
     <div>
-    
-       <div className="table-box">
-        {(role === 'bl' ) && (
-          <div className="table-container">
-  {/* {name && <Subnavbar />} */}
-                              <HeadingWithHome level="h3">Compliance & Reporting</HeadingWithHome>
+      <div className='table-box'>
+        {role === "BL" && (
+          <div className="efficiency-container">
+            <HeadingWithHome level="h1">
+              Compliance & Reporting
+            </HeadingWithHome>
 
+            <div className="efficiency-table-container">
+              <div className="efficiency-table-scroll">
+                <table className="efficiency-table">
+                  <thead>
+                    <tr>
+                      <th>Weightage</th>
+                      <th>Description</th>
+                      <th>Objective</th>
+                      <th>Month</th>
+                      <th>Month Score</th>
+                      <th>YTD</th>
+                      <th>YTD Score</th>
+                    </tr>
+                  </thead>
 
-  <table className="custom-table" style={{ fontSize: '12px' }}>
-    <thead>
-      <tr>
-        <th>weightage</th>
-        <th>Parameter</th>
-        <th>Description</th>
-        <th>Objective(%)</th>
-        <th>Month Actual</th>
-        <th>YTD(%)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>88</td>
-        <td>TP Adherence Score</td>
-        <td>% adherence to TP</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-      </tr>
-      <tr>
-        <td>88</td>
-        <td>Reporting Integrity Index</td>
-        <td>Accuracy of SFA-reported data</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-      </tr>
-      <tr>
-        <td>88</td>
-        <td>SFPI</td>
-        <td>Team's Customer Coverage</td>
-        <td>NA</td>
-        <td><ClickableCell value={beData.Coverage} metric="Coverage" /></td>
-        <td>NA</td>
-      </tr>
-      <tr>
-        <td>88</td>
-        <td>SFPI</td>
-        <td>Team's Customer Compliance</td>
-        <td>NA</td>
-        <td><ClickableCell value={beData.Compliance} metric="Compliance" /></td>
-        <td>NA</td>
-      </tr>
-      <tr>
-        <td>88</td>
-        <td>MSPR Compliance</td>
-        <td>% accuracy of MSP (for HQ) vs Objective taken cumulatively by BL</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-      </tr>
-      <tr>
-        <td>88</td>
-        <td>MSPR Compliance</td>
-        <td>% of headquarters having MSR compliance with respect to Average Secondary Sales</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-      </tr>
-      <tr>
-        <td>88</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-      </tr>
-      <tr className='shade'>
-        <td>NA</td>
-        <td>Compliance & Reporting Score</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-        <td>NA</td>
-      </tr>
-    </tbody>
-  </table>
-  {/* {name && <Textarea onsubmit={handleSubmit} />} */}
-</div>
-          
+                  <tbody>
+                    <tr>
+                      <td>3%</td>
+                      <td>Team's Customer Coverage</td>
+                      <td>95%</td>
+                      <td>{blData?.Team_Coverage}</td>
+                      <td>{blData?.Team_Coverage_Score}</td>
+                      <td>{blYtdData?.Team_Coverage}</td>
+                      <td>{blYtdData?.Team_Coverage_Score}</td>
+                    </tr>
+
+                    <tr>
+                      <td>3%</td>
+                      <td>Team's Customer Compliance</td>
+                      <td>90%</td>
+                      <td>{blData?.Team_Compliance}</td>
+                      <td>{blData?.Team_Compliance_Score}</td>
+                      <td>{blYtdData?.Team_Compliance}</td>
+                      <td>{blYtdData?.Team_Compliance_Score}</td>
+                    </tr>
+
+                    <tr>
+                      <td>4%</td>
+                      <td>BMs Priority doctor coverage</td>
+                      <td>100%</td>
+                      <td>{blData?.BM_Priority_Drs_Coverage}</td>
+                      <td>{blData?.BM_Priority_Drs_Coverage_Score}</td>
+                      <td>{blYtdData?.BM_Priority_Drs_Coverage}</td>
+                      <td>{blYtdData?.BM_Priority_Drs_Coverage_Score}</td>
+                    </tr>
+
+                    <tr>
+                      <td>3%</td>
+                      <td>% adherence to TP</td>
+                      <td>95%</td>
+                      <td>{blData?.TP_Adherence}</td>
+                      <td>{blData?.TP_Adherence_Score}</td>
+                      <td>{blYtdData?.TP_Adherence}</td>
+                      <td>{blYtdData?.TP_Adherence_Score}</td>
+                    </tr>
+
+                    <tr>
+                      <td>3%</td>
+                      <td>Secondary variance</td>
+                      <td>10%</td>
+                      <td>{blData?.Secondary_Variance}</td>
+                      <td>{blData?.Secondary_Variance_Score}</td>
+                      <td>{blYtdData?.Secondary_Variance}</td>
+                      <td>{blYtdData?.Secondary_Variance_Score}</td>
+                    </tr>
+
+                    <tr>
+                      <td>2%</td>
+                      <td>% of headquarters MSP (for HQ) vs Target taken cumulatively by BL</td>
+                      <td>90%</td>
+                      <td>{blData?.MSP_Compliance_Territories}</td>
+                      <td>{blData?.MSP_Compliance_Territories_Score}</td>
+                      <td>{blYtdData?.MSP_Compliance_Territories}</td>
+                      <td>{blYtdData?.MSP_Compliance_Territories_Score}</td>
+                    </tr>
+
+                    <tr>
+                      <td>2%</td>
+                      <td>% of headquarters having MSR compliance with respect to Average Secondary Sales</td>
+                      <td>90%</td>
+                      <td>{blData?.MSR_Compliance_Territories}</td>
+                      <td>{blData?.MSR_Compliance_Territories_Score}</td>
+                      <td>{blYtdData?.MSR_Compliance_Territories}</td>
+                      <td>{blYtdData?.MSR_Compliance_Territories_Score}</td>
+                    </tr>
+
+                    <tr className="shade">
+                      <td>20%</td>
+                      <td><b>Compliance & Reporting Score</b></td>
+                      <td>20%</td>
+                      <td>-</td>
+                      <td><b>{fmt(totalFTMScore)}</b></td>
+                      <td>-</td>
+                      <td><b>{fmt(totalYTDScore)}</b></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
-         {(role === 'bh' || role==='sbuh' ) && (
-          <div className="table-container">
-                               <HeadingWithHome level="h3">Activity and Productivity</HeadingWithHome>
-
-  <table className="custom-table">
-    <thead>
-      <tr>
-        <th>Parameter</th>
-        <th>Description</th>
-        <th>Objective</th>
-        <th>Month</th>
-        <th>YTD</th>
-        <th>Month Val</th>
-        <th>YTD Val</th>
-        <th>Month</th>
-        <th>YTD</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      {/* SFPI Section */}
-      <tr>
-        <td rowSpan="3">SFPI</td>
-        <td>No of Calls done (Self)</td>
-        <td>180</td>
-        <td >102</td>
-        <td >89</td>
-        <td>102.00</td>
-        <td>89.00</td>
-        <td>5.00%</td>
-        <td>5.00%</td>
-      </tr>
-      <tr>
-        <td>Team's Customer Coverage</td>
-        <td>95%</td>
-        <td >75%</td>
-        <td >72%</td>
-        <td><ClickableCell value={beData.Coverage} metric="Coverage" /></td>
-        <td>71.74</td>
-        <td>2.24%</td>
-        <td>2.15%</td>
-      </tr>
-      <tr>
-        <td>Team's Customer Compliance</td>
-        <td>90%</td>
-        <td >55%</td>
-        <td >51%</td>
-        <td><ClickableCell value={beData.Compliance} metric="Compliance" /></td>
-        <td>51.34</td>
-        <td>1.66%</td>
-        <td>1.54%</td>
-      </tr>
-
-      {/* Corporate Customer Section */}
-      <tr>
-        <td rowSpan="3">Corporate Customer Engagement & Conversion Score</td>
-        <td>% of corporate doctors visited/2 months (Out of 100 Selected)</td>
-        <td>90%</td>
-        <td >42%</td>
-        <td >23%</td>
-        <td>42.00</td>
-        <td>23.00</td>
-        <td>1.40%</td>
-        <td>0.77%</td>
-      </tr>
-      <tr>
-        <td>% of Corporate doctors in active prescriber category</td>
-        <td>90%</td>
-        <td >4%</td>
-        <td >4%</td>
-        <td>4.00</td>
-        <td>4.00</td>
-        <td>0.12%</td>
-        <td>0.12%</td>
-      </tr>
-      <tr>
-        <td>Priority Customer Coverage of BM</td>
-        <td>90%</td>
-        <td >92%</td>
-        <td >80%</td>
-        <td>92.20</td>
-        <td>80.20</td>
-        <td>3.00%</td>
-        <td>2.67%</td>
-      </tr>
-
-      {/* Performance Score Footer */}
-      <tr className="shade">
-        <td colSpan="2"><b>Performance Score</b></td>
-        <td><b>20%</b></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><b>13%</b></td>
-        <td><b>12%</b></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-        )}
-       </div>
+      </div>
     </div>
   )
 }
-
-

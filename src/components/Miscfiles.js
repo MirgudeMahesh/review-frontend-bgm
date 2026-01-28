@@ -1,31 +1,23 @@
 import React, { useState, useEffect } from 'react';
-
-// ------------------------Hygiene---------------------
-import { useLocation, useNavigate } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
 import { useRole } from './RoleContext';
-
-import 'nprogress/nprogress.css';
 import NProgress from 'nprogress';
-
+import 'nprogress/nprogress.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faAnglesLeft } from '@fortawesome/free-solid-svg-icons';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function Miscfiles() {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const { role, setRole, name, setName } = useRole();
-
+  const { role } = useRole();
   const { decoded, encoded } = useEncodedTerritory();
 
   const [bmBeData, setBmBeData] = useState(null);
   const [bmYtdData, setBmYtdData] = useState(null);
+  const [blData, setBlData] = useState(null);
+  const [blYtdData, setBlYtdData] = useState(null);
 
-  const handleSubmit = (text) => {
-    console.log("ABC Submitted:", text);
-  };
+  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
   const HomePage = () => {
     navigate(`/FinalReport?ec=${encoded}`);
@@ -63,61 +55,94 @@ export default function Miscfiles() {
     );
   };
 
-  // ------------------------------------------------
-  //       Fetch BM Hygiene Data (BM only)
-  // ------------------------------------------------
   useEffect(() => {
     if (!decoded) return;
-    if (role !== 'BM') return;
 
-    const loadBMHygiene = async () => {
+    const loadAll = async () => {
       try {
         NProgress.start();
 
-        const [bmBeRes, bmYtdRes] = await Promise.all([
-          fetch("https://review-backend-bgm.onrender.com/bmDashboardData", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ Territory: decoded }),
-          }),
-          fetch("https://review-backend-bgm.onrender.com/bmDashboardytdData", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ Territory: decoded }),
-          }),
-        ]);
+        if (role === 'BM') {
+          const [bmBeRes, bmYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/bmDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/bmDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
 
-        const bmBeJson = await bmBeRes.json();
-        const bmYtdJson = await bmYtdRes.json();
+          const bmBeJson = await bmBeRes.json();
+          const bmYtdJson = await bmYtdRes.json();
 
-        console.log("BM Hygiene BE data:", bmBeJson);
-        console.log("BM Hygiene YTD data:", bmYtdJson);
+          console.log("BM Hygiene BE data:", bmBeJson);
+          console.log("BM Hygiene YTD data:", bmYtdJson);
 
-        if (bmBeRes.ok) setBmBeData(bmBeJson);
-        if (bmYtdRes.ok) setBmYtdData(bmYtdJson);
+          if (bmBeRes.ok) setBmBeData(bmBeJson);
+          if (bmYtdRes.ok) setBmYtdData(bmYtdJson);
+        }
+        else if (role === 'BL') {
+          const [blRes, blYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/blDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/blDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const blJson = await blRes.json();
+          const blYtdJson = await blYtdRes.json();
+
+          console.log("BL Hygiene BE Data fetched:", blJson);
+          console.log("BL Hygiene YTD Data fetched:", blYtdJson);
+
+          if (blRes.ok) setBlData(blJson);
+          if (blYtdRes.ok) setBlYtdData(blYtdJson);
+        }
       } catch (err) {
-        console.error("BM Hygiene API error:", err);
+        console.error("API error:", err);
       } finally {
         NProgress.done();
       }
     };
 
-    loadBMHygiene();
+    loadAll();
   }, [decoded, role]);
 
-  const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
-
-  // Sum of Month_Score column (BM hygiene)
+  // ------------------------------------------------
+  // BM HYGIENE TOTAL SCORES
+  // ------------------------------------------------
   const bmHygieneMonthScoreTotal =
     (Number(bmBeData?.Outstanding_FTM_Score) || 0) +
     (Number(bmBeData?.Returns_Percent_FTM_Score) || 0) +
     (Number(bmBeData?.CA_FTM_Score) || 0) +
     (Number(bmBeData?.Closing_FTM_Score) || 0);
 
-  // Sum of YTD_Score column
   const bmHygieneYTDScoreTotal =
     (Number(bmYtdData?.Returns_Percent_YTD_Score) || 0) +
     (Number(bmYtdData?.CA_Percent_YTD_Score) || 0);
+
+  // ------------------------------------------------
+  // BL HYGIENE TOTAL SCORES (NEW)
+  // ------------------------------------------------
+  const blHygieneMonthScoreTotal =
+    (Number(blData?.Returns_Score) || 0) +
+    (Number(blData?.Outstanding_Score) || 0) +
+    (Number(blData?.Marketing_Activity_Sales_Score) || 0) +
+    (Number(blData?.Closing_Score) || 0);
+
+  const blHygieneYTDScoreTotal =
+    (Number(blYtdData?.Returns_Score) || 0) +
+    (Number(blYtdData?.Marketing_Activity_Sales_Score) || 0);
 
   return (
     <div>
@@ -208,107 +233,78 @@ export default function Miscfiles() {
           </div>
         )}
 
-        {/* BL view – old table but wrapped in card for consistency */}
-        {role === 'bl' && (
+        {/* BL view – Hygiene card */}
+        {role === "BL" && (
           <div className="table-container">
             <div className="efficiency-container">
               <HeadingWithHome level="h1">
-                Business Hygiene &amp; Demand Quality
+                Business Hygiene & Demand Quality
               </HeadingWithHome>
 
               <div className="efficiency-table-container">
                 <div className="efficiency-table-scroll">
-                  <table className="efficiency-table" style={{ fontSize: '12px' }}>
+                  <table className="efficiency-table">
                     <thead>
                       <tr>
                         <th>Weightage</th>
-                        <th>Parameter</th>
                         <th>Description</th>
-                        <th>Objective(%)</th>
-                        <th>Month Actual</th>
-                        <th>YTD(%)</th>
+                        <th>Objective</th>
+                        <th>Month</th>
+                        <th>Month Score</th>
+                        <th>YTD</th>
+                        <th>YTD Score</th>
                       </tr>
                     </thead>
+
                     <tbody>
                       <tr>
-                        <td>88</td>
-                        <td>Return Ratio</td>
-                        <td>% of Returns as % of secondary sales (Objective 2%)</td>
-                        <td>73%</td>
-                        <td>88</td>
-                        <td>88</td>
+                        <td>3%</td>
+                        <td>% of Returns as % of secondary sales (Objective &lt;2%)</td>
+                        <td>2%</td>
+                        <td>{blData?.Returns}</td>
+                        <td>{blData?.Returns_Score}</td>
+                        <td>{blYtdData?.Returns}</td>
+                        <td>{blYtdData?.Returns_Score}</td>
                       </tr>
+
                       <tr>
-                        <td>88</td>
-                        <td>Outstanding Days</td>
-                        <td>DSO (days Sales Outstanding) per zone 30</td>
-                        <td>73%</td>
-                        <td>88</td>
-                        <td></td>
+                        <td>4%</td>
+                        <td>DSO (days Sales Outstanding) per zone &lt;30</td>
+                        <td>30</td>
+                        <td>{blData?.Outstanding}</td>
+                        <td>{blData?.Outstanding_Score}</td>
+                        <td>-</td>
+                        <td>-</td>
                       </tr>
+
                       <tr>
-                        <td>88</td>
-                        <td>Push-to-Pull Ratio</td>
-                        <td>% business driven by schemes vs organic sales 30%</td>
-                        <td>73%</td>
-                        <td>88</td>
-                        <td>88</td>
+                        <td>10%</td>
+                        <td>% business driven by marketing activity</td>
+                        <td>70%</td>
+                        <td>{blData?.Marketing_Activity_Sales}</td>
+                        <td>{blData?.Marketing_Activity_Sales_Score}</td>
+                        <td>{blYtdData?.Marketing_Activity_Sales}</td>
+                        <td>{blYtdData?.Marketing_Activity_Sales_Score}</td>
                       </tr>
+
                       <tr>
-                        <td>88</td>
-                        <td>Closing Stock Index</td>
-                        <td>*Avg. closing stock in days (should be ≤30days)</td>
-                        <td>73%</td>
-                        <td>88</td>
-                        <td></td>
+                        <td>3%</td>
+                        <td>* Avg. closing stock in days (should be ≤45days)</td>
+                        <td>45</td>
+                        <td>{blData?.Closing}</td>
+                        <td>{blData?.Closing_Score}</td>
+                        <td>-</td>
+                        <td>-</td>
                       </tr>
-                      <tr>
-                        <td>88</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>88</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>88</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>88</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr>
-                        <td>88</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                      <tr className='shade'>
-                        <td></td>
-                        <td>Performance Score</td>
-                        <td></td>
-                        <td>20</td>
-                        <td></td>
-                        <td>88</td>
+
+                      <tr className="shade">
+                        <td>20%</td>
+                        <td><b>Business Hygiene & Demand Quality Score</b></td>
+                        <td>20%</td>
+                        <td>-</td>
+                        <td><b>{fmt(blHygieneMonthScoreTotal)}</b></td>
+                        <td>-</td>
+                        <td><b>{fmt(blHygieneYTDScoreTotal)}</b></td>
                       </tr>
                     </tbody>
                   </table>
@@ -318,12 +314,12 @@ export default function Miscfiles() {
           </div>
         )}
 
-        {/* BH / SBUH view – wrapped similarly */}
+        {/* BH / SBUH view – Static table (no API data needed) */}
         {(role === 'bh' || role === 'sbuh') && (
           <div className="table-container">
             <div className="efficiency-container">
               <HeadingWithHome level="h3">
-                Bussiness Hygiene and Demand Quality
+                Business Hygiene and Demand Quality
               </HeadingWithHome>
 
               <div className="efficiency-table-container">
@@ -409,7 +405,6 @@ export default function Miscfiles() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

@@ -53,6 +53,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   // Fetch divisioD
   useEffect(() => {
     const fetchDivision = async () => {
+      console.log("Fetching division for decoded:", decoded);
       if (!decoded) return;
 
       try {
@@ -74,6 +75,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
         }
 
         setDivision(data.division);
+        console.log("Fetched division:", data.division);
       } catch (error) {
         console.error("Error fetching division:", error);
         setDivisionError(error.message);
@@ -169,7 +171,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
 
       const response = await fetch("https://review-backend-bgm.onrender.com/updateProductQty", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }, 
         body: JSON.stringify({
           territory: territory.trim(),
           metric_type: columnMap[metricType],
@@ -232,7 +234,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   // ---------- SIMPLIFIED: Leaf OR BM territory clickable ----------
   const isBM = (territory) => {
     if (!territory || typeof territory !== 'string') return false;
-    return territory.toUpperCase().endsWith('BM');
+    return territory.toUpperCase().endsWith('BM') || territory.toUpperCase().endsWith('BL');
   };
 
   const shouldOpenProfile = (isLeaf, territory) => 
