@@ -10,8 +10,8 @@ import Chats from "./dashboard/Chats";
 const Layout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { decoded, encoded } = useEncodedTerritory();
-  const { role, setRole, name, setName, setUser, setUserRole } = useRole();
+  const { encoded } = useEncodedTerritory();
+  const { role, setRole, setName, setUser, setUserRole } = useRole();
 
   const [showModal, setShowModal] = useState(false);
 
@@ -34,8 +34,6 @@ const Layout = () => {
     }
   }, [location.pathname, setRole, setName, setUser, setUserRole]);
 
-  const hiddenPaths = ["/"];
-  const shouldHideMainUI = hiddenPaths.includes(location.pathname);
   const isProfilePage = location.pathname.startsWith("/profile");
   const showUI = location.pathname !== "/";
 

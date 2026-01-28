@@ -5,7 +5,7 @@ export default function NotFound() {
   const location = useLocation();
 
 
-const {encoded,decoded}= useEncodedTerritory();
+const {encoded}= useEncodedTerritory();
        
     
   useEffect(() => {

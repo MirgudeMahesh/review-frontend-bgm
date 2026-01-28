@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import DrillDownTable from './DrillDownTable';
 import NProgress from 'nprogress';
-import { useLocation } from 'react-router-dom';
 import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 const DrillDownHierarchy = () => {
   const [data, setData] = useState(null);
-  const location = useLocation();
 
   // Decode base64 → original territory
   const { decoded } = useEncodedTerritory();

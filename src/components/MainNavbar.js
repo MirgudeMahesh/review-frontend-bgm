@@ -4,15 +4,12 @@ import Escalating from './Escalating';
 import { useNavigate } from "react-router-dom";
 
 import { useRole } from './RoleContext';
-import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import NProgress from 'nprogress';
 import 'nprogress/nprogress.css'; // import styles
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function Navbar() {
 const{encoded}=useEncodedTerritory();
 const location = useLocation();
-  const { role, setRole, setName, setUserRole, setUser } = useRole();
+  const { setRole, setName, setUserRole, setUser } = useRole();
  const isSelectionPage = 
   location.pathname.startsWith("/Selection") || 
   location.pathname.startsWith("/profile");
@@ -65,9 +62,6 @@ setRole('');
   }
     const [showModal, setShowModal] = useState(false);
   
-  
-    const handleOpenModal = () => setShowModal(true); 
-    const handleCloseModal = () => setShowModal(false); 
   const handleSelect = (value) => {
     switch (value) {
       case 'report':

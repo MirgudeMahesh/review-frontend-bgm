@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "../../styles.css";
-import Textarea from "../Textarea";
-import ActualCommit from "../ActualCommit";
-import Navbar from "../Navbar";
 import { useRole } from "../RoleContext";
 import Subnavbar from "../Subnavbar";
-import Chats from "./Chats";
 import NProgress from "nprogress";
 import "nprogress/nprogress.css";
 import useProfileTerritory from "../hooks/useProfileTerritory";
@@ -192,7 +188,7 @@ export default function UserPerformance() {
                           <td>{ytdData?.Compliance_YTD}</td><td>{ytdData?.Compliance_YTD_Score}</td>
                         </tr>
                         <tr>
-                          <td>5%</td><td>Marketing Implementation (inputs for >30 Days)</td><td>100%</td>
+                          <td>5%</td><td>Marketing Implementation (inputs for &gt;30 Days)</td><td>100%</td>
                           <td>{beData?.Marketing_Implementation_FTM}</td><td>{beData?.Marketing_Implementation_FTM_Score}</td>
                           <td>{ytdData?.Marketing_Implementation_YTD}</td><td>{ytdData?.Marketing_Implementation_YTD_Score}</td>
                         </tr>

@@ -9,7 +9,7 @@ import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function FinalReport() {
-  const { role, setRole, name, setName } = useRole();
+  const { setRole, setName } = useRole();
   const [score1, setScore1] = useState(null);
   const [score2, setScore2] = useState(null);
   const [score3, setScore3] = useState(null);

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles.css';
-import Navbar from '../Navbar';
-import ActualCommit from '../ActualCommit';
-import Textarea from '../Textarea';
 import Subnavbar from '../Subnavbar';
 import { useRole } from '../RoleContext';
-import Chats from './Chats';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import useProfileTerritory from '../hooks/useProfileTerritory';

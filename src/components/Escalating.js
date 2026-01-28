@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import '../styles.css' // optional if using separate CSS
 import NProgress from 'nprogress';
-import { useLocation } from 'react-router-dom';
 import 'nprogress/nprogress.css'; 
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 export default function Escalating() {
@@ -9,7 +8,6 @@ export default function Escalating() {
   const [metric, setMetric] = useState('');
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
-   const location = useLocation();
   
   
     // decode base64 -> original territory
@@ -55,7 +53,7 @@ export default function Escalating() {
           body: JSON.stringify(payload)
         })
           .then(response => response.text())
-          .then(result => {
+          .then(() => {
             setWarning(true);
             setWarntext('Message delivered');
                         

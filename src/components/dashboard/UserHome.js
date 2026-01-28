@@ -1,18 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles.css';
-import Chats from './Chats';
-import Navbar from '../Navbar';
 import Subnavbar from '../Subnavbar';
-import ActualCommit from '../ActualCommit';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { useRole } from '../RoleContext';
-import Textarea from '../Textarea';
 import useProfileTerritory from '../hooks/useProfileTerritory';
 
 const UserHome = () => {
-  const { role, userRole, name, setName } = useRole();
-  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
+  const { userRole, name: empName } = useRole();
 
   const [beData, setBeData] = useState(null);
   const [ytdData, setYtdData] = useState(null);
@@ -152,7 +147,7 @@ const UserHome = () => {
       <div className='table-box'>
         <div className="table-container">
           <div className="efficiency-container">
-            {name && <Subnavbar />}
+            {empName && <Subnavbar />}
 
             <h3 style={{ textAlign: 'center' }}>Business Performance</h3>
 

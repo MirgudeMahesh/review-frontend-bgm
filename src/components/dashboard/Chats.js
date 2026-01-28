@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Subnavbar from '../Subnavbar';
 import { useRole } from '../RoleContext';
 import '../../styles.css';
 import NProgress from 'nprogress';
@@ -7,9 +6,9 @@ import 'nprogress/nprogress.css';
 import useEncodedTerritory from '../hooks/useEncodedTerritory';
 import useProfileTerritory from '../hooks/useProfileTerritory';
 export default function Chats() {
-       const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
+       const { profileTerritory } = useProfileTerritory();       
   
-  const { role, setRole, name, setName,user} = useRole();
+  const { user } = useRole();
   const [text, setText] = useState('');
   const [results, setResults] = useState([]);
    const [warning, setWarning] = useState("");
@@ -83,7 +82,7 @@ console.log('Payload to send:', payload);
 
 useEffect(()=>{
   fetchMessages();
-},[])
+},[]);  // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     
     // Only scroll the chat box, not the entire page

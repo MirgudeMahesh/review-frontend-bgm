@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ActualCommit from '../ActualCommit';
-import Chats from './Chats';
-import Textarea from '../Textarea';
 import { useRole } from '../RoleContext';
 import Subnavbar from '../Subnavbar';
 import useProfileTerritory from '../hooks/useProfileTerritory';
@@ -10,7 +7,7 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 
 export default function UserFinalReport() {
-  const { role, setRole, userRole, name, user } = useRole();
+  const { userRole, user } = useRole();
   const { profileTerritory } = useProfileTerritory();
 
   // States matching FinalReport.js structure

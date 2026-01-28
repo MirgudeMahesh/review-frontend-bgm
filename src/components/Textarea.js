@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../styles.css';
-import { useLocation } from 'react-router-dom';
+
 import NProgress from 'nprogress';
 import { useRole } from './RoleContext';
 import 'nprogress/nprogress.css'; 
@@ -13,11 +13,10 @@ export default function Textarea() {
   const [warning, setWarning] = useState(false);
   const [warntext, setWarntext] = useState('');
   const [metric, setMetric] = useState('');
-    const location = useLocation();
-     const { profileTerritory , profileEncodedTerritory } = useProfileTerritory();       
+     const { profileTerritory } = useProfileTerritory();       
 
   
-  const { role, userRole, name, setName } = useRole();
+  const { userRole } = useRole();
   // decode base64 -> original territory
   const {decoded} = useEncodedTerritory();
 // Fetch Emp_Name from backend using territory (decoded)

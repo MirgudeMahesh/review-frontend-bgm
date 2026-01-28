@@ -7,12 +7,11 @@ import { useRole } from "./RoleContext";
 import useEncodedTerritory from "./hooks/useEncodedTerritory";
 
 export default function MyChats() {
-  const { role, setRole, name, setName, textBox } = useRole();
+  const { textBox } = useRole();
   const [text, setText] = useState("");
   const [results, setResults] = useState([]);
   const [warning, setWarning] = useState("");
   const chatBoxRef = useRef(null);
-  const location = useLocation();
 
   const { decoded } = useEncodedTerritory();
 
@@ -85,7 +84,7 @@ export default function MyChats() {
 
   useEffect(() => {
     fetchMessages();
-  }, []);
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (chatBoxRef.current) {
