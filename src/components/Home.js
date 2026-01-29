@@ -203,6 +203,7 @@ const Home = () => {
     (Number(blYtdData?.Target_Achievement_Score) || 0) +
     (Number(blYtdData?.Territories_Achieving_Target_Score) || 0) +
     (Number(blYtdData?.Territories_Achieving_Cat_A_MEP_Score) || 0) +
+    (Number(blYtdData?.Corporate_Drs_Coverage_Score) || 0) +
     (Number(blYtdData?.Category_B_Sales_Vs_Target_Score) || 0) +
     
     (Number(blYtdData?.Corporate_Drs_Active_Prescribers_Score) || 0);
@@ -443,8 +444,8 @@ const Home = () => {
                         <td>100%</td>
                         <td>{blData?.Corporate_Drs_Visited_Last_2M}</td>
                         <td>{blData?.Corporate_Drs_Visited_Last_2M_Score}</td>
-                        <td>-</td>
-                        <td>-</td>
+                        <td>{blYtdData?.Corporate_Drs_Coverage}</td>
+                        <td>{blYtdData?.Corporate_Drs_Coverage_Score}</td>
                       </tr>
 
                       <tr>

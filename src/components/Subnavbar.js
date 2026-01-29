@@ -65,7 +65,7 @@ export default function SubNavbar() {
           <option value="Review">Report</option>
           <option value="performance">Performance</option>
           <option value="Miscelaneous">Efforts</option>
-          {userRole === 'BM' && (<option value="Hygiene">Hygiene</option>)}
+          {userRole === 'BM'|| userRole === 'BL' && (<option value="Hygiene">Hygiene</option>)}
             {userRole === 'BL' && (<option value="Compliance">Compliance</option>)}
           <option value="Escalating">Commit</option>
         </select>
@@ -91,7 +91,7 @@ export default function SubNavbar() {
             Efforts
           </Link>
         </li>
-        {userRole === 'BM' && (
+        {userRole === 'BM'|| userRole === 'BL' && (
           <li>
             <Link to={`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`}>
               Hygiene
