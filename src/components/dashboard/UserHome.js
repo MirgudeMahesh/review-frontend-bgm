@@ -138,6 +138,7 @@ const UserHome = () => {
       (Number(ytdData?.Territories_Achieving_Target_Score) || 0) +
       (Number(ytdData?.Territories_Achieving_Cat_A_MEP_Score) || 0) +
       (Number(ytdData?.Category_B_Sales_Vs_Target_Score) || 0) +
+      (Number(ytdData?.Corporate_Drs_Coverage_Score) || 0) +
       (Number(ytdData?.Corporate_Drs_Active_Prescribers_Score) || 0)
     );
   }
@@ -253,8 +254,8 @@ const UserHome = () => {
                           <td>100%</td>
                           <td>{beData?.Corporate_Drs_Visited_Last_2M}</td>
                           <td>{beData?.Corporate_Drs_Visited_Last_2M_Score}</td>
-                          <td>-</td>
-                          <td>-</td>
+                          <td>{ytdData?.Corporate_Drs_Coverage}</td>
+                          <td>{ytdData?.Corporate_Drs_Coverage_Score}</td>
                         </tr>
                         <tr>
                           <td>3%</td>
