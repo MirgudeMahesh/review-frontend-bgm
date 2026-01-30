@@ -659,7 +659,8 @@ export default function Performance() {
               </tr>
 
               <tr className="shade">
-                <td colSpan={5}><b>Team & Culture Building Score</b></td>
+                <td>20%</td>
+                <td colSpan={4}><b>Team & Culture Building Score</b></td>
                 <td><b>{fmt(bhTotalFTMScore)}</b></td>
                 <td></td>
                 <td><b>{fmt(bhTotalYTDScore)}</b></td>

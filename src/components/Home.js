@@ -621,7 +621,8 @@ const Home = () => {
 
               {/* Total Row */}
               <tr className="shade">
-                <td colSpan={5}><b>Business & Brand Performance Score</b></td>
+                <td>40%</td>
+                <td colSpan={4}><b>Business & Brand Performance Score</b></td>
                 <td><b>{fmt(bhTotalFTMScore)}</b></td>
                 <td></td>
                 <td><b>{fmt(bhTotalYTDScore)}</b></td>
