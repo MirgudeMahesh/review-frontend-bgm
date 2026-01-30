@@ -616,20 +616,21 @@ export default function Performance() {
                 <td rowSpan={2}><b>Reviewing Effectiveness</b></td>
                 <td>BL Review Score</td>
                 <td>100%</td>
-                <td>{bhBeData?.MSP_Compliance_Territories}</td>
-                <td>{bhBeData?.MSP_Compliance_Territories_Score}</td>
-                <td>{bhYtdData?.MSP_Compliance_Territories}</td>
-                <td>{bhYtdData?.MSP_Compliance_Territories_Score}</td>
+                 <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
               </tr>
 
               <tr>
                 <td>0%</td>
                 <td>BM Review Score</td>
                 <td>100%</td>
-               <td>{bhBeData?.MSR_Compliance_Territories}</td>
-                <td>{bhBeData?.MSR_Compliance_Territories_Score}</td>
-                <td>{bhYtdData?.MSR_Compliance_Territories}</td>
-                <td>{bhYtdData?.MSR_Compliance_Territories_Score}</td>
+                 <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+           
               </tr>
 
               <tr>
@@ -637,20 +638,21 @@ export default function Performance() {
                 <td rowSpan={2}><b>MSR Compliance</b></td>
                 <td>% of headquarters audited</td>
                 <td>90%</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
+               
+                    <td>{bhBeData?.MSP_Compliance_Territories}</td>
+                <td>{bhBeData?.MSP_Compliance_Territories_Score}</td>
+                <td>{bhYtdData?.MSP_Compliance_Territories}</td>
+                <td>{bhYtdData?.MSP_Compliance_Territories_Score}</td>
               </tr>
 
               <tr>
                 <td>2%</td>
                 <td>% of headquarters compliant</td>
                 <td>90%</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
+                 <td>{bhBeData?.MSR_Compliance_Territories}</td>
+                <td>{bhBeData?.MSR_Compliance_Territories_Score}</td>
+                <td>{bhYtdData?.MSR_Compliance_Territories}</td>
+                <td>{bhYtdData?.MSR_Compliance_Territories_Score}</td>
               </tr>
 
               <tr>

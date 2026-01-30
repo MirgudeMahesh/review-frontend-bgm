@@ -364,8 +364,8 @@ export default function Commitment() {
                 <td>90%</td>
                 <td>{bhBeData?.Priority_Drs_Coverage}</td>
                 <td>{bhBeData?.Priority_Drs_Coverage_Score}</td>
-                <td>{bhYtdData?.Commitment_Drs_Coverage}</td>
-                <td>{bhYtdData?.Commitment_Drs_Coverage_Score}</td>
+                <td>{bhYtdData?.Corporate_Drs_Coverage}</td>
+                <td>{bhYtdData?.Corporate_Drs_Coverage_Score}</td>
               </tr>
 
               <tr>
