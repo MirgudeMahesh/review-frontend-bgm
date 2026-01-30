@@ -13,7 +13,8 @@ export default function Commitment() {
   
   const [blData, setBlData] = useState(null);
   const [blYtdData, setBlYtdData] = useState(null);
-
+  const [bhBeData, setBhBeData] = useState(null);
+  const [bhYtdData, setBhYtdData] = useState(null);
   const { role } = useRole();
   
   // decode base64 -> original territory
@@ -85,6 +86,54 @@ export default function Commitment() {
           if (blRes.ok) setBlData(blJson);
           if (blYtdRes.ok) setBlYtdData(blYtdJson);
         }
+          else if (role === 'BH') {
+          // BH endpoints
+          const [bhBeRes, bhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const bhBeJson = await bhBeRes.json();
+          const bhYtdJson = await bhYtdRes.json();
+
+          console.log("BH BE Data fetched:", bhBeJson);
+          console.log("BH YTD Data fetched:", bhYtdJson);
+
+          if (bhBeRes.ok) setBhBeData(bhBeJson);
+          if (bhYtdRes.ok) setBhYtdData(bhYtdJson);
+        }
+        else if (role === 'SBUH') {
+          // SBUH endpoints
+          const [sbuhBeRes, sbuhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const sbuhBeJson = await sbuhBeRes.json();
+          const sbuhYtdJson = await sbuhYtdRes.json();
+
+          console.log("SBUH BE Data fetched:", sbuhBeJson);
+          console.log("SBUH YTD Data fetched:", sbuhYtdJson);
+
+          if (sbuhBeRes.ok) setBhBeData(sbuhBeJson); // Same state since data structure is same
+          if (sbuhYtdRes.ok) setBhYtdData(sbuhYtdJson); // Same state since data structure is same
+        }
       } catch (err) {
         console.error("API error:", err);
       } finally {
@@ -117,6 +166,26 @@ export default function Commitment() {
     (Number(blYtdData?.Secondary_Variance_Score) || 0) +
     (Number(blYtdData?.MSP_Compliance_Territories_Score) || 0) +
     (Number(blYtdData?.MSR_Compliance_Territories_Score) || 0);
+
+
+         const bhTotalFTMScore =
+    (Number(bhBeData?.Calls_Score) || 0) +
+    (Number(bhBeData?.Coverage_Score) || 0) +
+
+    (Number(bhBeData?.Compliance_Score) || 0) +
+    (Number(bhBeData?.Priority_Drs_Coverage_Score) || 0) +
+    (Number(bhBeData?.Priority_RX_Drs_Score) || 0) +
+    (Number(bhBeData?.BM_Priority_Drs_Coverage_Score) || 0) 
+
+
+
+  const bhTotalYTDScore =
+    (Number(bhYtdData?.Calls_Score) || 0) +
+    (Number(bhYtdData?.Team_Coverage_Score) || 0) +
+    (Number(bhYtdData?.Team_Compliance_Score) || 0) +
+    (Number(bhYtdData?.Corporate_Drs_Coverage_Score) || 0) +
+    (Number(bhYtdData?.Corporate_Drs_Active_Prescribers_Score) || 0) +
+    (Number(bhYtdData?.BM_Priority_Drs_Coverage_Score) || 0) 
 
   return (
     <div>
@@ -228,6 +297,112 @@ export default function Commitment() {
             </div>
           </div>
         )}
+        {(role === 'BH' || role==='SBUH') && (
+  <div className="table-container">
+    <div className="efficiency-container">
+      <HeadingWithHome>Performance Score</HeadingWithHome>
+
+      <div className="efficiency-table-container">
+        <div className="efficiency-table-scroll">
+          <table className="efficiency-table">
+            <thead>
+              <tr>
+                <th>Weightage</th>
+                <th>Parameter</th>
+                <th>Description</th>
+                <th>Objective</th>
+                <th>Month Val</th>
+                <th>Month Score</th>
+                <th>YTD Val</th>
+                <th>YTD Score</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {/* SFPI */}
+              <tr>
+                <td>5%</td>
+                <td rowSpan={3}><b>SFPI</b></td>
+                <td>No of Calls done (Self)</td>
+                <td>100</td>
+                <td>{bhBeData?.Calls}</td>
+                <td>{bhBeData?.Calls_Score}</td>
+                <td>{bhYtdData?.Calls}</td>
+                <td>{bhYtdData?.Calls_Score}</td>
+              </tr>
+
+              <tr>
+                <td>3%</td>
+                <td>Team’s Customer Coverage</td>
+                <td>95%</td>
+                <td>{bhBeData?.Coverage}</td>
+                <td>{bhBeData?.Coverage_Score}</td>
+                <td>{bhYtdData?.Team_Coverage}</td>
+                <td>{bhYtdData?.Team_Coverage_Score}</td>
+              </tr>
+
+              <tr>
+                <td>3%</td>
+                <td>Team’s Customer Compliance</td>
+                <td>90%</td>
+                <td>{bhBeData?.Compliance}</td>
+                <td>{bhBeData?.Compliance_Score}</td>
+                <td>{bhYtdData?.Team_Compliance}</td>
+                <td>{bhYtdData?.Team_Compliance_Score}</td>
+              </tr>
+
+              {/* Corporate Customer Engagement & Conversion Score */}
+              <tr>
+                <td>3%</td>
+                <td rowSpan={3}>
+                  <b>
+                    Corporate Customer Engagement
+                    <br />& Conversion Score
+                  </b>
+                </td>
+                <td>% of corporate doctors visited / 2 months (Out of 100 Selected)</td>
+                <td>90%</td>
+                <td>{bhBeData?.Priority_Drs_Coverage}</td>
+                <td>{bhBeData?.Priority_Drs_Coverage_Score}</td>
+                <td>{bhYtdData?.Commitment_Drs_Coverage}</td>
+                <td>{bhYtdData?.Commitment_Drs_Coverage_Score}</td>
+              </tr>
+
+              <tr>
+                <td>3%</td>
+                <td>% of Corporate doctors in active prescriber category</td>
+                <td>90%</td>
+                <td>{bhBeData?.Priority_RX_Drs}</td>
+                <td>{bhBeData?.Priority_RX_Drs_Score}</td>
+                <td>{bhYtdData?.Corporate_Drs_Active_Prescribers}</td>
+                <td>{bhYtdData?.Corporate_Drs_Active_Prescribers_Score}</td>
+              </tr>
+
+              <tr>
+                <td>3%</td>
+                <td>Priority Customer Coverage of BM</td>
+                <td>90%</td>
+                <td>{bhBeData?.BM_Priority_Drs_Coverage}</td>
+                <td>{bhBeData?.BM_Priority_Drs_Coverage_Score}</td>
+                <td>{bhYtdData?.BM_Priority_Drs_Coverage}</td>
+                <td>{bhYtdData?.BM_Priority_Drs_Coverage_Score}</td>
+              </tr>
+
+              {/* Total */}
+              <tr className="shade">
+                <td colSpan={5}><b>Performance Score</b></td>
+                <td><b>{fmt(bhTotalFTMScore)}</b></td>
+                <td></td>
+                <td><b>{fmt(bhTotalYTDScore)}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   )

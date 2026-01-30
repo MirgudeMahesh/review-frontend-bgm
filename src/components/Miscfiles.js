@@ -16,7 +16,8 @@ export default function Miscfiles() {
   const [bmYtdData, setBmYtdData] = useState(null);
   const [blData, setBlData] = useState(null);
   const [blYtdData, setBlYtdData] = useState(null);
-
+  const [bhBeData, setBhBeData] = useState(null);
+  const [bhYtdData, setBhYtdData] = useState(null);
   const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
   const HomePage = () => {
@@ -108,6 +109,54 @@ export default function Miscfiles() {
           if (blRes.ok) setBlData(blJson);
           if (blYtdRes.ok) setBlYtdData(blYtdJson);
         }
+          else if (role === 'BH') {
+          // BH endpoints
+          const [bhBeRes, bhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const bhBeJson = await bhBeRes.json();
+          const bhYtdJson = await bhYtdRes.json();
+
+          console.log("BH BE Data fetched:", bhBeJson);
+          console.log("BH YTD Data fetched:", bhYtdJson);
+
+          if (bhBeRes.ok) setBhBeData(bhBeJson);
+          if (bhYtdRes.ok) setBhYtdData(bhYtdJson);
+        }
+        else if (role === 'SBUH') {
+          // SBUH endpoints
+          const [sbuhBeRes, sbuhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const sbuhBeJson = await sbuhBeRes.json();
+          const sbuhYtdJson = await sbuhYtdRes.json();
+
+          console.log("SBUH BE Data fetched:", sbuhBeJson);
+          console.log("SBUH YTD Data fetched:", sbuhYtdJson);
+
+          if (sbuhBeRes.ok) setBhBeData(sbuhBeJson); // Same state since data structure is same
+          if (sbuhYtdRes.ok) setBhYtdData(sbuhYtdJson); // Same state since data structure is same
+        }
       } catch (err) {
         console.error("API error:", err);
       } finally {
@@ -144,6 +193,20 @@ export default function Miscfiles() {
     (Number(blYtdData?.Returns_Score) || 0) +
     (Number(blYtdData?.Marketing_Activity_Sales_Score) || 0);
 
+
+
+         const bhTotalFTMScore =
+    (Number(bhBeData?.Returns_Score) || 0) +
+    (Number(bhBeData?.Outstanding_Score) || 0) +
+
+    (Number(bhBeData?.Marketing_Activity_Sales_Score) || 0) +
+    (Number(bhBeData?.Closing_Score) || 0) 
+
+
+  const bhTotalYTDScore =
+    (Number(bhYtdData?.Returns_Score) || 0) +
+    (Number(bhYtdData?.Marketing_Activity_Sales_Score) || 0) 
+        
   return (
     <div>
       <div className='table-box'>
@@ -315,96 +378,102 @@ export default function Miscfiles() {
         )}
 
         {/* BH / SBUH view – Static table (no API data needed) */}
-        {(role === 'bh' || role === 'sbuh') && (
-          <div className="table-container">
-            <div className="efficiency-container">
-              <HeadingWithHome level="h3">
-                Business Hygiene and Demand Quality
-              </HeadingWithHome>
+       {(role === 'BH' || role==='SBUH') && (
+  <div className="table-container">
+    <div className="efficiency-container">
+      <HeadingWithHome>Business Hygiene & Demand Quality</HeadingWithHome>
 
-              <div className="efficiency-table-container">
-                <div className="efficiency-table-scroll">
-                  <table className="efficiency-table">
-                    <thead>
-                      <tr>
-                        <th>Parameter</th>
-                        <th>Description</th>
-                        <th>Objective</th>
-                        <th>Month</th>
-                        <th>YTD</th>
-                        <th>Month Val</th>
-                        <th>YTD Val</th>
-                        <th>Month</th>
-                        <th>YTD</th>
-                      </tr>
-                    </thead>
+      <div className="efficiency-table-container">
+        <div className="efficiency-table-scroll">
+          <table className="efficiency-table">
+            <thead>
+              <tr>
+                <th>Weightage</th>
+                <th>Parameter</th>
+                <th>Description</th>
+                <th>Objective</th>
+                <th>Month Val</th>
+                <th>Month Score</th>
+                <th>YTD Val</th>
+                <th>YTD Score</th>
+              </tr>
+            </thead>
 
-                    <tbody>
-                      <tr>
-                        <td>Return Ratio</td>
-                        <td>% of Returns as % of secondary sales (Objective &lt;2%)</td>
-                        <td>2%</td>
-                        <td>3%</td>
-                        <td>28%</td>
-                        <td>1.31/51.12</td>
-                        <td>7.68/27.43</td>
-                        <td>3.91%</td>
-                        <td>0.36%</td>
-                      </tr>
+            <tbody>
+              <tr>
+                <td>5%</td>
+                <td><b>Return Ratio</b></td>
+                <td>% of Returns as % of secondary sales (Objective &lt;2%)</td>
+                <td>2%</td>
+                <td>{bhBeData?.Returns}</td>
+                <td >
+                  {bhBeData?.Returns_Score}
+                </td>
+                <td>{bhYtdData?.Returns}</td>
+                <td >
+                  {bhYtdData?.Returns_Score}
+                </td>
+              </tr>
 
-                      <tr>
-                        <td>Outstanding Days</td>
-                        <td>DSO (Days Sales Outstanding) &lt;30</td>
-                        <td>30</td>
-                        <td>17</td>
-                        <td></td>
-                        <td>15.42/27.19</td>
-                        <td></td>
-                        <td>5.00%</td>
-                        <td>0.00%</td>
-                      </tr>
+              <tr>
+                <td>5%</td>
+                <td><b>Outstanding Days</b></td>
+                <td>DSO (days Sales Outstanding) &lt;30</td>
+                <td>30</td>
+                <td>{bhBeData?.Outstanding}</td>
+                <td >
+                  {bhBeData?.Outstanding_Score}
+                </td>
+                <td>-</td>
+                <td >
+                 -
+                </td>
+              </tr>
 
-                      <tr>
-                        <td>Business generated through MA</td>
-                        <td>% business driven by marketing activity</td>
-                        <td>70%</td>
-                        <td>46%</td>
-                        <td>-669%</td>
-                        <td>23.75/51.12</td>
-                        <td>-183.5/27.43</td>
-                        <td>3.32%</td>
-                        <td>-47.78%</td>
-                      </tr>
+              <tr>
+                <td>5%</td>
+                <td><b>Business generated through MA</b></td>
+                <td>% business driven by marketing activity</td>
+                <td>70%</td>
+                <td>{bhBeData?.Marketing_Activity_Sales}</td>
+                <td >
+                  {bhBeData?.Marketing_Activity_Sales_Score}
+                </td>
+                <td>{bhYtdData?.Marketing_Activity_Sales}</td>
+                <td >
+                  {bhYtdData?.Marketing_Activity_Sales_Score}
+                </td>
+              </tr>
 
-                      <tr>
-                        <td>Closing Stock Index</td>
-                        <td>Avg. closing stock in days (should be &lt;30 days)</td>
-                        <td>30</td>
-                        <td>42</td>
-                        <td></td>
-                        <td>42</td>
-                        <td></td>
-                        <td>3.60%</td>
-                        <td>0.00%</td>
-                      </tr>
+              <tr>
+                <td>5%</td>
+                <td><b>Closing Stock Index</b></td>
+                <td>Avg closing stock in days (should be ≤45 days)</td>
+                <td>45</td>
+                <td>{bhBeData?.Closing}</td>
+                <td>
+                  {bhBeData?.Closing_Score}
+                </td>
+                <td>-</td>
+                <td >
+                 -
+                </td>
+              </tr>
 
-                      <tr className="shade">
-                        <td colSpan="2"><b>Performance Score</b></td>
-                        <td><b>20%</b></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><b>15.8%</b></td>
-                        <td><b>-132.0%</b></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+              <tr className="shade">
+                <td colSpan={5}><b>Business Hygiene & Demand Quality Score</b></td>
+                <td><b>{fmt(bhTotalFTMScore)}</b></td>
+                <td></td>
+                <td><b>{fmt(bhTotalYTDScore)}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

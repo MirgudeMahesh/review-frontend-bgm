@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-
 import { useRole } from './RoleContext';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from 'react-router-dom';
-import {faPaperPlane} from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
@@ -50,8 +49,8 @@ export default function FinalReport() {
         setRoleAllowed(normalizedRole);
         setRole(normalizedRole);
 
-        // Only fetch dashboard data for BE, BM, and BL roles
-        if (['BE', 'BM', 'BL'].includes(normalizedRole) === false) {
+        // Only fetch dashboard data for BE, BM, BL, BH, SBUH roles
+        if (!['BE', 'BM', 'BL', 'BH', 'SBUH'].includes(normalizedRole)) {
           return;
         }
 
@@ -116,14 +115,10 @@ export default function FinalReport() {
           const blData = await blRes.json();
 
           if (blRes.ok) {
-            // Map BL efficiency data to existing state structure
-            // score1 = effortYTD, score2 = businessYTD, score3 = effortMonth, score4 = businessMonth
             setScore1(Number(blData.effortYTD) || 0);
             setScore2(Number(blData.businessYTD) || 0);
             setScore3(Number(blData.effortMonth) || 0);
             setScore4(Number(blData.businessMonth) || 0);
-            
-            // Additional BL scores
             setHygieneMonth(Number(blData.hygieneMonth) || 0);
             setHygieneYTD(Number(blData.hygieneYTD) || 0);
             setCommitmentMonth(Number(blData.commitmentMonth) || 0);
@@ -134,6 +129,54 @@ export default function FinalReport() {
 
           console.log('BL Data:', blData);
         }
+        else if (normalizedRole === 'BH') {
+          // BH LOGIC - Fetch efficiency data
+          const bhRes = await fetch("https://review-backend-bgm.onrender.com/bhEfficiency", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Territory: decoded })
+          });
+          const bhData = await bhRes.json();
+
+          if (bhRes.ok) {
+            setScore1(Number(bhData.effortYTD) || 0);
+            setScore2(Number(bhData.businessYTD) || 0);
+            setScore3(Number(bhData.effortMonth) || 0);
+            setScore4(Number(bhData.businessMonth) || 0);
+            setHygieneMonth(Number(bhData.hygieneMonth) || 0);
+            setHygieneYTD(Number(bhData.hygieneYTD) || 0);
+            setCommitmentMonth(Number(bhData.commitmentMonth) || 0);
+            setCommitmentYTD(Number(bhData.commitmentYTD) || 0);
+            setEffortMonth(Number(bhData.effortMonth) || 0);
+            setEffortYTD(Number(bhData.effortYTD) || 0);
+          }
+
+          console.log('BH Data:', bhData);
+        }
+        else if (normalizedRole === 'SBUH') {
+          // SBUH LOGIC - Fetch efficiency data
+          const sbuhRes = await fetch("https://review-backend-bgm.onrender.com/sbuhEfficiency", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ Territory: decoded })
+          });
+          const sbuhData = await sbuhRes.json();
+
+          if (sbuhRes.ok) {
+            setScore1(Number(sbuhData.effortYTD) || 0);
+            setScore2(Number(sbuhData.businessYTD) || 0);
+            setScore3(Number(sbuhData.effortMonth) || 0);
+            setScore4(Number(sbuhData.businessMonth) || 0);
+            setHygieneMonth(Number(sbuhData.hygieneMonth) || 0);
+            setHygieneYTD(Number(sbuhData.hygieneYTD) || 0);
+            setCommitmentMonth(Number(sbuhData.commitmentMonth) || 0);
+            setCommitmentYTD(Number(sbuhData.commitmentYTD) || 0);
+            setEffortMonth(Number(sbuhData.effortMonth) || 0);
+            setEffortYTD(Number(sbuhData.effortYTD) || 0);
+          }
+
+          console.log('SBUH Data:', sbuhData);
+        }
       } catch (err) {
         console.error("API error:", err);
       } finally {
@@ -142,7 +185,7 @@ export default function FinalReport() {
     };
 
     verifyRole();
-  }, [decoded, setRole, setName]);
+  }, [decoded, setRole, setName, encoded]);
 
   const perform = () => navigate(`/TeamBuild?ec=${encoded}`);
   const Home = () => navigate(`/Performance?ec=${encoded}`);
@@ -150,8 +193,8 @@ export default function FinalReport() {
   const commitment = () => navigate(`/Compliance?ec=${encoded}`);
   const bulkUpload = () => navigate(`/Disclosure?ec=${encoded}`);
 
-  // Show message for non-BE/BM/BL roles
-  if (roleAllowed !== null && !['BE', 'BM', 'BL'].includes(roleAllowed)) {
+  // Show message for non-BE/BM/BL/BH/SBUH roles
+  if (roleAllowed !== null && !['BE', 'BM', 'BL', 'BH', 'SBUH'].includes(roleAllowed)) {
     return (
       <div
         style={{
@@ -234,7 +277,7 @@ export default function FinalReport() {
   }
 
   // Loading states
-  if (roleAllowed === 'BE' && [score1, score2, score3, score4].includes(null)) {
+  if (roleAllowed === 'BE' && [score1, score2, score3, score4].some(s => s === null)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
         <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
@@ -242,7 +285,7 @@ export default function FinalReport() {
     );
   }
 
-  if (roleAllowed === 'BM' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD].includes(null)) {
+  if (roleAllowed === 'BM' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD].some(s => s === null)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
         <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
@@ -250,7 +293,23 @@ export default function FinalReport() {
     );
   }
 
-  if (roleAllowed === 'BL' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].includes(null)) {
+  if (roleAllowed === 'BL' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].some(s => s === null)) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (roleAllowed === 'BH' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].some(s => s === null)) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
+        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  if (roleAllowed === 'SBUH' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].some(s => s === null)) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
         <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
@@ -284,7 +343,6 @@ export default function FinalReport() {
         {roleAllowed === 'BE' && (
           <div className="efficiency-container">
             <h3>Efficiency Index</h3>
-
             <div className="efficiency-table-container">
               <div className="efficiency-table-scroll">
                 <table className="efficiency-table">
@@ -323,7 +381,6 @@ export default function FinalReport() {
                 </table>
               </div>
             </div>
-
             <div className="efficiency-notes-box">
               <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
               <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
@@ -334,7 +391,6 @@ export default function FinalReport() {
         {roleAllowed === 'BM' && (
           <div className="efficiency-container">
             <h3>Efficiency Index</h3>
-
             <div className="efficiency-table-container">
               <div className="efficiency-table-scroll">
                 <table className="efficiency-table">
@@ -374,18 +430,13 @@ export default function FinalReport() {
                     <tr className="shade">
                       <td>Efficiency Index</td>
                       <td>100</td>
-                      <td>
-                        {(Number(score4) + Number(score3) + Number(hygieneMonth)).toFixed(2)}
-                      </td>
-                      <td>
-                        {(Number(score2) + Number(score1) + Number(hygieneYTD)).toFixed(2)}
-                      </td>
+                      <td>{(Number(score4) + Number(score3) + Number(hygieneMonth)).toFixed(2)}</td>
+                      <td>{(Number(score2) + Number(score1) + Number(hygieneYTD)).toFixed(2)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
-
             <div className="efficiency-notes-box">
               <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
               <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
@@ -396,7 +447,6 @@ export default function FinalReport() {
         {roleAllowed === 'BL' && (
           <div className="efficiency-container">
             <h3>Efficiency Index</h3>
-
             <div className="efficiency-table-container">
               <div className="efficiency-table-scroll">
                 <table className="efficiency-table">
@@ -444,28 +494,141 @@ export default function FinalReport() {
                     <tr className="shade">
                       <td>Efficiency Index</td>
                       <td>100</td>
-                      <td>
-                        {(
-                          Number(score4) + 
-                          Number(hygieneMonth) + 
-                          Number(effortMonth) + 
-                          Number(commitmentMonth)
-                        ).toFixed(2)}
-                      </td>
-                      <td>
-                        {(
-                          Number(score2) + 
-                          Number(hygieneYTD) + 
-                          Number(effortYTD) + 
-                          Number(commitmentYTD)
-                        ).toFixed(2)}
-                      </td>
+                      <td>{(Number(score4) + Number(hygieneMonth) + Number(effortMonth) + Number(commitmentMonth)).toFixed(2)}</td>
+                      <td>{(Number(score2) + Number(hygieneYTD) + Number(effortYTD) + Number(commitmentYTD)).toFixed(2)}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
             </div>
+            <div className="efficiency-notes-box">
+              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+            </div>
+          </div>
+        )}
 
+        {roleAllowed === 'BH' && (
+          <div className="efficiency-container">
+            <h3>Efficiency Index</h3>
+            <div className="efficiency-table-container">
+              <div className="efficiency-table-scroll">
+                <table className="efficiency-table">
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Objective(%)</th>
+                      <th>Month(%)</th>
+                      <th>YTD(%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="clickable-param" onClick={Home}>
+                        Business & Brand Performance
+                      </td>
+                      <td>40</td>
+                      <td>{score4.toFixed(2)}</td>
+                      <td>{score2.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={misc}>
+                        Business Hygiene & Demand Quality
+                      </td>
+                      <td>20</td>
+                      <td>{hygieneMonth.toFixed(2)}</td>
+                      <td>{hygieneYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={perform}>
+                        Team & Culture Building
+                      </td>
+                      <td>20</td>
+                      <td>{effortMonth.toFixed(2)}</td>
+                      <td>{effortYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={commitment}>
+                        Activity & Productivity
+                      </td>
+                      <td>20</td>
+                      <td>{commitmentMonth.toFixed(2)}</td>
+                      <td>{commitmentYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr className="shade">
+                      <td>Efficiency Index</td>
+                      <td>100</td>
+                      <td>{(Number(score4) + Number(hygieneMonth) + Number(effortMonth) + Number(commitmentMonth)).toFixed(2)}</td>
+                      <td>{(Number(score2) + Number(hygieneYTD) + Number(effortYTD) + Number(commitmentYTD)).toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="efficiency-notes-box">
+              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
+              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
+            </div>
+          </div>
+        )}
+
+        {roleAllowed === 'SBUH' && (
+          <div className="efficiency-container">
+            <h3>Efficiency Index</h3>
+            <div className="efficiency-table-container">
+              <div className="efficiency-table-scroll">
+                <table className="efficiency-table">
+                  <thead>
+                    <tr>
+                      <th>Parameter</th>
+                      <th>Objective(%)</th>
+                      <th>Month(%)</th>
+                      <th>YTD(%)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="clickable-param" onClick={Home}>
+                        Business Performance
+                      </td>
+                      <td>35</td>
+                      <td>{score4.toFixed(2)}</td>
+                      <td>{score2.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={misc}>
+                        Business Hygiene & Demand Quality
+                      </td>
+                      <td>20</td>
+                      <td>{hygieneMonth.toFixed(2)}</td>
+                      <td>{hygieneYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={perform}>
+                        Team Building 
+                      </td>
+                      <td>20</td>
+                      <td>{effortMonth.toFixed(2)}</td>
+                      <td>{effortYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td className="clickable-param" onClick={commitment}>
+                        Compliance & Reporting 
+                      </td>
+                      <td>25</td>
+                      <td>{commitmentMonth.toFixed(2)}</td>
+                      <td>{commitmentYTD.toFixed(2)}</td>
+                    </tr>
+                    <tr className="shade">
+                      <td>Efficiency Index</td>
+                      <td>100</td>
+                      <td>{(Number(score4) + Number(hygieneMonth) + Number(effortMonth) + Number(commitmentMonth)).toFixed(2)}</td>
+                      <td>{(Number(score2) + Number(hygieneYTD) + Number(effortYTD) + Number(commitmentYTD)).toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
             <div className="efficiency-notes-box">
               <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
               <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>

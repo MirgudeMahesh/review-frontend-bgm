@@ -19,6 +19,7 @@ const Home = () => {
   
   const { role } = useRole();
 
+  // BE data states
   const [beData, setBeData] = useState(null);
   const [ytdData, setYtdData] = useState(null);
 
@@ -26,8 +27,13 @@ const Home = () => {
   const [bmBeData, setBmBeData] = useState(null);
   const [bmYtdData, setBmYtdData] = useState(null);
 
+  // BL data states
   const [blData, setBlData] = useState(null);
   const [blYtdData, setBlYtdData] = useState(null);
+
+  // BH/SBUH data states
+  const [bhBeData, setBhBeData] = useState(null);
+  const [bhYtdData, setBhYtdData] = useState(null);
 
   const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
@@ -99,7 +105,7 @@ const Home = () => {
           if (ytdRes.ok) setYtdData(ytdJson);
         }
         else if (role === 'BM') {
-          // New BM endpoints
+          // BM endpoints
           const [bmBeRes, bmYtdRes] = await Promise.all([
             fetch("https://review-backend-bgm.onrender.com/bmDashboardData", {
               method: "POST",
@@ -146,6 +152,54 @@ const Home = () => {
           if (blRes.ok) setBlData(blJson);
           if (blYtdRes.ok) setBlYtdData(blYtdJson);
         }
+        else if (role === 'BH') {
+          // BH endpoints
+          const [bhBeRes, bhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const bhBeJson = await bhBeRes.json();
+          const bhYtdJson = await bhYtdRes.json();
+
+          console.log("BH BE Data fetched:", bhBeJson);
+          console.log("BH YTD Data fetched:", bhYtdJson);
+
+          if (bhBeRes.ok) setBhBeData(bhBeJson);
+          if (bhYtdRes.ok) setBhYtdData(bhYtdJson);
+        }
+        else if (role === 'SBUH') {
+          // SBUH endpoints
+          const [sbuhBeRes, sbuhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const sbuhBeJson = await sbuhBeRes.json();
+          const sbuhYtdJson = await sbuhYtdRes.json();
+
+          console.log("SBUH BE Data fetched:", sbuhBeJson);
+          console.log("SBUH YTD Data fetched:", sbuhYtdJson);
+
+          if (sbuhBeRes.ok) setBhBeData(sbuhBeJson); // Same state since data structure is same
+          if (sbuhYtdRes.ok) setBhYtdData(sbuhYtdJson); // Same state since data structure is same
+        }
       } catch (err) {
         console.error("API error:", err);
       } finally {
@@ -157,7 +211,7 @@ const Home = () => {
   }, [decoded, role]);
 
   // ------------------------------------------------
-  //          FINAL YTD TOTAL SCORE - BE
+  //          BE TOTAL SCORES
   // ------------------------------------------------
   const totalYTDScore =
     (Number(ytdData?.Secondary_Sales_growth_Score) || 0) +
@@ -172,7 +226,7 @@ const Home = () => {
     (Number(beData?.Brand_Performance_Index_Score) || 0);
 
   // ------------------------------------------------
-  //          BM TOTAL FTM & YTD SCORE
+  //          BM TOTAL SCORES
   // ------------------------------------------------
   const bmTotalFTMScore =
     (Number(bmBeData?.Target_Achieved_FTM_Score) || 0) +
@@ -189,7 +243,7 @@ const Home = () => {
     (Number(bmYtdData?.Viable_Territories_YTD_Score) || 0);
 
   // ------------------------------------------------
-  //          BL TOTAL FTM & YTD SCORE (NEW)
+  //          BL TOTAL SCORES
   // ------------------------------------------------
   const blTotalFTMScore =
     (Number(blData?.Target_Achievement_Score) || 0) +
@@ -205,8 +259,24 @@ const Home = () => {
     (Number(blYtdData?.Territories_Achieving_Cat_A_MEP_Score) || 0) +
     (Number(blYtdData?.Corporate_Drs_Coverage_Score) || 0) +
     (Number(blYtdData?.Category_B_Sales_Vs_Target_Score) || 0) +
-    
     (Number(blYtdData?.Corporate_Drs_Active_Prescribers_Score) || 0);
+
+  // ------------------------------------------------
+  //          BH/SBUH TOTAL SCORES (same data structure)
+  // ------------------------------------------------
+  const bhTotalFTMScore =
+    (Number(bhBeData?.Target_Achievement_Score) || 0) +
+    (Number(bhBeData?.Territories_Achieving_Cat_A_MEP_Score) || 0) +
+    (Number(bhBeData?.Category_B_Sales_Vs_Target_Score) || 0) +
+    (Number(bhBeData?.BMs_Achieving_Target_Score) || 0) +
+    (Number(bhBeData?.Span_of_Performance_Score) || 0);
+
+  const bhTotalYTDScore =
+    (Number(bhYtdData?.Target_Achievement_Score) || 0) +
+    (Number(bhYtdData?.Territories_Achieving_Cat_A_MEP_Score) || 0) +
+    (Number(bhYtdData?.Category_B_Sales_Vs_Target_Score) || 0) +
+    (Number(bhYtdData?.BMs_Achieving_Target_Score) || 0) +
+    (Number(bhYtdData?.Span_of_Performance_Score) || 0);
 
   return (
     <div>
@@ -474,6 +544,96 @@ const Home = () => {
             </div>
           </div>
         )}
+
+        {(role === 'BH' || role==='SBUH')&& (
+  <div className="table-container">
+    <div className="efficiency-container">
+      <HeadingWithHome>Business & Brand Performance</HeadingWithHome>
+
+      <div className="efficiency-table-container">
+        <div className="efficiency-table-scroll">
+          <table className="efficiency-table">
+            <thead>
+              <tr>
+                <th>Weightage</th>
+                <th>Parameter</th>
+                <th>Description</th>
+                <th>Objective</th>
+                <th>Month Val</th>
+                <th>Month Score</th>
+                <th>YTD Val</th>
+                <th>YTD Score</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {/* Target / Objective Realization */}
+              <tr>
+                <td>10%</td>
+                <td rowSpan={5}><b>Target / Objective<br />Realization</b></td>
+                <td>% of Targets achieved ≥100%</td>
+                <td>100%</td>
+                <td>{bhBeData?.Target_Achieved}</td>
+                <td>{bhBeData?.Target_Achievement_Score}</td>
+                <td>{bhYtdData?.Target_Achieved}</td>
+                <td>{bhYtdData?.Target_Achievement_Score}</td>
+              </tr>
+
+              <tr>
+                <td>10%</td>
+                <td>No of Territories meeting MEP of Category A</td>
+                <td>100%</td>
+                <td>{bhBeData?.Territories_Achieving_Cat_A_MEP}</td>
+                <td>{bhBeData?.Territories_Achieving_Cat_A_MEP_Score}</td>
+                <td>{bhYtdData?.Territories_Achieving_Cat_A_MEP}</td>
+                <td>{bhYtdData?.Territories_Achieving_Cat_A_MEP_Score}</td>
+              </tr>
+
+              <tr>
+                <td>10%</td>
+                <td>Category B Target V/s Achievement</td>
+                <td>100%</td>
+                <td>{bhBeData?.Category_B_Sales_Vs_Target}</td>
+                <td>{bhBeData?.Category_B_Sales_Vs_Target_Score}</td>
+                <td>{bhYtdData?.Category_B_Sales_Vs_Target}</td>
+                <td>{bhYtdData?.Category_B_Sales_Vs_Target_Score}</td>
+              </tr>
+
+              <tr>
+                <td>5%</td>
+                <td>% of BMs achieving ≥100% of targets</td>
+                <td>90%</td>
+                <td>{bhBeData?.BMs_Achieving_Target}</td>
+                <td>{bhBeData?.BMs_Achieving_Target_Score}</td>
+                <td>{bhYtdData?.BMs_Achieving_Target}</td>
+                <td>{bhYtdData?.BMs_Achieving_Target_Score}</td>
+              </tr>
+
+              <tr>
+                <td>5%</td>
+                <td>Span of Performance</td>
+                <td>90%</td>
+                <td>{bhBeData?.Span_of_Performance}</td>
+                <td>{bhBeData?.Span_of_Performance_Score}</td>
+                <td>{bhYtdData?.Span_of_Performance}</td>
+                <td>{bhYtdData?.Span_of_Performance_Score}</td>
+              </tr>
+
+              {/* Total Row */}
+              <tr className="shade">
+                <td colSpan={5}><b>Business & Brand Performance Score</b></td>
+                <td><b>{fmt(bhTotalFTMScore)}</b></td>
+                <td></td>
+                <td><b>{fmt(bhTotalYTDScore)}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

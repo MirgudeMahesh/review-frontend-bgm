@@ -20,9 +20,13 @@ export default function Performance() {
   const [bmBeData, setBmBeData] = useState(null);
   const [bmYtdData, setBmYtdData] = useState(null);
 
+
   const [blData, setBlData] = useState(null);
   const [blYtdData, setBlYtdData] = useState(null);
 
+
+  const [bhBeData, setBhBeData] = useState(null);
+  const [bhYtdData, setBhYtdData] = useState(null);
   const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
 
   useEffect(() => {
@@ -100,6 +104,54 @@ export default function Performance() {
 
           if (blRes.ok) setBlData(blJson);
           if (blYtdRes.ok) setBlYtdData(blYtdJson);
+        }
+          else if (role === 'BH') {
+          // BH endpoints
+          const [bhBeRes, bhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/bhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const bhBeJson = await bhBeRes.json();
+          const bhYtdJson = await bhYtdRes.json();
+
+          console.log("BH BE Data fetched:", bhBeJson);
+          console.log("BH YTD Data fetched:", bhYtdJson);
+
+          if (bhBeRes.ok) setBhBeData(bhBeJson);
+          if (bhYtdRes.ok) setBhYtdData(bhYtdJson);
+        }
+        else if (role === 'SBUH') {
+          // SBUH endpoints
+          const [sbuhBeRes, sbuhYtdRes] = await Promise.all([
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardytdData", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ Territory: decoded }),
+            }),
+          ]);
+
+          const sbuhBeJson = await sbuhBeRes.json();
+          const sbuhYtdJson = await sbuhYtdRes.json();
+
+          console.log("SBUH BE Data fetched:", sbuhBeJson);
+          console.log("SBUH YTD Data fetched:", sbuhYtdJson);
+
+          if (sbuhBeRes.ok) setBhBeData(sbuhBeJson); // Same state since data structure is same
+          if (sbuhYtdRes.ok) setBhYtdData(sbuhYtdJson); // Same state since data structure is same
         }
       } catch (err) {
         console.error("API error:", err);
@@ -201,6 +253,26 @@ export default function Performance() {
     (Number(blYtdData?.Induction_Score) || 0) +
     (Number(blYtdData?.Infant_Attrition_Rate_Score) || 0) +
     (Number(blYtdData?.Overall_Attrition_Rate_Score) || 0);
+
+
+     const bhTotalFTMScore =
+    (Number(bhBeData?.Overall_Attrition_Rate_Score) || 0) +
+    (Number(bhBeData?.Secondary_Variance_Score) || 0) +
+
+    (Number(bhBeData?.MSP_Compliance_Territories_Score) || 0) +
+    (Number(bhBeData?.MSR_Compliance_Territories_Score) || 0) +
+    
+    (Number(bhBeData?.BE_Active_vs_Sanctioned_Score) || 0) +
+    (Number(bhBeData?.BM_BL_Active_Vs_Sanctioned_Score) || 0);
+
+  const bhTotalYTDScore =
+    (Number(bhYtdData?.Overall_Attrition_Rate_Score) || 0) +
+    (Number(bhYtdData?.Secondary_Variance_Score) || 0) +
+    (Number(bhYtdData?.MSP_Compliance_Territories_Score) || 0) +
+    (Number(bhYtdData?.MSR_Compliance_Territories_Score) || 0) 
+    
+   
+
 
   return (
     <div>
@@ -494,6 +566,129 @@ export default function Performance() {
             </div>
           </div>
         )}
+        
+        {(role === 'BH' || role==='SBUH') && (
+  <div className="table-container">
+    <div className="efficiency-container">
+      <HeadingWithHome>Team & Culture Building</HeadingWithHome>
+
+      <div className="efficiency-table-container">
+        <div className="efficiency-table-scroll">
+          <table className="efficiency-table">
+            <thead>
+              <tr>
+                <th>Weightage</th>
+                <th>Parameter</th>
+                <th>Description</th>
+                <th>Objective</th>
+                <th>Month Val</th>
+                <th>Month Score</th>
+                <th>YTD Val</th>
+                <th>YTD Score</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>5%</td>
+                <td><b>Team Stability</b></td>
+                <td>Overall attrition rate</td>
+                <td>20%</td>
+                <td>{bhBeData?.Overall_Attrition_Rate}</td>
+                <td>{bhBeData?.Overall_Attrition_Rate_Score}</td>
+                <td>{bhYtdData?.Overall_Attrition_Rate}</td>
+                <td>{bhYtdData?.Overall_Attrition_Rate_Score}</td>
+              </tr>
+
+              <tr>
+                <td>4%</td>
+                <td><b>Reporting Integrity</b></td>
+                <td>Secondary variance</td>
+                <td>10%</td>
+                <td>{bhBeData?.Secondary_Variance}</td>
+                <td>{bhBeData?.Secondary_Variance_Score}</td>
+                <td>{bhYtdData?.Secondary_Variance}</td>
+                <td>{bhYtdData?.Secondary_Variance_Score}</td>
+              </tr>
+
+              <tr>
+                <td>0%</td>
+                <td rowSpan={2}><b>Reviewing Effectiveness</b></td>
+                <td>BL Review Score</td>
+                <td>100%</td>
+                <td>{bhBeData?.MSP_Compliance_Territories}</td>
+                <td>{bhBeData?.MSP_Compliance_Territories_Score}</td>
+                <td>{bhYtdData?.MSP_Compliance_Territories}</td>
+                <td>{bhYtdData?.MSP_Compliance_Territories_Score}</td>
+              </tr>
+
+              <tr>
+                <td>0%</td>
+                <td>BM Review Score</td>
+                <td>100%</td>
+               <td>{bhBeData?.MSR_Compliance_Territories}</td>
+                <td>{bhBeData?.MSR_Compliance_Territories_Score}</td>
+                <td>{bhYtdData?.MSR_Compliance_Territories}</td>
+                <td>{bhYtdData?.MSR_Compliance_Territories_Score}</td>
+              </tr>
+
+              <tr>
+                <td>2%</td>
+                <td rowSpan={2}><b>MSR Compliance</b></td>
+                <td>% of headquarters audited</td>
+                <td>90%</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+
+              <tr>
+                <td>2%</td>
+                <td>% of headquarters compliant</td>
+                <td>90%</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+
+              <tr>
+                <td>3%</td>
+                <td><b>BE</b></td>
+                <td># of BE Active Vs Sanctioned</td>
+                <td>100%</td>
+               <td>{bhBeData?.BE_Active_vs_Sanctioned}</td>
+                <td>{bhBeData?.BE_Active_vs_Sanctioned_Score}</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+
+              <tr>
+                <td>4%</td>
+                <td><b>BM & BL</b></td>
+                <td># of BM & BL Active Vs</td>
+                <td>100%</td>
+                <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned}</td>
+                <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned_Score}</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+
+              <tr className="shade">
+                <td colSpan={5}><b>Team & Culture Building Score</b></td>
+                <td><b>{fmt(bhTotalFTMScore)}</b></td>
+                <td></td>
+                <td><b>{fmt(bhTotalYTDScore)}</b></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
