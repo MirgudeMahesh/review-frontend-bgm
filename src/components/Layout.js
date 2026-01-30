@@ -49,36 +49,36 @@ const Layout = () => {
           <Outlet />
         </main>
 
-       
-  <div style={{justifyContent:"center",alignItems:"center",display:"flex"}}>    {showUI && (role === "BM" || role==='BL') && (
-  <button
-    style={{
-      padding: "12px 26px",
-      backgroundColor: "#2c2d2e",
-      color: "white",
-      border: "none",
-      borderRadius: "10px",
-      fontSize: "18px",
-      cursor: "pointer",
-      boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
-      transition: "background-color 0.2s ease",
-     
-    }}
-    onMouseOver={(e) => (e.target.style.backgroundColor = "#1d1e1f")}
-    onMouseOut={(e) => (e.target.style.backgroundColor = "#2c2d2e")}
-    onClick={gotoselection}
-  >
-    Review Others
-  </button>
-)}</div>
+
+        <div style={{ justifyContent: "center", alignItems: "center", display: "flex" }}>    {showUI && (role === "BM" || role === 'BL' || role === 'BH' || role === 'SBUH') && (
+          <button
+            style={{
+              padding: "12px 26px",
+              backgroundColor: "#2c2d2e",
+              color: "white",
+              border: "none",
+              borderRadius: "10px",
+              fontSize: "18px",
+              cursor: "pointer",
+              boxShadow: "0px 4px 12px rgba(0,0,0,0.15)",
+              transition: "background-color 0.2s ease",
+
+            }}
+            onMouseOver={(e) => (e.target.style.backgroundColor = "#1d1e1f")}
+            onMouseOut={(e) => (e.target.style.backgroundColor = "#2c2d2e")}
+            onClick={gotoselection}
+          >
+            Review Others
+          </button>
+        )}</div>
 
 
         {/* Commitments drawer at bottom of all pages that use Layout */}
         {showUI && <ActualCommit />}
 
-                {showUI && (
-  isProfilePage ? <Chats /> : <MyChats />
-)}
+        {showUI && (
+          isProfilePage ? <Chats /> : <MyChats />
+        )}
 
       </div>
 
