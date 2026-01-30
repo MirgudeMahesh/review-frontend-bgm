@@ -611,27 +611,8 @@ export default function Performance() {
                 <td>{bhYtdData?.Secondary_Variance_Score}</td>
               </tr>
 
-              <tr>
-                <td>0%</td>
-                <td rowSpan={2}><b>Reviewing Effectiveness</b></td>
-                <td>BL Review Score</td>
-                <td>100%</td>
-                 <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
-
-              <tr>
-                <td>0%</td>
-                <td>BM Review Score</td>
-                <td>100%</td>
-                 <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
            
-              </tr>
+
 
               <tr>
                 <td>2%</td>
