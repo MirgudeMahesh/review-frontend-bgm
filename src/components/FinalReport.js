@@ -246,7 +246,7 @@ export default function FinalReport() {
           Review Others
         </button>
 
-        {roleAllowed === 'SBUH' && (
+        {['SBUH', 'BH', 'DIR'].includes(roleAllowed) && (
           <button 
             onClick={bulkUpload}
             style={{
