@@ -246,32 +246,7 @@ export default function FinalReport() {
           Review Others
         </button>
 
-        {['SBUH', 'BH', 'DIR'].includes(roleAllowed) && (
-          <button 
-            onClick={bulkUpload}
-            style={{
-              backgroundColor: '#007bff',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              marginTop: '15px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}
-            onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
-            onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
-          >
-            Compose
-            <FontAwesomeIcon icon={faPaperPlane} />
-          </button>
-        )}
+      
       </div>
     );
   }
