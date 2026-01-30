@@ -337,6 +337,33 @@ export default function FinalReport() {
         <p style={{ fontSize: '14px', color: '#718096', margin: '5px 0' }}>
           {showTerritory}
         </p>
+        
+        {['SBUH', 'BH', 'DIR'].includes(roleAllowed) && (
+          <button 
+            onClick={bulkUpload}
+            style={{
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              padding: '8px 20px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              marginTop: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#0056b3'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#007bff'}
+          >
+            Compose
+            <FontAwesomeIcon icon={faPaperPlane} />
+          </button>
+        )}
       </div>
 
       <div className="table-box">
