@@ -27,7 +27,47 @@ export default function Performance() {
 
   const [bhBeData, setBhBeData] = useState(null);
   const [bhYtdData, setBhYtdData] = useState(null);
+
+  // BH/SBUH Division states
+  const [divisions, setDivisions] = useState([]);
+  const [selectedDivision, setSelectedDivision] = useState('');
+  const [isLoadingDivisions, setIsLoadingDivisions] = useState(false);
+
   const fmt = (v) => Number(parseFloat(v || 0)).toFixed(2);
+
+  // Fetch divisions for BH/SBUH
+  const fetchDivisions = async () => {
+    if (!['BH', 'SBUH'].includes(role) || !decoded) return;
+
+    try {
+      setIsLoadingDivisions(true);
+      const res = await fetch("https://review-backend-bgm.onrender.com/getDivisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Territory: decoded }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.divisions) {
+        setDivisions(data.divisions);
+        if (data.divisions.length > 0 && !selectedDivision) {
+          setSelectedDivision(data.divisions[0]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching divisions:", error);
+    } finally {
+      setIsLoadingDivisions(false);
+    }
+  };
+
+  // Handle division change
+  const handleDivisionChange = (division) => {
+    setSelectedDivision(division);
+    // Clear BH/SBUH data while loading new division
+    setBhBeData(null);
+    setBhYtdData(null);
+  };
 
   useEffect(() => {
     if (!decoded) return;
@@ -105,53 +145,35 @@ export default function Performance() {
           if (blRes.ok) setBlData(blJson);
           if (blYtdRes.ok) setBlYtdData(blYtdJson);
         }
-          else if (role === 'BH') {
-          // BH endpoints
-          const [bhBeRes, bhYtdRes] = await Promise.all([
-            fetch("https://review-backend-bgm.onrender.com/bhDashboardData", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ Territory: decoded }),
-            }),
-            fetch("https://review-backend-bgm.onrender.com/bhDashboardytdData", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ Territory: decoded }),
-            }),
-          ]);
+        else if (['BH', 'SBUH'].includes(role)) {
+          // Fetch divisions first for BH/SBUH
+          await fetchDivisions();
+          
+          // Fetch data only if division selected
+          if (selectedDivision) {
+            const endpointBase = role === 'BH' ? 'bh' : 'sbuh';
+            const [bhBeRes, bhYtdRes] = await Promise.all([
+              fetch(`https://review-backend-bgm.onrender.com/${endpointBase}DashboardData`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ Territory: decoded, Division: selectedDivision }),
+              }),
+              fetch(`https://review-backend-bgm.onrender.com/${endpointBase}DashboardytdData`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ Territory: decoded, Division: selectedDivision }),
+              }),
+            ]);
 
-          const bhBeJson = await bhBeRes.json();
-          const bhYtdJson = await bhYtdRes.json();
+            const bhBeJson = await bhBeRes.json();
+            const bhYtdJson = await bhYtdRes.json();
 
-          console.log("BH BE Data fetched:", bhBeJson);
-          console.log("BH YTD Data fetched:", bhYtdJson);
+            console.log(`${role} BE Data fetched:`, bhBeJson);
+            console.log(`${role} YTD Data fetched:`, bhYtdJson);
 
-          if (bhBeRes.ok) setBhBeData(bhBeJson);
-          if (bhYtdRes.ok) setBhYtdData(bhYtdJson);
-        }
-        else if (role === 'SBUH') {
-          // SBUH endpoints
-          const [sbuhBeRes, sbuhYtdRes] = await Promise.all([
-            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardData", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ Territory: decoded }),
-            }),
-            fetch("https://review-backend-bgm.onrender.com/sbuhDashboardytdData", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ Territory: decoded }),
-            }),
-          ]);
-
-          const sbuhBeJson = await sbuhBeRes.json();
-          const sbuhYtdJson = await sbuhYtdRes.json();
-
-          console.log("SBUH BE Data fetched:", sbuhBeJson);
-          console.log("SBUH YTD Data fetched:", sbuhYtdJson);
-
-          if (sbuhBeRes.ok) setBhBeData(sbuhBeJson); // Same state since data structure is same
-          if (sbuhYtdRes.ok) setBhYtdData(sbuhYtdJson); // Same state since data structure is same
+            if (bhBeRes.ok) setBhBeData(bhBeJson);
+            if (bhYtdRes.ok) setBhYtdData(bhYtdJson);
+          }
         }
       } catch (err) {
         console.error("API error:", err);
@@ -161,7 +183,7 @@ export default function Performance() {
     };
 
     loadAll();
-  }, [decoded, role]);
+  }, [decoded, role, selectedDivision]);
 
   const HomePage = () => {
     navigate(`/FinalReport?ec=${encoded}`);
@@ -255,13 +277,13 @@ export default function Performance() {
     (Number(blYtdData?.Overall_Attrition_Rate_Score) || 0);
 
 
-     const bhTotalFTMScore =
+  const bhTotalFTMScore =
     (Number(bhBeData?.Overall_Attrition_Rate_Score) || 0) +
     (Number(bhBeData?.Secondary_Variance_Score) || 0) +
 
     (Number(bhBeData?.MSP_Compliance_Territories_Score) || 0) +
     (Number(bhBeData?.MSR_Compliance_Territories_Score) || 0) +
-    
+
     (Number(bhBeData?.BE_Active_vs_Sanctioned_Score) || 0) +
     (Number(bhBeData?.BM_BL_Active_Vs_Sanctioned_Score) || 0);
 
@@ -269,13 +291,107 @@ export default function Performance() {
     (Number(bhYtdData?.Overall_Attrition_Rate_Score) || 0) +
     (Number(bhYtdData?.Secondary_Variance_Score) || 0) +
     (Number(bhYtdData?.MSP_Compliance_Territories_Score) || 0) +
-    (Number(bhYtdData?.MSR_Compliance_Territories_Score) || 0) 
-    
-   
+    (Number(bhYtdData?.MSR_Compliance_Territories_Score) || 0)
 
+
+
+
+  // BH/SBUH Loading/Selection Screen (match Home.js behavior)
+  if ((role === 'BH' || role === 'SBUH') && 
+      (!divisions.length || isLoadingDivisions || (!selectedDivision && !bhBeData))) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '70vh',
+        flexDirection: 'column',
+        padding: '20px'
+      }}>
+        <p style={{ fontSize: '18px', color: '#666', marginBottom: '20px' }}>
+          {isLoadingDivisions ? 'Loading divisions...' : 'Please select a division to view data'}
+        </p>
+        {divisions.length > 0 && (
+          <select 
+            value={selectedDivision} 
+            onChange={(e) => handleDivisionChange(e.target.value)}
+            style={{
+              padding: '12px 20px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: '2px solid #007bff',
+              minWidth: '250px',
+              backgroundColor: 'white',
+              fontWeight: '500'
+            }}
+          >
+            <option value="">📋 Select Division</option>
+            {divisions.map((division, index) => (
+              <option key={index} value={division}>
+                📍 {division}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div>
+      {/* Division Selector for BH/SBUH */}
+      {(role === 'BH' || role === 'SBUH') && divisions.length > 0 && (
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '12px',
+         
+          textAlign: 'center',
+          border: '2px solid #e9ecef',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
+        }}>
+          <label style={{ 
+            fontWeight: '600', 
+            marginRight: '15px',
+            fontSize: '16px',
+            color: '#495057'
+          }}>
+            📍 Select Division: 
+          </label>
+          <select 
+            value={selectedDivision} 
+            onChange={(e) => handleDivisionChange(e.target.value)}
+            style={{
+              padding: '12px 20px',
+              fontSize: '16px',
+              borderRadius: '8px',
+              border: '2px solid #007bff',
+              minWidth: '250px',
+              backgroundColor: 'white',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="">Select Division</option>
+            {divisions.map((division, index) => (
+              <option key={index} value={division}>
+                {division}
+              </option>
+            ))}
+          </select>
+          {selectedDivision && (
+            <div style={{ 
+              marginTop: '10px', 
+              color: '#28a745', 
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              ✅ Selected: <strong>{selectedDivision}</strong>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="table-box">
         {role === "BE" && (
           <div className="table-container">
@@ -512,7 +628,7 @@ export default function Performance() {
                     <tbody>
                       <tr>
                         <td>5%</td>
-                        <td>% of proposed candidates Approved by<br/> BHR vs Submitted to BHR by BL</td>
+                        <td>% of proposed candidates Approved by<br /> BHR vs Submitted to BHR by BL</td>
                         <td>100%</td>
                         <td>{blData?.Hiring_Quality_Index}</td>
                         <td>{blData?.Hiring_Quality_Index_Score}</td>
@@ -566,112 +682,112 @@ export default function Performance() {
             </div>
           </div>
         )}
-        
-        {(role === 'BH' || role==='SBUH') && (
-  <div className="table-container">
-    <div className="efficiency-container">
-      <HeadingWithHome>Team & Culture Building</HeadingWithHome>
 
-      <div className="efficiency-table-container">
-        <div className="efficiency-table-scroll">
-          <table className="efficiency-table">
-            <thead>
-              <tr>
-                <th>Weightage</th>
-                <th>Parameter</th>
-                <th>Description</th>
-                <th>Objective</th>
-                <th>Month Val</th>
-                <th>Month Score</th>
-                <th>YTD Val</th>
-                <th>YTD Score</th>
-              </tr>
-            </thead>
+        {(role === 'BH' || role === 'SBUH') && (
+          <div className="table-container">
+            <div className="efficiency-container">
+              <HeadingWithHome>Team & Culture Building</HeadingWithHome>
 
-            <tbody>
-              <tr>
-                <td>5%</td>
-                <td><b>Team Stability</b></td>
-                <td>Overall attrition rate</td>
-                <td>20%</td>
-                <td>{bhBeData?.Overall_Attrition_Rate}</td>
-                <td>{bhBeData?.Overall_Attrition_Rate_Score}</td>
-                <td>{bhYtdData?.Overall_Attrition_Rate}</td>
-                <td>{bhYtdData?.Overall_Attrition_Rate_Score}</td>
-              </tr>
+              <div className="efficiency-table-container">
+                <div className="efficiency-table-scroll">
+                  <table className="efficiency-table">
+                    <thead>
+                      <tr>
+                        <th>Weightage</th>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Objective</th>
+                        <th>Month Val</th>
+                        <th>Month Score</th>
+                        <th>YTD Val</th>
+                        <th>YTD Score</th>
+                      </tr>
+                    </thead>
 
-              <tr>
-                <td>4%</td>
-                <td><b>Reporting Integrity</b></td>
-                <td>Secondary variance</td>
-                <td>10%</td>
-                <td>{bhBeData?.Secondary_Variance}</td>
-                <td>{bhBeData?.Secondary_Variance_Score}</td>
-                <td>{bhYtdData?.Secondary_Variance}</td>
-                <td>{bhYtdData?.Secondary_Variance_Score}</td>
-              </tr>
+                    <tbody>
+                      <tr>
+                        <td>5%</td>
+                        <td><b>Team Stability</b></td>
+                        <td>Overall attrition rate</td>
+                        <td>20%</td>
+                        <td>{bhBeData?.Overall_Attrition_Rate}</td>
+                        <td>{bhBeData?.Overall_Attrition_Rate_Score}</td>
+                        <td>{bhYtdData?.Overall_Attrition_Rate}</td>
+                        <td>{bhYtdData?.Overall_Attrition_Rate_Score}</td>
+                      </tr>
 
-           
+                      <tr>
+                        <td>4%</td>
+                        <td><b>Reporting Integrity</b></td>
+                        <td>Secondary variance</td>
+                        <td>10%</td>
+                        <td>{bhBeData?.Secondary_Variance}</td>
+                        <td>{bhBeData?.Secondary_Variance_Score}</td>
+                        <td>{bhYtdData?.Secondary_Variance}</td>
+                        <td>{bhYtdData?.Secondary_Variance_Score}</td>
+                      </tr>
 
 
-              <tr>
-                <td>2%</td>
-                <td rowSpan={2}><b>MSR Compliance</b></td>
-                <td>% of headquarters audited</td>
-                <td>90%</td>
-               
-                    <td>{bhBeData?.MSP_Compliance_Territories}</td>
-                <td>{bhBeData?.MSP_Compliance_Territories_Score}</td>
-                <td>{bhYtdData?.MSP_Compliance_Territories}</td>
-                <td>{bhYtdData?.MSP_Compliance_Territories_Score}</td>
-              </tr>
 
-              <tr>
-                <td>2%</td>
-                <td>% of headquarters compliant</td>
-                <td>90%</td>
-                 <td>{bhBeData?.MSR_Compliance_Territories}</td>
-                <td>{bhBeData?.MSR_Compliance_Territories_Score}</td>
-                <td>{bhYtdData?.MSR_Compliance_Territories}</td>
-                <td>{bhYtdData?.MSR_Compliance_Territories_Score}</td>
-              </tr>
 
-              <tr>
-                <td>3%</td>
-                <td><b>BE</b></td>
-                <td># of BE Active Vs Sanctioned</td>
-                <td>100%</td>
-               <td>{bhBeData?.BE_Active_vs_Sanctioned}</td>
-                <td>{bhBeData?.BE_Active_vs_Sanctioned_Score}</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
+                      <tr>
+                        <td>2%</td>
+                        <td rowSpan={2}><b>MSR Compliance</b></td>
+                        <td>% of headquarters audited</td>
+                        <td>90%</td>
 
-              <tr>
-                <td>4%</td>
-                <td><b>BM & BL</b></td>
-                <td># of BM & BL Active Vs</td>
-                <td>100%</td>
-                <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned}</td>
-                <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned_Score}</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
+                        <td>{bhBeData?.MSP_Compliance_Territories}</td>
+                        <td>{bhBeData?.MSP_Compliance_Territories_Score}</td>
+                        <td>{bhYtdData?.MSP_Compliance_Territories}</td>
+                        <td>{bhYtdData?.MSP_Compliance_Territories_Score}</td>
+                      </tr>
 
-              <tr className="shade">
-                <td>20%</td>
-                <td colSpan={4}><b>Team & Culture Building Score</b></td>
-                <td><b>{fmt(bhTotalFTMScore)}</b></td>
-                <td></td>
-                <td><b>{fmt(bhTotalYTDScore)}</b></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+                      <tr>
+                        <td>2%</td>
+                        <td>% of headquarters compliant</td>
+                        <td>90%</td>
+                        <td>{bhBeData?.MSR_Compliance_Territories}</td>
+                        <td>{bhBeData?.MSR_Compliance_Territories_Score}</td>
+                        <td>{bhYtdData?.MSR_Compliance_Territories}</td>
+                        <td>{bhYtdData?.MSR_Compliance_Territories_Score}</td>
+                      </tr>
+
+                      <tr>
+                        <td>3%</td>
+                        <td><b>BE</b></td>
+                        <td># of BE Active Vs Sanctioned</td>
+                        <td>100%</td>
+                        <td>{bhBeData?.BE_Active_vs_Sanctioned}</td>
+                        <td>{bhBeData?.BE_Active_vs_Sanctioned_Score}</td>
+                        <td>-</td>
+                        <td>-</td>
+                      </tr>
+
+                      <tr>
+                        <td>4%</td>
+                        <td><b>BM & BL</b></td>
+                        <td># of BM & BL Active Vs</td>
+                        <td>100%</td>
+                        <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned}</td>
+                        <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned_Score}</td>
+                        <td>-</td>
+                        <td>-</td>
+                      </tr>
+
+                      <tr className="shade">
+                        <td>20%</td>
+                        <td colSpan={4}><b>Team & Culture Building Score</b></td>
+                        <td><b>{fmt(bhTotalFTMScore)}</b></td>
+                        <td></td>
+                        <td><b>{fmt(bhTotalYTDScore)}</b></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>

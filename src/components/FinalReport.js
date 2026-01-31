@@ -9,53 +9,108 @@ import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function FinalReport() {
   const { setRole, setName } = useRole();
-  const [score1, setScore1] = useState(null);
-  const [score2, setScore2] = useState(null);
-  const [score3, setScore3] = useState(null);
-  const [score4, setScore4] = useState(null);
+  const navigate = useNavigate();
+  const { decoded, encoded } = useEncodedTerritory();
+
+  // Core score states
+  const [score1, setScore1] = useState(null); // YTD Efforts/Business
+  const [score2, setScore2] = useState(null); // YTD Business
+  const [score3, setScore3] = useState(null); // Month Efforts
+  const [score4, setScore4] = useState(null); // Month Business
+  
+  // Additional metrics
   const [hygieneMonth, setHygieneMonth] = useState(null);
   const [hygieneYTD, setHygieneYTD] = useState(null);
   const [commitmentMonth, setCommitmentMonth] = useState(null);
   const [commitmentYTD, setCommitmentYTD] = useState(null);
   const [effortMonth, setEffortMonth] = useState(null);
   const [effortYTD, setEffortYTD] = useState(null);
+  
+  // BH/SBUH Division states
+  const [divisions, setDivisions] = useState([]);
+  const [selectedDivision, setSelectedDivision] = useState('');
+  const [isLoadingDivisions, setIsLoadingDivisions] = useState(false);
+  
+  // Role & User info
   const [roleAllowed, setRoleAllowed] = useState(null);
   const [showTerritory, setShowTerritory] = useState('');
   const [myName, setMyName] = useState('');
 
-  const navigate = useNavigate();
-  const { decoded, encoded } = useEncodedTerritory();
+  const gotoselection = () => navigate(`/Selection?ec=${encoded}`);
+  const perform = () => navigate(`/TeamBuild?ec=${encoded}`);
+  const Home = () => navigate(`/Performance?ec=${encoded}`);
+  const misc = () => navigate(`/Hygine?ec=${encoded}`);
+  const commitment = () => navigate(`/Compliance?ec=${encoded}`);
+  const bulkUpload = () => navigate(`/Disclosure?ec=${encoded}`);
 
-  const gotoselection = () => {
-    navigate(`/Selection?ec=${encoded}`);
+  // Fetch divisions for BH/SBUH
+  const fetchDivisions = async () => {
+    if (!['BH', 'SBUH'].includes(roleAllowed) || !decoded) return;
+
+    try {
+      setIsLoadingDivisions(true);
+      const res = await fetch("https://review-backend-bgm.onrender.com/getDivisions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Territory: decoded }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.divisions) {
+        setDivisions(data.divisions);
+        if (data.divisions.length > 0 && !selectedDivision) {
+          setSelectedDivision(data.divisions[0]);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching divisions:", error);
+    } finally {
+      setIsLoadingDivisions(false);
+    }
   };
 
+  // Handle division change - refetch data
+  const handleDivisionChange = async (division) => {
+    setSelectedDivision(division);
+    // Reset scores while loading
+    setScore1(null); setScore2(null); setScore3(null); setScore4(null);
+    setHygieneMonth(null); setHygieneYTD(null); setCommitmentMonth(null); 
+    setCommitmentYTD(null); setEffortMonth(null); setEffortYTD(null);
+  };
+
+  // Main data fetching effect
   useEffect(() => {
     if (!decoded) return;
 
-    const verifyRole = async () => {
+    const verifyRoleAndFetchData = async () => {
       try {
         NProgress.start();
 
+        // 1. Verify role
         const res = await fetch(`https://review-backend-bgm.onrender.com/checkrole?territory=${decoded}`);
         const data = await res.json();
-        
+
         setShowTerritory(decoded);
         setMyName(data.name);
         setName(data.name);
 
-        // Set role conditionally
         const normalizedRole = ['BE', 'TE', 'KAE', 'NE'].includes(data.role) ? 'BE' : data.role;
         setRoleAllowed(normalizedRole);
         setRole(normalizedRole);
 
-        // Only fetch dashboard data for BE, BM, BL, BH, SBUH roles
+        // Skip dashboard data for non-eligible roles
         if (!['BE', 'BM', 'BL', 'BH', 'SBUH'].includes(normalizedRole)) {
           return;
         }
 
+        // 2. Fetch divisions for BH/SBUH
+        if (['BH', 'SBUH'].includes(normalizedRole)) {
+          await fetchDivisions();
+        }
+
+        // 3. Fetch dashboard data based on role
         if (normalizedRole === 'BE') {
-          // BE LOGIC - Fetch YTD and FTD data
+          // BE: YTD + FTD data
           const [ytdRes, ftdRes] = await Promise.all([
             fetch("https://review-backend-bgm.onrender.com/dashboardYTD", {
               method: "POST",
@@ -76,17 +131,13 @@ export default function FinalReport() {
             setScore1(Number(ytdData.totalScore1) || 0);
             setScore2(Number(ytdData.totalScore2) || 0);
           }
-
           if (ftdRes.ok) {
             setScore3(Number(ftdData.totalScore3) || 0);
             setScore4(Number(ftdData.totalScore4) || 0);
           }
-
-          console.log('YTD Data:', ytdData);
-          console.log('FTD Data:', ftdData);
         } 
         else if (normalizedRole === 'BM') {
-          // BM LOGIC - Fetch efficiency data
+          // BM: Efficiency data (no division)
           const bmRes = await fetch("https://review-backend-bgm.onrender.com/bmEfficiency", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -96,17 +147,15 @@ export default function FinalReport() {
 
           if (bmRes.ok) {
             setScore1(Number(bmData.effortYTD) || 0);
-            setScore3(Number(bmData.effortMonth) || 0);
             setScore2(Number(bmData.businessYTD) || 0);
+            setScore3(Number(bmData.effortMonth) || 0);
             setScore4(Number(bmData.businessMonth) || 0);
             setHygieneMonth(Number(bmData.hygieneMonth) || 0);
             setHygieneYTD(Number(bmData.hygieneYTD) || 0);
           }
-
-          console.log('BM Data:', bmData);
-        }
-        else if (normalizedRole === 'BL') {
-          // BL LOGIC - Fetch efficiency data
+        } 
+        else if (['BL'].includes(normalizedRole)) {
+          // BL: Efficiency data (no division)
           const blRes = await fetch("https://review-backend-bgm.onrender.com/blEfficiency", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -126,56 +175,32 @@ export default function FinalReport() {
             setEffortMonth(Number(blData.effortMonth) || 0);
             setEffortYTD(Number(blData.effortYTD) || 0);
           }
-
-          console.log('BL Data:', blData);
-        }
-        else if (normalizedRole === 'BH') {
-          // BH LOGIC - Fetch efficiency data
-          const bhRes = await fetch("https://review-backend-bgm.onrender.com/bhEfficiency", {
+        } 
+        else if (['BH', 'SBUH'].includes(normalizedRole) && selectedDivision) {
+          // BH/SBUH: Efficiency data WITH Division
+          const endpoint = normalizedRole === 'BH' ? 'bhEfficiency' : 'sbuhEfficiency';
+          const res = await fetch(`https://review-backend-bgm.onrender.com/${endpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ Territory: decoded })
+            body: JSON.stringify({ 
+              Territory: decoded, 
+              Division: selectedDivision 
+            })
           });
-          const bhData = await bhRes.json();
+          const data = await res.json();
 
-          if (bhRes.ok) {
-            setScore1(Number(bhData.effortYTD) || 0);
-            setScore2(Number(bhData.businessYTD) || 0);
-            setScore3(Number(bhData.effortMonth) || 0);
-            setScore4(Number(bhData.businessMonth) || 0);
-            setHygieneMonth(Number(bhData.hygieneMonth) || 0);
-            setHygieneYTD(Number(bhData.hygieneYTD) || 0);
-            setCommitmentMonth(Number(bhData.commitmentMonth) || 0);
-            setCommitmentYTD(Number(bhData.commitmentYTD) || 0);
-            setEffortMonth(Number(bhData.effortMonth) || 0);
-            setEffortYTD(Number(bhData.effortYTD) || 0);
+          if (res.ok) {
+            setScore1(Number(data.effortYTD) || 0);
+            setScore2(Number(data.businessYTD) || 0);
+            setScore3(Number(data.effortMonth) || 0);
+            setScore4(Number(data.businessMonth) || 0);
+            setHygieneMonth(Number(data.hygieneMonth) || 0);
+            setHygieneYTD(Number(data.hygieneYTD) || 0);
+            setCommitmentMonth(Number(data.commitmentMonth) || 0);
+            setCommitmentYTD(Number(data.commitmentYTD) || 0);
+            setEffortMonth(Number(data.effortMonth) || 0);
+            setEffortYTD(Number(data.effortYTD) || 0);
           }
-
-          console.log('BH Data:', bhData);
-        }
-        else if (normalizedRole === 'SBUH') {
-          // SBUH LOGIC - Fetch efficiency data
-          const sbuhRes = await fetch("https://review-backend-bgm.onrender.com/sbuhEfficiency", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ Territory: decoded })
-          });
-          const sbuhData = await sbuhRes.json();
-
-          if (sbuhRes.ok) {
-            setScore1(Number(sbuhData.effortYTD) || 0);
-            setScore2(Number(sbuhData.businessYTD) || 0);
-            setScore3(Number(sbuhData.effortMonth) || 0);
-            setScore4(Number(sbuhData.businessMonth) || 0);
-            setHygieneMonth(Number(sbuhData.hygieneMonth) || 0);
-            setHygieneYTD(Number(sbuhData.hygieneYTD) || 0);
-            setCommitmentMonth(Number(sbuhData.commitmentMonth) || 0);
-            setCommitmentYTD(Number(sbuhData.commitmentYTD) || 0);
-            setEffortMonth(Number(sbuhData.effortMonth) || 0);
-            setEffortYTD(Number(sbuhData.effortYTD) || 0);
-          }
-
-          console.log('SBUH Data:', sbuhData);
         }
       } catch (err) {
         console.error("API error:", err);
@@ -184,49 +209,27 @@ export default function FinalReport() {
       }
     };
 
-    verifyRole();
-  }, [decoded, setRole, setName, encoded]);
+    verifyRoleAndFetchData();
+  }, [decoded, selectedDivision, setRole, setName, encoded, roleAllowed]);
 
-  const perform = () => navigate(`/TeamBuild?ec=${encoded}`);
-  const Home = () => navigate(`/Performance?ec=${encoded}`);
-  const misc = () => navigate(`/Hygine?ec=${encoded}`);
-  const commitment = () => navigate(`/Compliance?ec=${encoded}`);
-  const bulkUpload = () => navigate(`/Disclosure?ec=${encoded}`);
-
-  // Show message for non-BE/BM/BL/BH/SBUH roles
+  // Show message for non-eligible roles
   if (roleAllowed !== null && !['BE', 'BM', 'BL', 'BH', 'SBUH'].includes(roleAllowed)) {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "70vh",
-          textAlign: "center",
-          padding: "20px"
-        }}
-      >
-        <p
-          style={{
-            fontSize: "20px",
-            fontWeight: "600",
-            marginBottom: "15px",
-            color: "#333"
-          }}
-        >
-          Your dashboards are yet to be updated 
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "70vh",
+        textAlign: "center",
+        padding: "20px"
+      }}>
+        <p style={{ fontSize: "20px", fontWeight: "600", marginBottom: "15px", color: "#333" }}>
+          Your dashboards are yet to be updated
         </p>
-        <p
-          style={{
-            fontSize: "14px",
-            color: "#666",
-            marginBottom: "20px"
-          }}
-        >
+        <p style={{ fontSize: "14px", color: "#666", marginBottom: "20px" }}>
           Your current role: <strong>{roleAllowed}</strong>
         </p>
-
         <button
           style={{
             padding: "12px 26px",
@@ -245,77 +248,86 @@ export default function FinalReport() {
         >
           Review Others
         </button>
-
-      
       </div>
     );
   }
 
   // Loading states
-  if (roleAllowed === 'BE' && [score1, score2, score3, score4].some(s => s === null)) {
+  const isLoading = score1 === null || score2 === null || score3 === null || score4 === null;
+  if (roleAllowed !== null && isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '70vh' 
+      }}>
+        <p style={{ fontSize: '18px', color: '#666' }}>
+          {isLoadingDivisions ? 'Loading divisions...' : 'Loading dashboard data...'}
+        </p>
       </div>
     );
   }
 
-  if (roleAllowed === 'BM' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD].some(s => s === null)) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
-      </div>
-    );
-  }
+  // Division selector for BH/SBUH
+  const renderDivisionSelector = () => {
+    if (!['BH', 'SBUH'].includes(roleAllowed) || !divisions.length) return null;
 
-  if (roleAllowed === 'BL' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].some(s => s === null)) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
+      <div style={{
+        backgroundColor: '#f8f9fa',
+        padding: '15px 20px',
+        borderRadius: '8px',
+        
+        textAlign: 'center'
+      }}>
+        <label style={{ fontWeight: '600', marginRight: '10px', color: '#2c3e50' }}>
+          Select Division: 
+        </label>
+        <select
+          value={selectedDivision}
+          onChange={(e) => handleDivisionChange(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #ddd',
+            borderRadius: '6px',
+            fontSize: '14px',
+            minWidth: '200px'
+          }}
+        >
+          {divisions.map((division) => (
+            <option key={division} value={division}>{division}</option>
+          ))}
+        </select>
       </div>
     );
-  }
-
-  if (roleAllowed === 'BH' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].some(s => s === null)) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
-      </div>
-    );
-  }
-
-  if (roleAllowed === 'SBUH' && [score1, score2, score3, score4, hygieneMonth, hygieneYTD, commitmentMonth, effortMonth].some(s => s === null)) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '70vh' }}>
-        <p style={{ fontSize: '18px', color: '#666' }}>Loading dashboard data...</p>
-      </div>
-    );
-  }
+  };
 
   return (
     <div className="dashboard-shell">
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px 0',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          margin: '0 0 20px 0'
-        }}
-      >
+      {/* User Info Header */}
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px 0',
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        margin: '0 0 20px 0'
+      }}>
         <p style={{ fontSize: '20px', fontWeight: '600', color: '#2c3e50', margin: '5px 0' }}>
           {myName}
         </p>
         <p style={{ fontSize: '14px', color: '#718096', margin: '5px 0' }}>
-          {showTerritory}
+          {showTerritory} | Role: {roleAllowed}
         </p>
-        
-     
       </div>
 
+      {/* Division Selector */}
+      {renderDivisionSelector()}
+
+      {/* Main Dashboard */}
       <div className="table-box">
         {roleAllowed === 'BE' && (
           <div className="efficiency-container">
@@ -337,22 +349,22 @@ export default function FinalReport() {
                         Business Performance
                       </td>
                       <td>50</td>
-                      <td>{score4.toFixed(2)}</td>
-                      <td>{score2.toFixed(2)}</td>
+                      <td>{score4?.toFixed(2) || 0}</td>
+                      <td>{score2?.toFixed(2) || 0}</td>
                     </tr>
                     <tr>
                       <td className="clickable-param" onClick={perform}>
                         Efforts and Effectiveness
                       </td>
                       <td>50</td>
-                      <td>{score3.toFixed(2)}</td>
-                      <td>{score1.toFixed(2)}</td>
+                      <td>{score3?.toFixed(2) || 0}</td>
+                      <td>{score1?.toFixed(2) || 0}</td>
                     </tr>
                     <tr className="shade">
                       <td>Efficiency Index</td>
                       <td>100</td>
-                      <td>{(score3 + score4).toFixed(2)}</td>
-                      <td>{(score1 + score2).toFixed(2)}</td>
+                      <td>{((score3 || 0) + (score4 || 0)).toFixed(2)}</td>
+                      <td>{((score1 || 0) + (score2 || 0)).toFixed(2)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -365,7 +377,7 @@ export default function FinalReport() {
           </div>
         )}
 
-        {roleAllowed === 'BM' && (
+        {(roleAllowed === 'BM' || roleAllowed === 'BL' || roleAllowed === 'BH' || roleAllowed === 'SBUH') && (
           <div className="efficiency-container">
             <h3>Efficiency Index</h3>
             <div className="efficiency-table-container">
@@ -382,225 +394,62 @@ export default function FinalReport() {
                   <tbody>
                     <tr>
                       <td className="clickable-param" onClick={Home}>
-                        Business Performance
+                        {roleAllowed === 'BE' ? 'Business Performance' : 
+                         roleAllowed === 'BH' ? 'Business & Brand Performance' : 'Business Performance'}
                       </td>
-                      <td>50</td>
-                      <td>{score4.toFixed(2)}</td>
-                      <td>{score2.toFixed(2)}</td>
+                      <td>{roleAllowed === 'BE' ? '50' : roleAllowed === 'BM' ? '50' : '35'}</td>
+                      <td>{score4?.toFixed(2) || 0}</td>
+                      <td>{score2?.toFixed(2) || 0}</td>
                     </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={perform}>
-                        Efforts and Effectiveness
-                      </td>
-                      <td>40</td>
-                      <td>{score3.toFixed(2)}</td>
-                      <td>{score1.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={misc}>
-                        Hygiene
-                      </td>
-                      <td>10</td>
-                      <td>{hygieneMonth.toFixed(2)}</td>
-                      <td>{hygieneYTD.toFixed(2)}</td>
-                    </tr>
+                    
+                    {roleAllowed !== 'BE' && (
+                      <>
+                        <tr>
+                          <td className="clickable-param" onClick={misc}>
+                            {roleAllowed === 'BE' ? '' : 'Business Hygiene & Demand Quality'}
+                          </td>
+                          <td>20</td>
+                          <td>{hygieneMonth?.toFixed(2) || 0}</td>
+                          <td>{hygieneYTD?.toFixed(2) || 0}</td>
+                        </tr>
+                        
+                        <tr>
+                          <td className="clickable-param" onClick={perform}>
+                            {roleAllowed === 'BL' ? 'Team Building (Efforts)' :
+                             roleAllowed === 'BH' ? 'Team & Culture Building' : 'Team Building'}
+                          </td>
+                          <td>{roleAllowed === 'BE' ? '50' : '20'}</td>
+                          <td>{effortMonth?.toFixed(2) || 0}</td>
+                          <td>{effortYTD?.toFixed(2) || 0}</td>
+                        </tr>
+                        
+                        <tr>
+                          <td className="clickable-param" onClick={commitment}>
+                            {roleAllowed === 'BH' ? 'Activity & Productivity' :
+                             roleAllowed === 'BL' || roleAllowed === 'SBUH' ? 'Compliance & Reporting' : ''}
+                          </td>
+                          <td>25</td>
+                          <td>{commitmentMonth?.toFixed(2) || 0}</td>
+                          <td>{commitmentYTD?.toFixed(2) || 0}</td>
+                        </tr>
+                      </>
+                    )}
+                    
                     <tr className="shade">
                       <td>Efficiency Index</td>
                       <td>100</td>
-                      <td>{(Number(score4) + Number(score3) + Number(hygieneMonth)).toFixed(2)}</td>
-                      <td>{(Number(score2) + Number(score1) + Number(hygieneYTD)).toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="efficiency-notes-box">
-              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
-              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
-            </div>
-          </div>
-        )}
-
-        {roleAllowed === 'BL' && (
-          <div className="efficiency-container">
-            <h3>Efficiency Index</h3>
-            <div className="efficiency-table-container">
-              <div className="efficiency-table-scroll">
-                <table className="efficiency-table">
-                  <thead>
-                    <tr>
-                      <th>Parameter</th>
-                      <th>Objective(%)</th>
-                      <th>Month(%)</th>
-                      <th>YTD(%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="clickable-param" onClick={Home}>
-                        Business Performance
-                      </td>
-                      <td>35</td>
-                      <td>{score4.toFixed(2)}</td>
-                      <td>{score2.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={misc}>
-                        Business Hygiene & Demand Quality
-                      </td>
-                      <td>20</td>
-                      <td>{hygieneMonth.toFixed(2)}</td>
-                      <td>{hygieneYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={perform}>
-                        Team Building (Efforts)
-                      </td>
-                      <td>20</td>
-                      <td>{effortMonth.toFixed(2)}</td>
-                      <td>{effortYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={commitment}>
-                        Compliance & Reporting (Commitment)
-                      </td>
-                      <td>25</td>
-                      <td>{commitmentMonth.toFixed(2)}</td>
-                      <td>{commitmentYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr className="shade">
-                      <td>Efficiency Index</td>
-                      <td>100</td>
-                      <td>{(Number(score4) + Number(hygieneMonth) + Number(effortMonth) + Number(commitmentMonth)).toFixed(2)}</td>
-                      <td>{(Number(score2) + Number(hygieneYTD) + Number(effortYTD) + Number(commitmentYTD)).toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="efficiency-notes-box">
-              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
-              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
-            </div>
-          </div>
-        )}
-
-        {roleAllowed === 'BH' && (
-          <div className="efficiency-container">
-            <h3>Efficiency Index</h3>
-            <div className="efficiency-table-container">
-              <div className="efficiency-table-scroll">
-                <table className="efficiency-table">
-                  <thead>
-                    <tr>
-                      <th>Parameter</th>
-                      <th>Objective(%)</th>
-                      <th>Month(%)</th>
-                      <th>YTD(%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="clickable-param" onClick={Home}>
-                        Business & Brand Performance
-                      </td>
-                      <td>40</td>
-                      <td>{score4.toFixed(2)}</td>
-                      <td>{score2.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={misc}>
-                        Business Hygiene & Demand Quality
-                      </td>
-                      <td>20</td>
-                      <td>{hygieneMonth.toFixed(2)}</td>
-                      <td>{hygieneYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={perform}>
-                        Team & Culture Building
-                      </td>
-                      <td>20</td>
-                      <td>{effortMonth.toFixed(2)}</td>
-                      <td>{effortYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={commitment}>
-                        Activity & Productivity
-                      </td>
-                      <td>20</td>
-                      <td>{commitmentMonth.toFixed(2)}</td>
-                      <td>{commitmentYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr className="shade">
-                      <td>Efficiency Index</td>
-                      <td>100</td>
-                      <td>{(Number(score4) + Number(hygieneMonth) + Number(effortMonth) + Number(commitmentMonth)).toFixed(2)}</td>
-                      <td>{(Number(score2) + Number(hygieneYTD) + Number(effortYTD) + Number(commitmentYTD)).toFixed(2)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="efficiency-notes-box">
-              <p>📌 <b>Click on Parameter</b> to go to related dashboard</p>
-              <p>⚠ <b>Raise a ticket on iMACX</b> if you find any data inaccuracy</p>
-            </div>
-          </div>
-        )}
-
-        {roleAllowed === 'SBUH' && (
-          <div className="efficiency-container">
-            <h3>Efficiency Index</h3>
-            <div className="efficiency-table-container">
-              <div className="efficiency-table-scroll">
-                <table className="efficiency-table">
-                  <thead>
-                    <tr>
-                      <th>Parameter</th>
-                      <th>Objective(%)</th>
-                      <th>Month(%)</th>
-                      <th>YTD(%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="clickable-param" onClick={Home}>
-                        Business Performance
-                      </td>
-                      <td>35</td>
-                      <td>{score4.toFixed(2)}</td>
-                      <td>{score2.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={misc}>
-                        Business Hygiene & Demand Quality
-                      </td>
-                      <td>20</td>
-                      <td>{hygieneMonth.toFixed(2)}</td>
-                      <td>{hygieneYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={perform}>
-                        Team Building 
-                      </td>
-                      <td>20</td>
-                      <td>{effortMonth.toFixed(2)}</td>
-                      <td>{effortYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr>
-                      <td className="clickable-param" onClick={commitment}>
-                        Compliance & Reporting 
-                      </td>
-                      <td>25</td>
-                      <td>{commitmentMonth.toFixed(2)}</td>
-                      <td>{commitmentYTD.toFixed(2)}</td>
-                    </tr>
-                    <tr className="shade">
-                      <td>Efficiency Index</td>
-                      <td>100</td>
-                      <td>{(Number(score4) + Number(hygieneMonth) + Number(effortMonth) + Number(commitmentMonth)).toFixed(2)}</td>
-                      <td>{(Number(score2) + Number(hygieneYTD) + Number(effortYTD) + Number(commitmentYTD)).toFixed(2)}</td>
+                      <td>{(
+                        (score4 || 0) + 
+                        (hygieneMonth || 0) + 
+                        (effortMonth || 0) + 
+                        (commitmentMonth || 0)
+                      ).toFixed(2)}</td>
+                      <td>{(
+                        (score2 || 0) + 
+                        (hygieneYTD || 0) + 
+                        (effortYTD || 0) + 
+                        (commitmentYTD || 0)
+                      ).toFixed(2)}</td>
                     </tr>
                   </tbody>
                 </table>
