@@ -430,7 +430,7 @@ export default function Miscfiles() {
                     <tbody>
                       <tr>
                         <td>3%</td>
-                        <td>% of Returns as % of secondary sales (Objectiveless than 2%)</td>
+                        <td>% of Returns as % of secondary sales <br/> (Objective less than 2%)</td>
                         <td>2%</td>
                         <td>{blData?.Returns}</td>
                         <td>{blData?.Returns_Score}</td>
@@ -457,7 +457,7 @@ export default function Miscfiles() {
                       </tr>
                       <tr>
                         <td>3%</td>
-                        <td>Avg. closing stock in days (should be ≤45days)</td>
+                        <td>Avg. closing stock in days (should be ≤ 45days)</td>
                         <td>45</td>
                         <td>{blData?.Closing}</td>
                         <td>{blData?.Closing_Score}</td>

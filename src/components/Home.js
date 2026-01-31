@@ -580,7 +580,7 @@ const Home = () => {
                       </tr>
                       <tr>
                         <td>2%</td>
-                        <td>% of corporate doctors visited in last 2 months</td>
+                        <td>% of corporate doctors visited in <br/> last 2 months (Out of 100 Selected)</td>
                         <td>100%</td>
                         <td>{blData?.Corporate_Drs_Visited_Last_2M}</td>
                         <td>{blData?.Corporate_Drs_Visited_Last_2M_Score}</td>
@@ -589,7 +589,7 @@ const Home = () => {
                       </tr>
                       <tr>
                         <td>3%</td>
-                        <td>% of Corporate doctors active prescribers</td>
+                        <td>% of Corporate doctors moved to <br/>active prescriber category (BL+F)</td>
                         <td>80%</td>
                         <td>{blData?.Corporate_Drs_Active_Prescribers}</td>
                         <td>{blData?.Corporate_Drs_Active_Prescribers_Score}</td>

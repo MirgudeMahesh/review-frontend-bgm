@@ -373,7 +373,7 @@ export default function Commitment() {
                       </tr>
                       <tr>
                         <td>2%</td>
-                        <td>% of headquarters MSP (for HQ) vs Target taken cumulatively by BL</td>
+                        <td>% of headquarters MSP (for HQ) <br/>vs Target taken cumulatively by BL</td>
                         <td>90%</td>
                         <td>{blData?.MSP_Compliance_Territories}</td>
                         <td>{blData?.MSP_Compliance_Territories_Score}</td>
@@ -382,7 +382,7 @@ export default function Commitment() {
                       </tr>
                       <tr>
                         <td>2%</td>
-                        <td>% of headquarters having MSR compliance with respect to Average Secondary Sales</td>
+                        <td>% of headquarters having MSR compliance<br/> with respect to Average Secondary Sales</td>
                         <td>90%</td>
                         <td>{blData?.MSR_Compliance_Territories}</td>
                         <td>{blData?.MSR_Compliance_Territories_Score}</td>
