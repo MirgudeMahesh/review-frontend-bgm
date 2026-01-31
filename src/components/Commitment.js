@@ -9,7 +9,7 @@ import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function Commitment() {
   const navigate = useNavigate();
-  const { role } = useRole();
+  const { role,division } = useRole();
   const { decoded, encoded } = useEncodedTerritory();
 
   // BL data states
@@ -63,39 +63,39 @@ export default function Commitment() {
   };
 
   // Fetch divisions for BH/SBUH roles
-  const fetchDivisions = async () => {
-    if (!['BH', 'SBUH'].includes(role) || !decoded) return;
+  // const fetchDivisions = async () => {
+  //   if (!['BH', 'SBUH'].includes(role) || !decoded) return;
 
-    try {
-      setIsLoadingDivisions(true);
-      const res = await fetch("https://review-backend-bgm.onrender.com/getDivisions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Territory: decoded }),
-      });
+  //   try {
+  //     setIsLoadingDivisions(true);
+  //     const res = await fetch("https://review-backend-bgm.onrender.com/getDivisions", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ Territory: decoded }),
+  //     });
 
-      const data = await res.json();
-      if (res.ok && data.divisions) {
-        setDivisions(data.divisions);
-        // Auto-select first division if available
-        if (data.divisions.length > 0 && !selectedDivision) {
-          setSelectedDivision(data.divisions[0]);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching divisions:", error);
-    } finally {
-      setIsLoadingDivisions(false);
-    }
-  };
+  //     const data = await res.json();
+  //     if (res.ok && data.divisions) {
+  //       setDivisions(data.divisions);
+  //       // Auto-select first division if available
+  //       if (data.divisions.length > 0 && !selectedDivision) {
+  //         setSelectedDivision(data.divisions[0]);
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching divisions:", error);
+  //   } finally {
+  //     setIsLoadingDivisions(false);
+  //   }
+  // };
 
   // Handle division change
-  const handleDivisionChange = (division) => {
-    setSelectedDivision(division);
-    // Clear data while loading new division
-    setBhBeData(null);
-    setBhYtdData(null);
-  };
+  // const handleDivisionChange = (division) => {
+  //   setSelectedDivision(division);
+  //   // Clear data while loading new division
+  //   setBhBeData(null);
+  //   setBhYtdData(null);
+  // };
 
   // ------------------------------------------------
   // Main Data Fetching Effect
@@ -132,21 +132,21 @@ export default function Commitment() {
         }
         else if (role === 'BH' || role === 'SBUH') {
           // Fetch divisions first
-          await fetchDivisions();
+          // await fetchDivisions();
           
           // Fetch data only if division selected
-          if (selectedDivision) {
+          if (division) {
             const endpointBase = role === 'BH' ? 'bh' : 'sbuh';
             const [bhBeRes, bhYtdRes] = await Promise.all([
               fetch(`https://review-backend-bgm.onrender.com/${endpointBase}DashboardData`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ Territory: decoded, Division: selectedDivision }),
+                body: JSON.stringify({ Territory: decoded, Division: division }),
               }),
               fetch(`https://review-backend-bgm.onrender.com/${endpointBase}DashboardytdData`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ Territory: decoded, Division: selectedDivision }),
+                body: JSON.stringify({ Territory: decoded, Division: division }),
               }),
             ]);
 
@@ -168,7 +168,7 @@ export default function Commitment() {
     };
 
     loadAll();
-  }, [decoded, role, selectedDivision]);
+  }, [decoded, role, division]);
 
   // ------------------------------------------------
   // TOTAL SCORES CALCULATIONS
@@ -208,50 +208,50 @@ export default function Commitment() {
     (Number(bhYtdData?.BM_Priority_Drs_Coverage_Score) || 0);
 
   // BH/SBUH Loading/Selection Screen
-  if ((role === 'BH' || role === 'SBUH') && 
-      (!divisions.length || isLoadingDivisions || (!selectedDivision && !bhBeData))) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '70vh',
-        flexDirection: 'column',
-        padding: '20px'
-      }}>
-        <p style={{ fontSize: '18px', color: '#666', marginBottom: '20px' }}>
-          {isLoadingDivisions ? 'Loading divisions...' : 'Please select a division to view data'}
-        </p>
-        {divisions.length > 0 && (
-          <select 
-            value={selectedDivision} 
-            onChange={(e) => handleDivisionChange(e.target.value)}
-            style={{
-              padding: '12px 20px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              border: '2px solid #007bff',
-              minWidth: '250px',
-              backgroundColor: 'white',
-              fontWeight: '500'
-            }}
-          >
-            <option value="">📋 Select Division</option>
-            {divisions.map((division, index) => (
-              <option key={index} value={division}>
-                📍 {division}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-    );
-  }
+  // if ((role === 'BH' || role === 'SBUH') && 
+  //     (!divisions.length || isLoadingDivisions || (!selectedDivision && !bhBeData))) {
+  //   return (
+  //     <div style={{ 
+  //       display: 'flex', 
+  //       justifyContent: 'center', 
+  //       alignItems: 'center', 
+  //       height: '70vh',
+  //       flexDirection: 'column',
+  //       padding: '20px'
+  //     }}>
+  //       <p style={{ fontSize: '18px', color: '#666', marginBottom: '20px' }}>
+  //         {isLoadingDivisions ? 'Loading divisions...' : 'Please select a division to view data'}
+  //       </p>
+  //       {divisions.length > 0 && (
+  //         <select 
+  //           value={selectedDivision} 
+  //           onChange={(e) => handleDivisionChange(e.target.value)}
+  //           style={{
+  //             padding: '12px 20px',
+  //             fontSize: '16px',
+  //             borderRadius: '8px',
+  //             border: '2px solid #007bff',
+  //             minWidth: '250px',
+  //             backgroundColor: 'white',
+  //             fontWeight: '500'
+  //           }}
+  //         >
+  //           <option value="">📋 Select Division</option>
+  //           {divisions.map((division, index) => (
+  //             <option key={index} value={division}>
+  //               📍 {division}
+  //             </option>
+  //           ))}
+  //         </select>
+  //       )}
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
       {/* Division Selector for BH/SBUH */}
-      {(role === 'BH' || role === 'SBUH') && divisions.length > 0 && (
+      {/* {(role === 'BH' || role === 'SBUH') && divisions.length > 0 && (
         <div style={{
           padding: '20px',
           backgroundColor: '#f8f9fa',
@@ -263,8 +263,8 @@ export default function Commitment() {
         }}>
           <label style={{ 
             fontWeight: '600', 
-            marginRight: '15px',
-            fontSize: '16px',
+            marginRight: '10px',
+            fontSize: '13px',
             color: '#495057'
           }}>
             📍 Select Division: 
@@ -274,7 +274,7 @@ export default function Commitment() {
             onChange={(e) => handleDivisionChange(e.target.value)}
             style={{
               padding: '12px 20px',
-              fontSize: '16px',
+              fontSize: '13px',
               borderRadius: '8px',
               border: '2px solid #007bff',
               minWidth: '250px',
@@ -292,16 +292,27 @@ export default function Commitment() {
           </select>
           {selectedDivision && (
             <div style={{ 
-              marginTop: '10px', 
+              marginTop: '5px', 
               color: '#28a745', 
-              fontSize: '14px',
+              fontSize: '12px',
               fontWeight: '500'
             }}>
               ✅ Selected: <strong>{selectedDivision}</strong>
             </div>
           )}
         </div>
-      )}
+      )} */}
+      {division && (
+            <div style={{ 
+              marginTop: '5px', 
+              color: '#28a745', 
+              fontSize: '12px',
+              fontWeight: '500',
+              textAlign:'center'
+            }}>
+              ✅ Selected: <strong>{division}</strong>
+            </div>
+          )}
 
       <div className='table-box'>
         {/* ==================== BL TABLE ==================== */}
@@ -510,6 +521,19 @@ export default function Commitment() {
 
         {/* Loading states */}
         {role === 'BL' && (!blData || !blYtdData) && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '50vh',
+            fontSize: '18px',
+            color: '#666'
+          }}>
+            Loading Compliance data...
+          </div>
+        )}
+
+          {(role === 'BH'||role ==='SBUH') && (!bhBeData || !bhYtdData) && (
           <div style={{ 
             display: 'flex', 
             justifyContent: 'center', 

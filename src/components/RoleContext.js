@@ -7,11 +7,17 @@ export const RoleProvider = ({ children }) => {
   const [name, setName] = useState(localStorage.getItem('name') || '');
   const [user, setUser] = useState(localStorage.getItem('user') || '');
   const [userRole, setUserRole] = useState(localStorage.getItem('userRole') || '');
+  const [division, setDivision] = useState(localStorage.getItem('division') || '');
 
   useEffect(() => {
     if (role) localStorage.setItem('role', role);
     else localStorage.removeItem('role');
   }, [role]);
+
+  useEffect(() => {
+    if (division) localStorage.setItem('division', division);
+    else localStorage.removeItem('division');
+  }, [division]);
 
  
  useEffect(() => {
@@ -30,7 +36,7 @@ export const RoleProvider = ({ children }) => {
   }, [user]);
 
   return (
-    <RoleContext.Provider value={{ role, setRole, name, setName,user, setUser ,userRole, setUserRole }}>
+    <RoleContext.Provider value={{ role, setRole, name, setName,user, setUser ,userRole, setUserRole ,division,setDivision}}>
       {children}
     </RoleContext.Provider>
   );

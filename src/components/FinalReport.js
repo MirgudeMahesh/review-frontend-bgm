@@ -8,7 +8,7 @@ import 'nprogress/nprogress.css';
 import useEncodedTerritory from './hooks/useEncodedTerritory';
 
 export default function FinalReport() {
-  const { setRole, setName } = useRole();
+  const { setRole, setName,setDivision } = useRole();
   const navigate = useNavigate();
   const { decoded, encoded } = useEncodedTerritory();
 
@@ -80,6 +80,8 @@ export default function FinalReport() {
 
   // Main data fetching effect
   useEffect(() => {
+    localStorage.setItem('division', selectedDivision);
+    setDivision(selectedDivision);
     if (!decoded) return;
 
     const verifyRoleAndFetchData = async () => {
@@ -263,7 +265,7 @@ export default function FinalReport() {
         height: '70vh' 
       }}>
         <p style={{ fontSize: '18px', color: '#666' }}>
-          {isLoadingDivisions ? 'Loading divisions...' : 'Loading dashboard data...'}
+          {isLoadingDivisions ?  'Loading dashboard data...':''}
         </p>
       </div>
     );

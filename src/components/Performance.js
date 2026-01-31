@@ -10,7 +10,7 @@ import useEncodedTerritory from "./hooks/useEncodedTerritory";
 
 export default function Performance() {
   const navigate = useNavigate();
-  const { role } = useRole();
+  const { role ,division} = useRole();
   const { decoded, encoded } = useEncodedTerritory();
 
   const [beData, setBeData] = useState(null);
@@ -147,21 +147,21 @@ export default function Performance() {
         }
         else if (['BH', 'SBUH'].includes(role)) {
           // Fetch divisions first for BH/SBUH
-          await fetchDivisions();
+          // await fetchDivisions();
           
           // Fetch data only if division selected
-          if (selectedDivision) {
+          if (division) {
             const endpointBase = role === 'BH' ? 'bh' : 'sbuh';
             const [bhBeRes, bhYtdRes] = await Promise.all([
               fetch(`https://review-backend-bgm.onrender.com/${endpointBase}DashboardData`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ Territory: decoded, Division: selectedDivision }),
+                body: JSON.stringify({ Territory: decoded, Division: division }),
               }),
               fetch(`https://review-backend-bgm.onrender.com/${endpointBase}DashboardytdData`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ Territory: decoded, Division: selectedDivision }),
+                body: JSON.stringify({ Territory: decoded, Division: division }),
               }),
             ]);
 
@@ -183,7 +183,7 @@ export default function Performance() {
     };
 
     loadAll();
-  }, [decoded, role, selectedDivision]);
+  }, [decoded, role, division]);
 
   const HomePage = () => {
     navigate(`/FinalReport?ec=${encoded}`);
@@ -297,51 +297,51 @@ export default function Performance() {
 
 
   // BH/SBUH Loading/Selection Screen (match Home.js behavior)
-  if ((role === 'BH' || role === 'SBUH') && 
-      (!divisions.length || isLoadingDivisions || (!selectedDivision && !bhBeData))) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '70vh',
-        flexDirection: 'column',
-        padding: '20px'
-      }}>
-        <p style={{ fontSize: '18px', color: '#666', marginBottom: '20px' }}>
-          {isLoadingDivisions ? 'Loading divisions...' : 'Please select a division to view data'}
-        </p>
-        {divisions.length > 0 && (
-          <select 
-            value={selectedDivision} 
-            onChange={(e) => handleDivisionChange(e.target.value)}
-            style={{
-              padding: '12px 20px',
-              fontSize: '16px',
-              borderRadius: '8px',
-              border: '2px solid #007bff',
-              minWidth: '250px',
-              backgroundColor: 'white',
-              fontWeight: '500'
-            }}
-          >
-            <option value="">📋 Select Division</option>
-            {divisions.map((division, index) => (
-              <option key={index} value={division}>
-                📍 {division}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-    );
-  }
+  // if ((role === 'BH' || role === 'SBUH') && 
+  //     (!divisions.length || isLoadingDivisions || (!selectedDivision && !bhBeData))) {
+  //   return (
+  //     <div style={{ 
+  //       display: 'flex', 
+  //       justifyContent: 'center', 
+  //       alignItems: 'center', 
+  //       height: '70vh',
+  //       flexDirection: 'column',
+  //       padding: '20px'
+  //     }}>
+  //       <p style={{ fontSize: '18px', color: '#666', marginBottom: '20px' }}>
+  //         {isLoadingDivisions ? 'Loading divisions...' : 'Please select a division to view data'}
+  //       </p>
+  //       {divisions.length > 0 && (
+  //         <select 
+  //           value={selectedDivision} 
+  //           onChange={(e) => handleDivisionChange(e.target.value)}
+  //           style={{
+  //             padding: '12px 20px',
+  //             fontSize: '16px',
+  //             borderRadius: '8px',
+  //             border: '2px solid #007bff',
+  //             minWidth: '250px',
+  //             backgroundColor: 'white',
+  //             fontWeight: '500'
+  //           }}
+  //         >
+  //           <option value="">📋 Select Division</option>
+  //           {divisions.map((division, index) => (
+  //             <option key={index} value={division}>
+  //               📍 {division}
+  //             </option>
+  //           ))}
+  //         </select>
+  //       )}
+  //     </div>
+  //   );
+  // }
 
   return (
     <div>
       {/* Division Selector for BH/SBUH */}
-      {(role === 'BH' || role === 'SBUH') && divisions.length > 0 && (
-        <div style={{
+      {/* {(role === 'BH' || role === 'SBUH') && divisions.length > 0 && (
+          <div style={{
           padding: '20px',
           backgroundColor: '#f8f9fa',
           borderRadius: '12px',
@@ -352,8 +352,8 @@ export default function Performance() {
         }}>
           <label style={{ 
             fontWeight: '600', 
-            marginRight: '15px',
-            fontSize: '16px',
+            marginRight: '10px',
+            fontSize: '13px',
             color: '#495057'
           }}>
             📍 Select Division: 
@@ -363,7 +363,7 @@ export default function Performance() {
             onChange={(e) => handleDivisionChange(e.target.value)}
             style={{
               padding: '12px 20px',
-              fontSize: '16px',
+              fontSize: '13px',
               borderRadius: '8px',
               border: '2px solid #007bff',
               minWidth: '250px',
@@ -381,16 +381,27 @@ export default function Performance() {
           </select>
           {selectedDivision && (
             <div style={{ 
-              marginTop: '10px', 
+              marginTop: '5px', 
               color: '#28a745', 
-              fontSize: '14px',
+              fontSize: '12px',
               fontWeight: '500'
             }}>
               ✅ Selected: <strong>{selectedDivision}</strong>
             </div>
           )}
         </div>
-      )}
+      )} */}
+       {division && (
+            <div style={{ 
+              marginTop: '5px', 
+              color: '#28a745', 
+              fontSize: '12px',
+              fontWeight: '500',
+              textAlign:'center'
+            }}>
+              ✅ Selected: <strong>{division}</strong>
+            </div>
+          )}
 
       <div className="table-box">
         {role === "BE" && (
@@ -733,7 +744,7 @@ export default function Performance() {
                       <tr>
                         <td>2%</td>
                         <td rowSpan={2}><b>MSR Compliance</b></td>
-                        <td>% of headquarters audited</td>
+                        <td>% of headquarters of MSP (for HQ) <br/>vs Target taken cumulatively by BH</td>
                         <td>90%</td>
 
                         <td>{bhBeData?.MSP_Compliance_Territories}</td>
@@ -744,7 +755,7 @@ export default function Performance() {
 
                       <tr>
                         <td>2%</td>
-                        <td>% of headquarters compliant</td>
+                        <td>% of headquarters having MSR compliance<br/> with respect to Average Secondary Sales</td>
                         <td>90%</td>
                         <td>{bhBeData?.MSR_Compliance_Territories}</td>
                         <td>{bhBeData?.MSR_Compliance_Territories_Score}</td>
@@ -755,7 +766,7 @@ export default function Performance() {
                       <tr>
                         <td>3%</td>
                         <td><b>BE</b></td>
-                        <td># of BE Active Vs Sanctioned</td>
+                        <td># of BE Active Vs Sanctioned Strength</td>
                         <td>100%</td>
                         <td>{bhBeData?.BE_Active_vs_Sanctioned}</td>
                         <td>{bhBeData?.BE_Active_vs_Sanctioned_Score}</td>
@@ -766,7 +777,7 @@ export default function Performance() {
                       <tr>
                         <td>4%</td>
                         <td><b>BM & BL</b></td>
-                        <td># of BM & BL Active Vs</td>
+                        <td># of BM & BL Active Vs Sanctioned Strength</td>
                         <td>100%</td>
                         <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned}</td>
                         <td>{bhBeData?.BM_BL_Active_Vs_Sanctioned_Score}</td>
@@ -789,7 +800,10 @@ export default function Performance() {
           </div>
         )}
 
+ 
+
       </div>
+      
     </div>
   );
 }
