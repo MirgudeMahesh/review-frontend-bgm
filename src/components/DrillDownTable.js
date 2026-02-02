@@ -104,6 +104,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
       return [
         ...baseMetrics,
         { value: "Deksel_Midmonth_Qty", label: "Deksel Midmonth Qty" },
+        { value: "Deksel_Commitment", label: "Deksel Commitment" }
       ];
     }
 
@@ -112,6 +113,8 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
         ...baseMetrics,
         { value: "Voltaneuron_Midmonth_Qty", label: "Voltaneuron Midmonth Qty" },
         { value: "Proaxen_Midmonth_Qty", label: "Proaxen Midmonth Qty" },
+         { value: "Voltaneuron_Vasoneuron_Commitment", label: "Voltaneuron Commitment" },
+        { value: "Proaxen_Commitment", label: "Proaxen Commitment" },
       ];
     }
 
@@ -119,8 +122,12 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
       return [
         ...baseMetrics,
         { value: "Deksel_Midmonth_Qty", label: "Deksel Midmonth Qty" },
-        { value: "Voltaneuron_Midmonth_Qty", label: "Voltaneuron Midmonth Qty" },
+        
+      { value: "Voltaneuron_Midmonth_Qty", label: "Voltaneuron Midmonth Qty" },
         { value: "Proaxen_Midmonth_Qty", label: "Proaxen Midmonth Qty" },
+        { value: "Deksel_Commitment", label: "Deksel Commitment" },
+         { value: "Voltaneuron_Vasoneuron_Commitment", label: "Voltaneuron Commitment" },
+        { value: "Proaxen_Commitment", label: "Proaxen Commitment" },
       ];
     }
 
@@ -167,6 +174,10 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
         Deksel_Midmonth_Qty: "deksel_midmonth_qty",
         Voltaneuron_Midmonth_Qty: "voltaneuron_midmonth_qty",
         Proaxen_Midmonth_Qty: "proaxen_midmonth_qty",
+        Deksel_Commitment: "deksel_commitment",
+          Voltaneuron_Vasoneuron_Commitment: "voltaneuron_vasoneuron_commitment",
+        Proaxen_Commitment: "proaxen_commitment"
+      
       };
 
       const response = await fetch("https://review-backend-bgm.onrender.com/updateProductQty", {
@@ -229,7 +240,7 @@ const DrillDownTable = ({ childrenData, level, appliedMetric, maxDepth: maxDepth
   const allowedMetrics = getAllowedMetrics();
 
   const isProductQtyMetric = (metric) =>
-    ["Deksel_Midmonth_Qty", "Voltaneuron_Midmonth_Qty", "Proaxen_Midmonth_Qty"].includes(metric);
+    ["Deksel_Midmonth_Qty", "Voltaneuron_Midmonth_Qty", "Proaxen_Midmonth_Qty","Deksel_Commitment","Voltaneuron_Vasoneuron_Commitment","Proaxen_Commitment"].includes(metric);
 
   // ---------- SIMPLIFIED: Leaf OR BM territory clickable ----------
   const isBM = (territory) => {
