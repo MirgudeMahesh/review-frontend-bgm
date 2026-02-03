@@ -157,7 +157,7 @@ export default function UserFinalReport() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="clickable-param" onClick={Home}>
+                        <td className="clickable-param1" onClick={Home}>
                           Business Performance
                         </td>
                         <td>35</td>
@@ -165,7 +165,7 @@ export default function UserFinalReport() {
                         <td>{fmt(score2)}</td>
                       </tr>
                       <tr>
-                        <td className="clickable-param" onClick={misc}>
+                        <td className="clickable-param1" onClick={misc}>
                           Business Hygiene & Demand Quality
                         </td>
                         <td>20</td>
@@ -173,7 +173,7 @@ export default function UserFinalReport() {
                         <td>{fmt(hygieneYTD)}</td>
                       </tr>
                       <tr>
-                        <td className="clickable-param" onClick={perform}>
+                        <td className="clickable-param1" onClick={perform}>
                           Team Building 
                         </td>
                         <td>20</td>
@@ -181,7 +181,7 @@ export default function UserFinalReport() {
                         <td>{fmt(effortYTD)}</td>
                       </tr>
                       <tr>
-                        <td className="clickable-param" onClick={commitment}>
+                        <td className="clickable-param1" onClick={commitment}>
                           Compliance & Reporting 
                         </td>
                         <td>25</td>
@@ -229,7 +229,7 @@ export default function UserFinalReport() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="clickable-param" onClick={Home}>
+                        <td className="clickable-param1" onClick={Home}>
                           Business Performance
                         </td>
                         <td>{userRole === 'BM' ? 50 : 50}</td>
@@ -237,7 +237,7 @@ export default function UserFinalReport() {
                         <td>{fmt(score2)}</td>
                       </tr>
                       <tr>
-                        <td className="clickable-param" onClick={perform}>
+                        <td className="clickable-param1" onClick={perform}>
                           Efforts and Effectiveness
                         </td>
                         <td>{userRole === 'BM' ? 40 : 50}</td>
@@ -246,7 +246,7 @@ export default function UserFinalReport() {
                       </tr>
                       {userRole === 'BM' && (
                         <tr>
-                          <td className="clickable-param" onClick={misc}>
+                          <td className="clickable-param1" onClick={misc}>
                             Hygiene
                           </td>
                           <td>10</td>

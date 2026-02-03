@@ -1728,6 +1728,12 @@ margin:15px;
   font-weight: 500;
   transition: color 0.2s ease;
 }
+.efficiency-table td.clickable-param1 {
+  color: #000000;
+  
+  font-weight: 500;
+  
+}
 
 .efficiency-table td.clickable-param:hover {
   color: #0056b3;
