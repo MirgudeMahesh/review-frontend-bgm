@@ -91,7 +91,7 @@ export default function SubNavbar() {
             Efforts
           </Link>
         </li>
-        {userRole === 'BM'|| userRole === 'BL' && (
+        {(userRole === 'BM'|| userRole === 'BL') && (
           <li>
             <Link to={`/profile/${name}/Hygine?ec=${encoded}&pec=${profileEncodedTerritory}`}>
               Hygiene
